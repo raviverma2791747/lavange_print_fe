@@ -45,7 +45,7 @@
             <div class="font-semibold">Total</div>
             <div>
               {formatCurrency(
-                order.products.reduce((a, b) => a + b.quantity * b.price, 0)
+                order.items.reduce((a, b) => a + b.quantity * b.price, 0)
               )}
             </div>
           </div>
@@ -59,8 +59,8 @@
           </div>
         </div>
         <div>
-          {#each order.products as product}
-            {product.price}
+          {#each order.items as item}
+            {item.price}
           {/each}
         </div>
       </div>

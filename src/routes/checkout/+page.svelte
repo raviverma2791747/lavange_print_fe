@@ -22,7 +22,7 @@
       method: "POST",
       token: $token_store,
       payload: {
-        products: $cart_store.map((ci) => {
+        items: $cart_store.map((ci) => {
           return {
             product: ci.product._id,
             quantity: ci.quantity,

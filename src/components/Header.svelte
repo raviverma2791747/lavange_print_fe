@@ -58,6 +58,8 @@
         >
           {#if !$user_info_store}
             <p class="px-4 py-2">Please sign in to view your cart</p>
+          {:else if $cart_store.length === 0}
+            <p class="px-4 py-2 text-center">Your cart is empty</p>
           {:else}
             {#each $cart_store.slice(0, 3) as cart_item}
               <a
@@ -77,14 +79,12 @@
                 </div>
               </a>
             {/each}
-            {#if $cart_store.length > 3}
-              <a
-                href="/cart"
-                class="block w-full p-2 cursor-pointer hover:bg-gray-200 text-center underline"
-              >
-                View All
-              </a>
-            {/if}
+            <a
+              href="/cart"
+              class="block w-full p-2 cursor-pointer hover:bg-gray-200 text-center underline"
+            >
+              View All
+            </a>
           {/if}
         </div>
       </Dropdown>
@@ -101,6 +101,8 @@
         >
           {#if !$user_info_store}
             <p class="px-4 py-2">Please sign in to view your wishlist</p>
+          {:else if $wishlist_store.length === 0}
+            <p class="px-4 py-2 text-center">Your wishlist is empty</p>
           {:else}
             {#each $wishlist_store.slice(0, 3) as product}
               <a
@@ -119,14 +121,12 @@
                 </div>
               </a>
             {/each}
-            {#if $wishlist_store.length > 3}
-              <a
-                href="/wishlist"
-                class="block w-full p-2 cursor-pointer hover:bg-gray-200 text-center underline"
-              >
-                View All
-              </a>
-            {/if}
+            <a
+              href="/wishlist"
+              class="block w-full p-2 cursor-pointer hover:bg-gray-200 text-center underline"
+            >
+              View All
+            </a>
           {/if}
         </div>
       </Dropdown>

@@ -5,7 +5,7 @@
   import { formatCurrency } from "../../../helper/utils";
   import HeartIcon from "../../../components/svg/HeartIcon.svelte";
   import ShoppingCartIcon from "../../../components/svg/ShoppingCartIcon.svelte";
-  import { cart_store, token_store } from "../../../helper/store";
+  import { cart_store, header_title_store, token_store } from "../../../helper/store";
   import { product_cache } from "../../../helper/cache_store";
   import {
     getProduct,
@@ -101,6 +101,10 @@
 
   // export let csr=true;
   // export let ssr=false;
+
+  $: {
+    $header_title_store = "Product";
+  }
 </script>
 
 <div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 py-4 text-gray-800">

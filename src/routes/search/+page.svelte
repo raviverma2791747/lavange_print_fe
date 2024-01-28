@@ -19,8 +19,8 @@
     categories: [],
     collections: [],
     sizes: [],
-    sort: 'createdAt',
-    order: 'desc'
+    sort: "createdAt",
+    order: "desc",
   };
 
   const initFilters = async () => {
@@ -131,8 +131,8 @@
       {/if}
     </h1>
   </div>
-  <div class="grid grid-cols-4">
-    <div class="col-span-1">
+  <div class="grid md:grid-cols-4">
+    <div class="col-span-1 hidden md:block">
       <div class="mb-4 font-semibold">Filters</div>
       <div class="mb-4">
         <div class="mb-2 font-semibold">Categories</div>
@@ -196,20 +196,19 @@
         </div>
       </div>
     </div>
-    <div class="col-span-3">
+    <div class=" md:col-span-3">
       <div class="mb-4 font-semibold flex justify-end">
         <div class="flex gap-2 items-center">
           <div>Filters</div>
           <select
             class="py-3 px-4 pe-9 block w-full border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-          
-          on:change={(e)=>{
-            let v =  e.target.value.split("-");
-            let s =  v[0];
-            let d =  v[1];
-            filters = {...filters, sort: s, order: d};
-          }}
-            >
+            on:change={(e) => {
+              let v = e.target.value.split("-");
+              let s = v[0];
+              let d = v[1];
+              filters = { ...filters, sort: s, order: d };
+            }}
+          >
             <option value="createdAt-desc">New</option>
             <option value="price-desc">Price: High to Low</option>
             <option value="price-asc">Price: Low to High</option>

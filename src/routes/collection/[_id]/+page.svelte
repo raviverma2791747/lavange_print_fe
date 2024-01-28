@@ -5,6 +5,7 @@
   import { httpClient } from "../../../helper/httpClient";
   import ProductCard from "../../../components/ProductCard.svelte";
   import { getCollection } from "../../../helper/endpoints";
+  import { header_title_store } from "../../../helper/store";
 
   let collection;
   let loading = true;
@@ -15,6 +16,10 @@
     collection = response.data.collection ?? [];
     loading = false;
   });
+
+  $: {
+    $header_title_store = "Collection";
+  }
 </script>
 
 <div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 py-4">

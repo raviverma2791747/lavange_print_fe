@@ -5,7 +5,11 @@
   import { formatCurrency } from "../../../helper/utils";
   import HeartIcon from "../../../components/svg/HeartIcon.svelte";
   import ShoppingCartIcon from "../../../components/svg/ShoppingCartIcon.svelte";
-  import { cart_store, header_title_store, token_store } from "../../../helper/store";
+  import {
+    cart_store,
+    header_title_store,
+    token_store,
+  } from "../../../helper/store";
   import { product_cache } from "../../../helper/cache_store";
   import {
     getProduct,
@@ -185,10 +189,10 @@
                     {#each variantOption.options as option}
                       <div class="cursor-pointer">
                         <button
-                          class="border rounded-full w-fit p-0.5"
+                          class="border-2 rounded-full w-fit p-0.5"
                           class:border-gray-200={option.value !==
                             variantFilter[variantOption.name]}
-                          class:border-black={option.value ===
+                          class:border-purple-500={option.value ===
                             variantFilter[variantOption.name]}
                           on:click={() => {
                             variantFilter[variantOption.name] = option.value;
@@ -210,7 +214,17 @@
                     {#each variantOption.options as option}
                       <button
                         class="hover:scale-105 border border-gray-600 p-2 rounded-lg transition duration-100 ease-in-out cursor-pointer text-sm text-gray-600"
-                        class:bg-gray-300={option.value ===
+                        class:border-purple-500={option.value ===
+                          variantFilter[variantOption.name]}
+                        on:click={() => {
+                          variantFilter[variantOption.name] = option.value;
+                        }}
+                        class:border-2={option.value ===
+                          variantFilter[variantOption.name]}
+                        on:click={() => {
+                          variantFilter[variantOption.name] = option.value;
+                        }}
+                        class:text-purple-500={option.value ===
                           variantFilter[variantOption.name]}
                         on:click={() => {
                           variantFilter[variantOption.name] = option.value;
@@ -243,7 +257,7 @@
           >
           <input
             type="number"
-            class="py-3 px-4 block w-full lg:w-auto border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+            class="py-3 px-4 block w-full lg:w-auto border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
             min="1"
             step="1"
             max="100"
@@ -276,7 +290,7 @@
           <div class="relative">
             <input
               type="number"
-              class="w-full py-3 px-4 block border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+              class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
               min="0"
               step="1"
               value="1"

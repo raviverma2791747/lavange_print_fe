@@ -12,13 +12,37 @@
     user_info_store,
     wishlist_store,
     cart_store,
+    header_title_store,
   } from "../helper/store";
   import SearchIcon from "./svg/SearchIcon.svelte";
+  import SliderIcon from "./svg/SliderIcon.svelte";
+  import { page } from "$app/stores";
+  import ChevronLeft from "./svg/ChevronLeft.svelte";
+
+  let hidden = false;
+  let innnerWidth;
+
+  $: {
+    if (innnerWidth < 768) {
+      if ($page.url.pathname === "/search" || $page.url.pathname === "/") {
+        hidden = false;
+      } else {
+        hidden = true;
+      }
+    } else {
+      hidden = false;
+    }
+  }
 </script>
 
+<svelte:window bind:innerWidth={innnerWidth} />
+
 <header class="border-b border-gray-200 sticky top-0 bg-white z-50">
-  <div class="max-w-7xl mx-auto flex items-center py-2 px-4 7xl:px-0">
-    <div class="hidden lg:block">
+  <div
+    class:hidden={hidden}
+    class="max-w-7xl mx-auto flex items-center py-2 px-4 7xl:px-0 gap-4"
+  >
+    <div class="hidden md:block">
       <a class="flex-none text-xl font-semibold" href="/"> Brand</a>
     </div>
     <div class="grow">
@@ -44,7 +68,12 @@
         </div>
       </div>
     </div>
-    <div class="hidden lg:flex gap-4">
+    <div class="md:hidden">
+      <button class="text-gray-600 hover:text-purple-500">
+        <SliderIcon />
+      </button>
+    </div>
+    <div class="hidden md:flex gap-4">
       <Dropdown
         class="inline-flex"
         triggerClass="hover:text-purple-500 text-gray-600"
@@ -204,6 +233,18 @@
           {/if}
         </div>
       </Dropdown>
+    </div>
+  </div>
+
+  <div
+    class:hidden={!hidden}
+    class="max-w-7xl mx-auto px-4 py-[15.2px] 7xl:px-0 flex items-center"
+  >
+    <button>
+      <ChevronLeft class="text-gray-600 w-8 h-8" />
+    </button>
+    <div class="grow text-xl font-semibold text-center">
+      {$header_title_store}
     </div>
   </div>
 </header>

@@ -11,3 +11,4 @@ export const searchFilters_store = writable({
   collections: [],
   sizes: [],
 });
+export const header_title_store = writable("");

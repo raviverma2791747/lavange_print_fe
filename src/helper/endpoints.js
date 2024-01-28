@@ -5,6 +5,7 @@ export const removeUserWishlist = "/private/user/wishlist/remove";
 export const addUserWishlist = "/private/user/wishlist/add";
 export const getUserCart = "/private/user/cart";
 export const addUserCart = "/private/user/cart/add";
+export const removeUserCart = "/private/user/cart/remove";
 export const getUserOrder = "/private/user/order";
 export const fetchUserOrder = "/private/user/order";
 export const addUserAddress = "/private/user/address";

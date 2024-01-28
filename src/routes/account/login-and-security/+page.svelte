@@ -2,7 +2,7 @@
   //@ts-nocheck
   import { httpClient } from "../../../helper/httpClient";
   import { updateUserPassword } from "../../../helper/endpoints";
-  import { token_store, user_info_store } from "../../../helper/store";
+  import { header_title_store, token_store, user_info_store } from "../../../helper/store";
 
   let edit_password = false;
   let current_password = "";
@@ -27,11 +27,15 @@
       }
     }
   };
+
+  $: {
+    $header_title_store = "Login & Security";
+  }
 </script>
 
 {#if $user_info_store}
   <div class="bg-white max-w-3xl mx-auto px-4 3xl:px-0">
-    <h1 class="font-semibold text-3xl text-center mb-4">Login & Security</h1>
+    <h1 class="hidden md:block font-semibold text-3xl text-center mb-4">Login & Security</h1>
     <div class="mb-4 flex justify-between">
       <div class="font-semibold">Password</div>
       <button

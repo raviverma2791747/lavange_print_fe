@@ -4,7 +4,7 @@
   import PlusIcon from "../../../components/svg/PlusIcon.svelte";
   import { httpClient } from "../../../helper/httpClient";
   import { getUserInfo } from "../../../helper/endpoints";
-  import { token_store, user_info_store } from "../../../helper/store";
+  import { header_title_store, token_store, user_info_store } from "../../../helper/store";
 
   const initUserInfo = async () => {
     const response = await httpClient(getUserInfo);
@@ -16,11 +16,15 @@
       token_store.set(null);
     }
   };
+
+  $: {
+    $header_title_store = "Address";
+  }
 </script>
 
 {#if $user_info_store}
   <div class="bg-white max-w-5xl mx-auto px-4 5xl:px-0">
-    <h1 class="font-semibold text-3xl text-center mb-4">Address</h1>
+    <h1 class="hidden md:block font-semibold text-3xl text-center mb-4">Address</h1>
 
     <div class="grid grid-cols-4 gap-4">
       <a

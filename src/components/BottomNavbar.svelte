@@ -7,41 +7,48 @@
   import SearchIcon from "./svg/SearchIcon.svelte";
   import ShoppingCartIcon from "./svg/ShoppingCartIcon.svelte";
   import UserIcon from "./svg/UserIcon.svelte";
+  import { page } from "$app/stores";
 </script>
 
+<div class="h-16 md:hidden"></div>
 <div
   class="fixed bottom-0 w-full z-50 bg-white shadow border-t border-gray-200 text-gray-600 md:hidden"
 >
   <div class="flex justify-center gap-2">
     <a
       href="/search"
-      class="p-2 hover:text-purple-500 flex flex-col items-center cursor-pointer"
+      class="p-2 hover:text-purple-500 hover:bg-purple-50 flex flex-col items-center cursor-pointer"
+      class:text-purple-500={$page.url.pathname === "/search"}
     >
       <SearchIcon class="h-6 w-6" />
       <div class="text-sm">Search</div>
     </a>
     <a
       href="/cart"
-      class="p-2 hover:text-purple-500 flex flex-col items-center cursor-pointer"
+      class="p-2 hover:text-purple-500 hover:bg-purple-50 flex flex-col items-center cursor-pointer"
+      class:text-purple-500={$page.url.pathname === "/cart"}
     >
       <ShoppingCartIcon class="h-6 w-6" />
       <div class="text-sm">Cart</div>
     </a>
     <a
       href="/"
-      class="p-2 hover:text-purple-500 flex flex-col items-center cursor-pointer"
+      class:text-purple-500={$page.url.pathname === "/"}
+      class="p-2 hover:text-purple-500 hover:bg-purple-50 flex flex-col items-center cursor-pointer"
     >
       <HouseIcon class="h-6 w-6" />
       <div class="text-sm">Home</div>
     </a>
     <a
       href="/wishlist"
-      class="p-2 hover:text-purple-500 flex flex-col items-center cursor-pointer"
+      class:text-purple-500={$page.url.pathname === "wishlist"}
+      class="p-2 hover:text-purple-500 hover:bg-purple-50 flex flex-col items-center cursor-pointer"
     >
       <HeartIcon class="h-6 w-6" />
       <div class="text-sm">Wishlist</div>
     </a>
     <button
+    class:text-purple-500={$page.url.pathname === "/account"}
       on:click={() => {
         if (!$user_info_store) {
           $login_signup_modal_open = true;
@@ -49,7 +56,7 @@
           goto("/account");
         }
       }}
-      class="p-2 hover:text-purple-500 flex flex-col items-center cursor-pointer"
+      class="p-2 hover:text-purple-500 hover:bg-purple-50 flex flex-col items-center cursor-pointer"
     >
       {#if $user_info_store}
         <div
@@ -63,7 +70,13 @@
       {:else}
         <UserIcon class="h-6 w-6" />
       {/if}
-      <div class="text-sm"> {#if $user_info_store} Account {:else} Log in {/if}</div>
+      <div class="text-sm">
+        {#if $user_info_store}
+          Account
+        {:else}
+          Log in
+        {/if}
+      </div>
     </button>
   </div>
 </div>

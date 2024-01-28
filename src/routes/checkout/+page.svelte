@@ -1,6 +1,11 @@
 <script>
   //@ts-nocheck
-  import { cart_store, token_store, user_info_store } from "../../helper/store";
+  import {
+    cart_store,
+    header_title_store,
+    token_store,
+    user_info_store,
+  } from "../../helper/store";
   import { formatCurrency } from "../../helper/utils";
   import { httpClient } from "../../helper/httpClient";
   import { createUserOrder } from "../../helper/endpoints";
@@ -58,12 +63,16 @@
       return a + b.quantity * price;
     }, 0);
   }
+
+  $: {
+    $header_title_store = "Checkout";
+  }
 </script>
 
 {#if $cart_store.length > 0}
   <div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 pt-4">
-    <div class="grid grid-cols-3 gap-4">
-      <div class="col-span-2">
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="col-span-3 md:col-span-2">
         <div class="mb-4">
           <h1 class="font-semibold text-lg mb-4">Billing Address</h1>
           <div class="flex flex-col gap-4">
@@ -170,7 +179,7 @@
           </div>
         </div>
       </div>
-      <div class="">
+      <div class="col-span-3 md:col-span-1">
         <div class="border border-gray-200 rounded-lg p-4">
           <div class="font-semibold mb-4">Order Summary</div>
           <div class="text-sm flex flex-col gap-4 mb-2">

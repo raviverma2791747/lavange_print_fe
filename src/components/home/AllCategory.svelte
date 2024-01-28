@@ -1,5 +1,6 @@
 <script>
   //@ts-nocheck
+  import Carousel from "../Carousel.svelte";
   import ChevronLeft from "../svg/ChevronLeft.svelte";
   import ChevronRight from "../svg/ChevronRight.svelte";
 
@@ -8,13 +9,11 @@
 </script>
 
 {#if loading}
-  <div class="flex gap-2">
+  <Carousel gap={8} disabled>
     {#each Array(10) as A}
-      <div class="bg-gray-200 w-24 animate-pulse rounded-lg">
-        &nbsp;
-      </div>
+      <div class="bg-gray-200 w-[110px] animate-pulse rounded-lg shrink-0">&nbsp;</div>
     {/each}
-  </div>
+  </Carousel>
 {:else}
   <div class="relative">
     <div class="flex gap-2">

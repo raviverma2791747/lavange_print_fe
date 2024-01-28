@@ -32,7 +32,7 @@
 </script>
 
 <div class="bg-white max-w-7xl mx-auto px-4 lg:px-0">
-  <h1 class="font-semibold text-3xl text-center mb-4">Orders</h1>
+  <h1 class="hidden md:block  font-semibold text-3xl text-center mb-4">Orders</h1>
   <div>
     {#each orders as order}
       <div class="border border-gray-200 rounded-lg">

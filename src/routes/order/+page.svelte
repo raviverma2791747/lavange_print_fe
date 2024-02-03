@@ -13,9 +13,11 @@
   import { goto } from "$app/navigation";
   import { DATE_FORMAT, DATE_TIME_FORMAT } from "../../helper/constants";
   import CopyIcon from "../../components/svg/CopyIcon.svelte";
+  import { order_cache } from "../../helper/cache_store";
   let orders = [];
 
   const initOrders = async () => {
+    //loading = true;
     const response = await httpClient(fetchUserOrder, {
       method: "GET",
       token: $token_store,
@@ -23,6 +25,7 @@
     if (response.status === 200) {
       orders = response.data.orders ?? [];
     }
+   // loading = false;
   };
 
   // onMount(async () => {

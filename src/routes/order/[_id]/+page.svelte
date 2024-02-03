@@ -7,18 +7,24 @@
   import { token_store, header_title_store } from "../../../helper/store";
   import { getUserOrder } from "../../../helper/endpoints";
   import { DATE_FORMAT } from "../../../helper/constants";
+  import { order_cache } from "../../../helper/cache_store";
 
   let loading = true;
   let order = {};
 
   const initOrder = async (order_id) => {
     loading = true;
-    const response = await httpClient(`${getUserOrder}/${order_id}`, {
-      method: "GET",
-      token: $token_store,
-    });
-    if (response.status === 200) {
-      order = response.data.order;
+    if ($order_cache.get(order_id)) {
+      order = $order_cache.get(order_id);
+    } else {
+      const response = await httpClient(`${getUserOrder}/${order_id}`, {
+        method: "GET",
+        token: $token_store,
+      });
+      if (response.status === 200) {
+        order = response.data.order;
+        $order_cache.set(order_id, order);
+      }
     }
     loading = false;
   };
@@ -26,8 +32,8 @@
   $: {
     initOrder($page.params._id);
   }
-  
-  $ : {
+
+  $: {
     $header_title_store = "Order";
   }
 </script>

@@ -14,7 +14,7 @@
 <div
   class="fixed bottom-0 w-full z-50 bg-white shadow border-t border-gray-200 text-gray-600 md:hidden"
 >
-  <div class="flex justify-center gap-2">
+  <div class="grid grid-cols-5 gap-2 sm:mx-8">
     <a
       href="/search"
       class="p-2 hover:text-purple-500 hover:bg-purple-50 flex flex-col items-center cursor-pointer"
@@ -48,7 +48,7 @@
       <div class="text-sm">Wishlist</div>
     </a>
     <button
-    class:text-purple-500={$page.url.pathname === "/account"}
+      class:text-purple-500={$page.url.pathname === "/account"}
       on:click={() => {
         if (!$user_info_store) {
           $login_signup_modal_open = true;

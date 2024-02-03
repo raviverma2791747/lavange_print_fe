@@ -39,7 +39,7 @@
 
 <header class="border-b border-gray-200 sticky top-0 bg-white z-50">
   <div
-    class:hidden={hidden}
+    class:hidden
     class="max-w-7xl mx-auto flex items-center py-2 px-4 7xl:px-0 gap-4"
   >
     <div class="hidden md:block">

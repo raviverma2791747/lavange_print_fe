@@ -28,7 +28,7 @@
 
     if (response.status === 200) {
       user_info_store.set(response.data.user);
-     // login_signup_modal_open.set(false);
+      // login_signup_modal_open.set(false);
     } else {
       token_store.set(null);
     }

@@ -11,8 +11,8 @@
   class="block rounded-lg bg-white hover:shadow-lg border border-gray-200 w-full"
 >
   <div class="aspect-square bg-gray-200 rounded-t-lg animate-pulse"></div>
-  <div class="pb-4 pt-2">
-    <div class="flex px-2 mb-2">
+  <div class="pb-2 pt-2">
+    <div class="flex px-2 h-[30.4px] items-start">
       <div class="font-semibold text-sm grow truncate">
         <div class="bg-gray-200 animate-pulse rounded-lg w-6/12">&nbsp;</div>
       </div>

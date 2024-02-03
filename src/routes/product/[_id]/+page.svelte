@@ -21,6 +21,7 @@
     addUserWishlist,
     getUserWishlist,
   } from "../../../helper/endpoints";
+  import Carousel from "../../../components/Carousel.svelte";
 
   let product;
   let quantity = 1;
@@ -29,6 +30,9 @@
   let active_variant = null;
   let variantsMap;
   let variantFilter;
+  let active_tab = 0;
+  const MAX_QUANTITY = 10;
+  const MIN_QUANTITY = 1;
 
   const initProduct = async (product_id) => {
     loading = true;
@@ -39,6 +43,8 @@
       const data = await httpClient(`${getProduct}/${product_id}`);
       product = data["data"]["product"] ?? null;
       $product_cache.set(product_id, product);
+
+      console.log(product.category._id);
     }
 
     if (product.variants) {
@@ -152,8 +158,28 @@
 </script>
 
 <div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 py-4 text-gray-800">
-  <div class="mb-4">Home / T-Shirt / Cotton</div>
-  <div class="grid lg:grid-cols-5 gap-8 mb-4">
+  <div class="mb-4">
+    {#if loading}
+      <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
+        &nbsp;
+      </div>
+      /
+      <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
+        &nbsp;
+      </div>
+      /
+      <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
+        &nbsp;
+      </div>
+    {:else}
+      <a class="hover:text-purple-500" href="/">Home</a> /
+      <a
+        class="hover:text-purple-500"
+        href={`/category/${product.category._id}`}>{product.category.name}</a
+      >/ {product.title}
+    {/if}
+  </div>
+  <div class="lg:grid lg:grid-cols-5 gap-8 mb-4">
     <div class="lg:col-span-3">
       {#if loading}
         <div
@@ -168,22 +194,24 @@
               alt={`${product.title}-${active_asset}`}
             />
           </div>
-          <div class="flex gap-4">
-            {#each product.assets as asset, index}
-              <button
-                class="hover:scale-105 transition w-20 cursor-pointer"
-                on:click={() => {
-                  active_asset = index;
-                }}
-              >
-                <img
-                  class="rounded-lg border border-gray-200 w-full aspect-square object-contain"
-                  src={asset.url}
-                  alt={`${product.title}-${index}`}
-                />
-              </button>
-            {/each}
-          </div>
+          {#if product.assets.length > 1}
+            <Carousel>
+              {#each product.assets as asset, index}
+                <button
+                  class="hover:scale-105 transition w-20 cursor-pointer shrink-0"
+                  on:click={() => {
+                    active_asset = index;
+                  }}
+                >
+                  <img
+                    class="rounded-lg border border-gray-200 w-full aspect-square object-contain"
+                    src={asset.url}
+                    alt={`${product.title}-${index}`}
+                  />
+                </button>
+              {/each}
+            </Carousel>
+          {/if}
         </div>
       {/if}
     </div>
@@ -295,18 +323,71 @@
           <label for="quantity" class="block text-sm font-semibold mb-2"
             >Quantity</label
           >
-          <input
-            type="number"
-            class="py-3 px-4 block w-full lg:w-auto border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-            min="1"
-            step="1"
-            max="100"
-            name="quantity"
-            placeholder="Quantity"
-            bind:value={quantity}
-          />
+
+          <div class="bg-white border border-gray-200 rounded-lg w-32">
+            <div class="w-full flex justify-between items-center gap-x-1">
+              <div class="grow py-2 px-3">
+                <input
+                  class="w-full p-0 bg-transparent border-0 text-gray-800 focus:ring-0 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  type="number"
+                  min={MIN_QUANTITY}
+                  max={MAX_QUANTITY}
+                  bind:value={quantity}
+                />
+              </div>
+              <div
+                class="flex items-center -gap-y-px divide-x divide-gray-200 border-s border-gray-200"
+              >
+                <button
+                  on:click={() => {
+                    if (quantity > MIN_QUANTITY) {
+                      quantity--;
+                    }
+                  }}
+                  type="button"
+                  class="w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm font-medium last:rounded-e-lg bg-white text-gray-800 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <svg
+                    class="flex-shrink-0 w-3.5 h-3.5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"><path d="M5 12h14" /></svg
+                  >
+                </button>
+                <button
+                  on:click={() => {
+                    if (quantity < MAX_QUANTITY) {
+                      quantity++;
+                    }
+                  }}
+                  type="button"
+                  class="w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm font-medium last:rounded-e-lg bg-white text-gray-800 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <svg
+                    class="flex-shrink-0 w-3.5 h-3.5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><path d="M5 12h14" /><path d="M12 5v14" /></svg
+                  >
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="flex gap-4 mb-4">
+        <div class="flex flex-col md:flex-row gap-4 mb-4">
           <button
             type="button"
             class="grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
@@ -328,13 +409,12 @@
           <label for="pincode" class="block text-sm font-semibold mb-2"
             >Pincode</label
           >
-          <div class="relative">
+          <div class="relative w-36">
             <input
               type="number"
-              class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+              class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               min="0"
               step="1"
-              value="1"
               placeholder="Pincode"
               name="pincode"
             />
@@ -349,11 +429,34 @@
       {/if}
     </div>
   </div>
-  <div>
-    {#if !loading}
-      <p>
-        {product.description}
-      </p>
-    {/if}
-  </div>
+
+  {#if !loading}
+    <div>
+      <div class="flex mb-2 border-b-2 border-gray-200">
+        <button
+          class="font-semibold hover:bg-purple-50 px-4 py-2"
+          class:text-purple-500={active_tab === 0}
+          on:click={() => {
+            active_tab = 0;
+          }}>Description</button
+        >
+        <button
+          class="font-semibold hover:bg-purple-50 px-4 py-2"
+          class:text-purple-500={active_tab === 1}
+          on:click={() => {
+            active_tab = 1;
+          }}>Specification</button
+        >
+      </div>
+      {#if active_tab === 0}
+        <p class="text-sm">
+          {product.description}
+        </p>
+      {:else if active_tab === 1}
+        <p class="text-sm">
+          {product.specification}
+        </p>
+      {/if}
+    </div>
+  {/if}
 </div>

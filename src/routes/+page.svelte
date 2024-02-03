@@ -35,17 +35,18 @@
   });
 </script>
 
-<div class="border-b border-gray-200 mb-4 sticky top-[62.4px] z-30">
+<div class="border-b border-gray-200 mb-4 sticky top-[60.4px] z-50">
   <div class="bg-white max-w-7xl mx-auto py-4 px-4 7xl:px-0">
     <AllCategory categories={homeConfig.featuredCategories} {loading} />
   </div>
 </div>
+
 <div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 flex flex-col gap-8 mb-4">
-  <div >
+  <div>
     <Announcement announcements={homeConfig.featuredAnnouncements} {loading} />
   </div>
 
-  <div >
+  <div>
     <div class="bg-gradient-to-b from-purple-300 to-purple-50 rounded-lg p-4">
       <div class="mb-4">
         <h1 class="font-semibold text-xl md:text-3xl mb-4 text-gray-800">
@@ -66,7 +67,7 @@
           <Carousel slideWidth={128} gap={16}>
             {#each homeConfig.exploreProducts as product}
               <div class="w-32 shrink-0">
-                <ProductCard {product} hideWishlist hidePrice />
+                <ProductCard {product} hideWishlist hidePrice hideShare />
               </div>
             {/each}
           </Carousel>
@@ -100,7 +101,7 @@
       </div> -->
   </div>
 
-  <div >
+  <div>
     <h1 class="font-semibold text-xl md:text-3xl text-center mb-4">
       Explore Collections
     </h1>
@@ -125,7 +126,7 @@
     </div>
   </div>
 
-  <div >
+  <div>
     <h1 class="font-semibold text-xl md:text-3xl text-center mb-4">
       Best Sellers
     </h1>
@@ -153,7 +154,7 @@
     </div>
   </div>
 
-  <div >
+  <div>
     <h1 class="font-semibold text-xl md:text-3xl text-center mb-4">
       New Arrivals
     </h1>
@@ -178,7 +179,7 @@
     </div>
   </div>
   {#each homeConfig.featuredCollections as collection}
-    <div >
+    <div>
       <h1 class="font-semibold text-xl md:text-3xl text-center mb-4 capitalize">
         {collection.name} Collection
       </h1>

@@ -8,10 +8,11 @@
     removeUserWishlist,
     getUserWishlist,
   } from "../helper/endpoints";
-  import { token_store, wishlist_store } from "../helper/store";
+  import { token_store, wishlist_store, user_info_store,login_signup_modal_open } from "../helper/store";
   export let product;
   export let hidePrice = false;
   export let hideWishlist = false;
+
   let class_ = "";
   export { class_ as class };
 
@@ -30,17 +31,21 @@
   const addToWishlist = async (e) => {
     e.stopImmediatePropagation();
     e.preventDefault();
-    console.log("ok");
-    const response = await httpClient(addUserWishlist, {
-      method: "POST",
-      token: $token_store,
-      payload: {
-        productId: product._id,
-      },
-    });
 
-    if (response.status === 200) {
-      initWishlist();
+    if (!$user_info_store) {
+      $login_signup_modal_open = true;
+    } else {
+      const response = await httpClient(addUserWishlist, {
+        method: "POST",
+        token: $token_store,
+        payload: {
+          productId: product._id,
+        },
+      });
+
+      if (response.status === 200) {
+        initWishlist();
+      }
     }
   };
 
@@ -79,7 +84,7 @@
       {#if !hideWishlist}
         <div class="relative">
           <button
-            class=" hover:text-purple-500 hover:bg-purple-200 rounded-full "
+            class=" hover:text-purple-500 hover:bg-purple-200 rounded-full"
             on:click={addToWishlist}
           >
             <HeartIcon />

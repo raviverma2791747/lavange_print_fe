@@ -9,12 +9,17 @@
     cart_store,
     header_title_store,
     token_store,
+    login_signup_modal_open,
+    user_info_store,
+    wishlist_store,
   } from "../../../helper/store";
   import { product_cache } from "../../../helper/cache_store";
   import {
     getProduct,
     addUserCart,
     getUserCart,
+    addUserWishlist,
+    getUserWishlist,
   } from "../../../helper/endpoints";
 
   let product;
@@ -64,7 +69,23 @@
     }
   };
 
+  const initWishlist = async () => {
+    const response = await httpClient(getUserWishlist, {
+      token: $token_store,
+    });
+
+    if (response.status === 200) {
+      wishlist_store.set([...response.data.wishList]);
+    } else {
+      wishlist_store.set([]);
+    }
+  };
+
   const handleAddToCart = async () => {
+    if (!$user_info_store) {
+      $login_signup_modal_open = true;
+      return;
+    }
     const data = await httpClient(addUserCart, {
       method: "POST",
       token: $token_store,
@@ -78,6 +99,25 @@
 
     if (data.status === 200) {
       initCart();
+    }
+  };
+
+  const handleAddToWishlist = async () => {
+    if (!$user_info_store) {
+      $login_signup_modal_open = true;
+      return;
+    }
+
+    const response = await httpClient(addUserWishlist, {
+      method: "POST",
+      token: $token_store,
+      payload: {
+        productId: product._id,
+      },
+    });
+
+    if (response.status === 200) {
+      initWishlist();
     }
   };
 
@@ -278,6 +318,7 @@
           <button
             type="button"
             class=" grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-purple-600 text-purple-600 disabled:opacity-50 disabled:pointer-events-none"
+            on:click={handleAddToWishlist}
           >
             <HeartIcon />
             <span>Wish List</span>

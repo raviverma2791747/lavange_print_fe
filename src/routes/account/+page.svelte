@@ -10,6 +10,7 @@
     cart_store,
     header_title_store,
   } from "../../../src/helper/store";
+  import { order_cache } from "../../helper/cache_store";
 
   $: {
     $header_title_store = "Account";
@@ -70,6 +71,7 @@
           user_info_store.set(null);
           wishlist_store.set([]);
           cart_store.set([]);
+          $order_cache.clear();
           localStorage.removeItem("token");
         }}
         class="text-gray-800 flex items-center justify-center p-2 md:aspect-[4/3] border border-gray-200 rounded-lg hover:shadow"

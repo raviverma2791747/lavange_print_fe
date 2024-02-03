@@ -6,19 +6,32 @@
   import ProductCard from "../../../components/ProductCard.svelte";
   import { getCollection } from "../../../helper/endpoints";
   import { header_title_store } from "../../../helper/store";
+  import { collection_cache } from "../../../helper/cache_store";
 
   let collection;
   let loading = true;
   let active_asset = 0;
 
-  onMount(async () => {
-    const response = await httpClient(`${getCollection}/${$page.params._id}`);
-    collection = response.data.collection ?? [];
+  const initCollection = async (collection_id) => {
+    loading = true;
+    if($collection_cache.get(collection_id)){
+      collection = $collection_cache.get(collection_id);
+    } else {
+      const response = await httpClient(`${getCollection}/${collection_id}`);
+      if (response.status === 200) {
+        collection = response.data.collection ?? [];
+        $collection_cache.set(collection_id, collection);
+      }
+    }
     loading = false;
-  });
+  };
 
   $: {
     $header_title_store = "Collection";
+  }
+
+  $: {
+    initCollection($page.params._id);
   }
 </script>
 

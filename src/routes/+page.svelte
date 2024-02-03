@@ -35,7 +35,7 @@
   });
 </script>
 
-<div class="border-b border-gray-200 mb-4 sticky top-[60.4px] z-50">
+<div class="border-b border-gray-200 mb-4 sticky top-[60.4px] z-30">
   <div class="bg-white max-w-7xl mx-auto py-4 px-4 7xl:px-0">
     <AllCategory categories={homeConfig.featuredCategories} {loading} />
   </div>

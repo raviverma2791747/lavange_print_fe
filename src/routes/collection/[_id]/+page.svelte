@@ -40,6 +40,11 @@
     <h1 class="font-semibold text-3xl text-center mb-4 capitalize">
       {collection.name} Collection
     </h1>
+    <div>
+      {
+        @html collection.description
+      }
+    </div>
     <div class="grid grid-cols-4 gap-4">
       {#each collection.products as product}
         <ProductCard {product} />

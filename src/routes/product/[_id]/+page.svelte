@@ -450,11 +450,11 @@
       </div>
       {#if active_tab === 0}
         <p class="text-sm">
-          {product.description}
+          {@html product.description}
         </p>
       {:else if active_tab === 1}
         <p class="text-sm">
-          {product.specification}
+          {@html product.specification}
         </p>
       {/if}
     </div>

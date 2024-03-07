@@ -18,7 +18,7 @@
   <div class="relative">
     <div class="flex gap-2">
       {#each categories as category}
-        <a href={`/category/${category._id}`} class="font-bold">
+        <a href={`/category/${category.slug}`} class="font-bold">
           {category.name}
         </a>
       {/each}

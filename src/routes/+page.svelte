@@ -49,9 +49,9 @@
   <div>
     <div class="bg-gradient-to-b from-purple-300 to-purple-50 rounded-lg p-4">
       <div class="mb-4">
-        <h1 class="font-semibold text-xl md:text-3xl mb-4 text-gray-800">
+        <h2 class="font-semibold text-xl md:text-3xl mb-4 text-gray-800">
           Explore
-        </h1>
+        </h2>
         <p>Explore our wide range of products</p>
       </div>
       <div class="w-full mb-4">
@@ -101,10 +101,10 @@
       </div> -->
   </div>
 
-  <div>
-    <h1 class="font-semibold text-xl md:text-3xl text-center mb-4">
+  <section>
+    <h2 class="font-semibold text-xl md:text-3xl text-center mb-4">
       Explore Collections
-    </h1>
+    </h2>
     <div class="w-full">
       {#if homeConfig.exploreCollections.length === 0}
         <Carousel disabled>
@@ -124,12 +124,12 @@
         </Carousel>
       {/if}
     </div>
-  </div>
+  </section>
 
-  <div>
-    <h1 class="font-semibold text-xl md:text-3xl text-center mb-4">
+  <section>
+    <h2 class="font-semibold text-xl md:text-3xl text-center mb-4">
       Best Sellers
-    </h1>
+    </h2>
     <div class="w-full">
       {#if homeConfig.bestSellerProducts.length === 0}
         <Carousel disabled>
@@ -152,12 +152,12 @@
         </Carousel>
       {/if}
     </div>
-  </div>
+  </section>
 
-  <div>
-    <h1 class="font-semibold text-xl md:text-3xl text-center mb-4">
+  <section>
+    <h2 class="font-semibold text-xl md:text-3xl text-center mb-4">
       New Arrivals
-    </h1>
+    </h2>
     <div class="w-full">
       {#if homeConfig.newArrivalProducts.length === 0}
         <Carousel disabled>
@@ -177,12 +177,12 @@
         </Carousel>
       {/if}
     </div>
-  </div>
+  </section>
   {#each homeConfig.featuredCollections as collection}
-    <div>
-      <h1 class="font-semibold text-xl md:text-3xl text-center mb-4 capitalize">
+    <section>
+      <h2 class="font-semibold text-xl md:text-3xl text-center mb-4 capitalize">
         {collection.name} Collection
-      </h1>
+      </h2>
       <div class="w-full">
         {#if collection.products.length === 0}
           <Carousel disabled>
@@ -202,7 +202,7 @@
           </Carousel>
         {/if}
       </div>
-    </div>
+    </section>
   {/each}
   <!-- <div class="mb-4">
     <h1 class="font-semibold text-xl md:text-3xl text-center mb-4">New Designs</h1>

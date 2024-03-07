@@ -16,6 +16,9 @@
   } from "../helper/store";
   import ShareIcon from "./svg/ShareIcon.svelte";
   import { page } from "$app/stores";
+  import { onMount } from "svelte";
+  import HeartFillIcon from "./svg/HeartFillIcon.svelte";
+  import HeartDuotoneIcon from "./svg/HeartDuotoneIcon.svelte";
   export let product;
   export let hidePrice = false;
   export let hideWishlist = false;
@@ -53,11 +56,15 @@
 
       if (response.status === 200) {
         initWishlist();
+        //product.favorite = true;
       }
     }
   };
 
-  const removeFromWishlist = async () => {
+  const removeFromWishlist = async (e) => {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+
     const data = await httpClient(removeUserWishlist, {
       method: "POST",
       token: $token_store,
@@ -65,6 +72,11 @@
         productId: product._id,
       },
     });
+
+    if (data.status === 200) {
+      initWishlist();
+      //product.favorite = false;
+    }
   };
 
   const handleShare = async (e) => {
@@ -73,10 +85,22 @@
 
     // To be implemented
   };
+
+  $ : {
+    const exist = $wishlist_store.find((item) => {
+      return item._id === product._id;
+    })
+
+    if (exist) {
+      product.favorite = true;
+    } else {
+      product.favorite = false;
+    }
+  }
 </script>
 
 <a
-  href={`/product/${product._id}`}
+  href={`/product/${product.slug}`}
   class="relative block rounded-lg bg-white hover:shadow-lg border border-gray-200 w-full"
 >
   <!-- <div
@@ -106,12 +130,21 @@
       </div>
       {#if !hideWishlist}
         <div class="relative">
+          {#if !product.favorite}
           <button
             class=" hover:text-purple-500 hover:bg-purple-200 rounded-full"
             on:click={addToWishlist}
           >
             <HeartIcon />
           </button>
+          {:else}
+          <button
+            class=" text-purple-500 hover:bg-purple-200 rounded-full"
+            on:click={removeFromWishlist}
+          >
+            <HeartDuotoneIcon/>
+          </button>
+          {/if}
         </div>
       {/if}
     </div>

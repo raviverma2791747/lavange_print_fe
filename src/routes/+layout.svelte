@@ -14,12 +14,14 @@
     token_store,
     user_info_store,
     wishlist_store,
+    loading_store,
   } from "../helper/store";
   import {
     getUserInfo,
     getUserWishlist,
     getUserCart,
   } from "../helper/endpoints";
+  import Loading from "../components/Loading.svelte";
 
   const initUserInfo = async () => {
     const response = await httpClient(getUserInfo, {
@@ -81,3 +83,7 @@
 <Footer />
 <BottomNavbar />
 <LoginSingup open={$login_signup_modal_open} />
+
+{#if $loading_store}
+  <Loading />
+{/if}

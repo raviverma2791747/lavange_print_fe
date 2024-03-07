@@ -9,7 +9,7 @@
 </script>
 
 <a
-  href={`/collection/${collection._id}`}
+  href={`/collection/${collection.slug}`}
   class="relative block rounded-lg hover:shadow-lg border border-gray-200 w-full"
 >
 <div class="absolute bg-purple-500 text-white text-xs p-1 rounded-tr-lg rounded-br-lg top-0 left-0 mt-2">

@@ -4,7 +4,11 @@
   import { httpClient } from "../../../helper/httpClient";
   import { formatCurrency, formatDate } from "../../../helper/utils";
   import { page } from "$app/stores";
-  import { token_store, header_title_store } from "../../../helper/store";
+  import {
+    token_store,
+    header_title_store,
+    loading_store,
+  } from "../../../helper/store";
   import { getUserOrder } from "../../../helper/endpoints";
   import { DATE_FORMAT } from "../../../helper/constants";
   import { order_cache } from "../../../helper/cache_store";
@@ -13,6 +17,7 @@
   let order = {};
 
   const initOrder = async (order_id) => {
+    //loading_store.set(true);
     loading = true;
     if ($order_cache.get(order_id)) {
       order = $order_cache.get(order_id);
@@ -27,6 +32,7 @@
       }
     }
     loading = false;
+    //loading_store.set(false);
   };
 
   $: {
@@ -70,10 +76,10 @@
     </div>
     <div class="mb-4">
       <div class="font-semibold mb-2">Items</div>
-      <div class="flex flex-col gap-2">
+      <!-- <div class="flex flex-col gap-2">
         {#each order.items as item}
           <a
-            href={`/product/${item.product._id}`}
+            href={`/product/${item.product.slug}`}
             class="border border-gray-200 p-2 rounded-lg"
           >
             <div class="font-semibold">
@@ -83,9 +89,63 @@
             {formatCurrency(item.price)}
           </a>
         {/each}
+      </div> -->
+      <div class="flex flex-col gap-2">
+      {#each order.items as item}
+        <a
+          class="w-full p-2 flex gap-2 cursor-pointer hover:bg-gray-200 rounded-lg border border-gray-200"
+          href={`/product/${item.product.slug}`}
+        >
+          <div class="w-16">
+            <img
+              class="aspect-square object-cover rounded-lg"
+              src={item.product.assets[0].url}
+              alt={item.product.title}
+            />
+          </div>
+          <div class="grow">
+            <h1 class="font-semibold">{item.product.title}</h1>
+
+            <div class="flex gap-2 flex-wrap">
+              {#if item.variant && item.product.variants.find((v) => v._id === item.variant)}
+                {#each Object.entries(item.product.variants.find((v) => v._id === item.variant).attributes).map( (a) => {
+                    return item.product.variantOptions
+                      .find((v) => v.name === a[0])
+                      .options.find((o) => o.value === a[1]).displayName;
+                  } ) as attribute}
+                  <div
+                    class="border border-purple-500 text-purple-500 bg-purple-200 px-2 rounded-lg"
+                  >
+                    {attribute}
+                  </div>
+                {/each}
+              {/if}
+            </div>
+
+            <p>
+              {formatCurrency(item.price)}
+            <p>
+              <span class="font-semibold">Quantity</span>
+              {item.quantity}
+            </p>
+            <p>
+              <span class="font-semibold">Total Price</span>
+           {formatCurrency(item.price * item.quantity)}
+            </p>
+          </div>
+          <!-- <button
+            class="hover:text-red-500"
+            on:click={(e) => {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+              handleRemoveFromCart(item._id);
+            }}
+          >
+            <TrashIcon />
+          </button> -->
+        </a>
+      {/each}
       </div>
     </div>
   </div>
-{:else}
-  ok
-{/if}
+{:else}{/if}

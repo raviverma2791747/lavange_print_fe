@@ -1,5 +1,6 @@
 <script>
   //@ts-nocheck
+  import ProductCard from "../../components/ProductCard.svelte";
   import TrashIcon from "../../components/svg/TrashIcon.svelte";
   import { getUserWishlist, removeUserWishlist } from "../../helper/endpoints";
   import { httpClient } from "../../helper/httpClient";
@@ -8,6 +9,7 @@
     token_store,
     wishlist_store,
   } from "../../helper/store";
+  import {formatCurrency} from "../../helper/utils";
 
   const handleRemoveFromWishlist = async (product_id) => {
     const response = await httpClient(removeUserWishlist, {
@@ -45,33 +47,40 @@
     >
       Wishlist
     </h1>
-    {#each $wishlist_store as product}
-      <a
-        class="w-full p-2 flex gap-2 cursor-pointer hover:bg-gray-200"
-        href={`/product/${product._id}`}
-      >
-        <div class="w-16">
-          <img
-            class="aspect-square object-cover rounded-lg"
-            src={product.assets[0].url}
-            alt={product.title}
-          />
-        </div>
-        <div class="grow">
-          <h1 class="font-semibold">{product.title}</h1>
-        </div>
-        <button
-          class="hover:text-red-500"
-          on:click={(e) => {
-            e.stopImmediatePropagation();
-            e.preventDefault();
-            handleRemoveFromWishlist(product._id);
-          }}
+    <div class="grid gap-4 md:grid-cols-4 lg:grid-cols-6 py-4">
+      {#each $wishlist_store as product}
+        <a
+          class="w-full p-2 flex gap-2 cursor-pointer hover:bg-gray-200 md:hidden border border-gray-200 rounded-lg"
+          href={`/product/${product.slug}`}
         >
-          <TrashIcon />
-        </button>
-      </a>
-    {/each}
+          <div class="w-16">
+            <img
+              class="aspect-square object-cover rounded-lg"
+              src={product.assets[0].url}
+              alt={product.title}
+            />
+          </div>
+          <div class="grow">
+            <h1 class="font-semibold">{product.title}</h1>
+            <p>{formatCurrency(product.price)}</p>
+          </div>
+          <button
+            class="hover:text-red-500"
+            on:click={(e) => {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+              handleRemoveFromWishlist(product._id);
+            }}
+          >
+            <TrashIcon />
+          </button>
+        </a>
+
+        <div class="hidden md:block">
+          <ProductCard {product} />
+        </div>
+      {/each}
+    </div>
   </div>
 {:else}
   <div class="flex justify-center items-center flex-col gap-4 p-4 h-full">

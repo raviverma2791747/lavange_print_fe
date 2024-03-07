@@ -93,7 +93,7 @@
             {#each $cart_store.slice(0, 3) as cart_item}
               <a
                 class="w-full p-2 flex gap-2 cursor-pointer hover:bg-gray-200"
-                href={`/product/${cart_item.product._id}`}
+                href={`/product/${cart_item.product.slug}`}
               >
                 <div class="w-16">
                   <img
@@ -104,6 +104,21 @@
                 </div>
                 <div class="grow">
                   <h1 class="font-semibold">{cart_item.product.title}</h1>
+                  <div class="flex gap-2 flex-wrap">
+                    {#if cart_item.variant && cart_item.product.variants.find((v) => v._id === cart_item.variant)}
+                      {#each Object.entries(
+                        cart_item.product.variants.find(
+                          (v) => v._id === cart_item.variant
+                        ).attributes
+                      ).map((a) => {
+                        return cart_item.product.variantOptions
+                          .find((v) => v.name === a[0])
+                          .options.find((o) => o.value === a[1]).displayName;
+                      }) as attribute}
+                      <div class="border border-purple-500 text-purple-500 bg-purple-200 px-2 rounded-lg">{attribute}</div>
+                      {/each}
+                    {/if}
+                  </div>
                   <p>Quantity {cart_item.quantity}</p>
                 </div>
               </a>
@@ -136,7 +151,7 @@
             {#each $wishlist_store.slice(0, 3) as product}
               <a
                 class="w-full p-2 flex gap-2 cursor-pointer hover:bg-gray-200"
-                href={`/product/${product._id}`}
+                href={`/product/${product.slug}`}
               >
                 <div class="w-16">
                   <img

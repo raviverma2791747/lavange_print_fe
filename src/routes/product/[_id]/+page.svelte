@@ -43,8 +43,6 @@
       const data = await httpClient(`${getProduct}/${product_id}`);
       product = data["data"]["product"] ?? null;
       $product_cache.set(product_id, product);
-
-      console.log(product.category._id);
     }
 
     if (product.variants) {
@@ -238,9 +236,9 @@
         <div class="mb-2">
           <div class="text-xl font-semibold">
             {formatCurrency(
-              product.variants
+              (product.variants
                 ? variantsMap.get(active_variant)?.price
-                : product.price
+                : product.price) * quantity
             )}
           </div>
           <div class="text-sm text-gray-600">inclusive of all taxes</div>

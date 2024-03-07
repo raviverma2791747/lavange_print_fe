@@ -5,6 +5,7 @@
 
   } from "../../helper/httpClient";
   import {
+  loading_store,
     login_signup_modal_open,
     token_store,
     user_info_store,
@@ -53,6 +54,8 @@
       // https://developers.google.com/identity/gsi/web/guides/handle-credential-responses-js-functions#handle_credential_response
       console.log(response);
 
+      loading_store.set(true);
+
       const response_ = await httpClient(userLoginGoogle, {
         method: "POST",
         payload: {
@@ -80,6 +83,7 @@
         // );
 
         login_signup_modal_open.set(false);
+        loading_store.set(false);
       }
     };
 

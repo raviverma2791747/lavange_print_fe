@@ -6,17 +6,17 @@
   import InstagramIcon from './svg/InstagramIcon.svelte';
 
 </script>
-<footer class="border-t border-gray-200 bg-gray-100 hidden lg:block">
+<footer class="border-t border-gray-200 bg-gray-100 hidden md:block">
   <div class="max-w-7xl mx-auto py-4 divide-y flex flex-col gap-2 px-4 lg:px-0">
-    <div class="grid lg:grid-cols-4">
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <div class="">
         <h2 class="font-semibold text-xl mb-4">Our Company</h2>
         <ul
           class="marker:text-purple-600 list-disc ps-5 space-y-2 text-gray-600"
         >
-          <li><a>About us</a></li>
-          <li><a>Careers</a></li>
-          <li><a>Blog</a></li>
+          <li><a href="/about">About us</a></li>
+          <li><a href="/career">Careers</a></li>
+          <!-- <li><a href="/blog">Blog</a></li> -->
         </ul>
       </div>
       <div class="">
@@ -34,9 +34,9 @@
         <ul
           class="marker:text-purple-600 list-disc ps-5 space-y-2 text-gray-600"
         >
-          <li><a>Privacy Policy</a></li>
-          <li><a>Delivery & Return Policy</a></li>
-          <li><a>Terms & conditions</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="/delivery-and-return-policy">Delivery & Return Policy</a></li>
+          <li><a href="/terms-and-conditions">Terms & conditions</a></li>
         </ul>
       </div>
       <div class="ps-5 space-y-2 ">

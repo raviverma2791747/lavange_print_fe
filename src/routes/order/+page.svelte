@@ -24,6 +24,10 @@
     });
     if (response.status === 200) {
       orders = response.data.orders ?? [];
+      //sort orders by createdAt
+      orders.sort((a, b) => {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
     }
    // loading = false;
   };
@@ -89,4 +93,6 @@
       </a>
     {/each}
   </div>
+  //create pagination here
+  
 </div>

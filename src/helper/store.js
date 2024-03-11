@@ -13,3 +13,4 @@ export const searchFilters_store = writable({
   sizes: [],
 });
 export const header_title_store = writable("");
+export const network_error = writable(false);

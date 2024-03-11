@@ -6,7 +6,7 @@
   import Carousel from "../components/Carousel.svelte";
   import ProductCard from "../components/ProductCard.svelte";
   import CollectionCard from "../components/CollectionCard.svelte";
-  import { homeConfig_store } from "../helper/store";
+  import { homeConfig_store, network_error } from "../helper/store";
   import { getHomeConfig } from "../helper/endpoints";
   import AllCategory from "../components/home/AllCategory.svelte";
   import ProductCardShimmer from "../components/ProductCardShimmer.svelte";
@@ -28,8 +28,15 @@
       homeConfig = $homeConfig_store;
     } else {
       const response = await httpClient(getHomeConfig);
-      homeConfig = response.data.homeConfig;
-      homeConfig_store.set(homeConfig);
+
+ 
+
+      if (response.status === 200) {
+        homeConfig = response.data.homeConfig;
+        homeConfig_store.set(homeConfig);
+      } else {
+        
+      }
     }
     loading = false;
   });

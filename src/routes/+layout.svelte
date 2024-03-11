@@ -15,6 +15,7 @@
     user_info_store,
     wishlist_store,
     loading_store,
+    network_error,
   } from "../helper/store";
   import {
     getUserInfo,
@@ -23,6 +24,7 @@
   } from "../helper/endpoints";
   import Loading from "../components/Loading.svelte";
   import { MetaTags } from "svelte-meta-tags";
+  import NetworkError from "../components/NetworkError.svelte";
 
   const initUserInfo = async () => {
     const response = await httpClient(getUserInfo, {
@@ -73,6 +75,7 @@
     const token = localStorage.getItem("token");
     if (token) {
       token_store.set(token);
+    } else {
     }
   });
 </script>
@@ -83,33 +86,37 @@
   description="Lavange Print - Home of your next print."
   canonical="https://www.print.lavange.in"
   openGraph={{
-    url: 'https://www.print.lavange.in',
-    title: 'Lavange Print',
-    description: 'Lavange Print - Home of your next print.',
+    url: "https://www.print.lavange.in",
+    title: "Lavange Print",
+    description: "Lavange Print - Home of your next print.",
     images: [
       {
-        url: 'https://www.print.lavange.in/og_img.png',
+        url: "https://www.print.lavange.in/og_img.png",
         width: 1200,
         height: 630,
-        alt: 'Og Image Alt'
-      }
+        alt: "Og Image Alt",
+      },
     ],
-    siteName: 'SiteName'
+    siteName: "SiteName",
   }}
   twitter={{
-    handle: '@handle',
-    site: '@site',
-    cardType: 'summary_large_image',
-    title: 'Lavange Print',
-    description: 'Lavange Print - Home of your next print.',
-    image: 'https://www.print.lavange.in/og_img.png',
-    imageAlt: 'Twitter image alt'
+    handle: "@handle",
+    site: "@site",
+    cardType: "summary_large_image",
+    title: "Lavange Print",
+    description: "Lavange Print - Home of your next print.",
+    image: "https://www.print.lavange.in/og_img.png",
+    imageAlt: "Twitter image alt",
   }}
 />
 
 <div class="min-h-screen">
   <Header />
-  <slot />
+  {#if $network_error}
+    <NetworkError />
+  {:else}
+    <slot />
+  {/if}
 </div>
 <Footer />
 <BottomNavbar />

@@ -81,14 +81,14 @@
 </script>
 
 <MetaTags
-  title="Lavange Print"
+  title="Brand Print"
   titleTemplate="%s"
-  description="Lavange Print - Home of your next print."
+  description="Brand Print - Home of your next print."
   canonical="https://www.print.lavange.in"
   openGraph={{
     url: "https://www.print.lavange.in",
-    title: "Lavange Print",
-    description: "Lavange Print - Home of your next print.",
+    title: "Brand Print",
+    description: "Brand Print - Home of your next print.",
     images: [
       {
         url: "https://www.print.lavange.in/og_img.png",
@@ -103,8 +103,8 @@
     handle: "@handle",
     site: "@site",
     cardType: "summary_large_image",
-    title: "Lavange Print",
-    description: "Lavange Print - Home of your next print.",
+    title: "Brand Print",
+    description: "Brand Print - Home of your next print.",
     image: "https://www.print.lavange.in/og_img.png",
     imageAlt: "Twitter image alt",
   }}

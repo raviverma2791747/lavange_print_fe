@@ -1,5 +1,6 @@
 //@ts-nocheck
 import { PUBLIC_API_URI } from "$env/static/public";
+import { network_error } from "./store";
 
 export const httpClient = async (
   endpoint,
@@ -29,7 +30,15 @@ export const httpClient = async (
 
   options.headers = headers;
 
-  const response = await fetch(url, options);
-  const data = await response.json();
-  return data;
+  try {
+    const response = await fetch(url, options)
+    const data = await response.json();
+    network_error.set(false);
+    return data;
+  } catch (error) {
+
+    console.log(error);
+    network_error.set(true);
+    return error;
+  }
 };

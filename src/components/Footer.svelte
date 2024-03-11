@@ -57,7 +57,7 @@
       </div>
     </div>
     <div class="text-center text-gray-600">
-        ©2023 Lavange Pvt. Ltd.. All Rights Reserved.
+        ©2023 Brand. All Rights Reserved.
     </div>
   </div>
 </footer>

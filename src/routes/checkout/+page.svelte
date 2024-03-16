@@ -3,12 +3,16 @@
   import {
     cart_store,
     header_title_store,
+    loading_store,
     token_store,
     user_info_store,
+    wishlist_store,
   } from "../../helper/store";
   import { formatCurrency } from "../../helper/utils";
   import { httpClient } from "../../helper/httpClient";
-  import { createUserOrder } from "../../helper/endpoints";
+  import { createUserOrder, getUserWishlist } from "../../helper/endpoints";
+  import { goto } from "$app/navigation";
+
 
   let selected_address;
   let selected_payment_method;
@@ -20,11 +24,26 @@
     tax: 0,
   };
 
+  const initWishlist = async () => {
+    const response = await httpClient(getUserWishlist, {
+      token: $token_store,
+    });
+
+    if (response.status === 200) {
+      wishlist_store.set([...response.data.wishList]);
+    } else {
+      wishlist_store.set([]);
+    }
+  };
+
   const handlePlaceOrder = async () => {
+
 
     if (selected_address === undefined || selected_payment_method === undefined) {
       return;
     }
+
+    $loading_store = true;
     
     const data = await httpClient(createUserOrder, {
       method: "POST",
@@ -42,8 +61,14 @@
       },
     });
     if (data.status === 200) {
-      alert("Order created successfully");
+      goto(`/checkout/success/${data.data.order.id}`);
+        initWishlist();
+
+        $cart_store = [];
+    } else {
+      goto(`/checkout/failure/${data.data.order.id}`);
     }
+    $loading_store = false;
   };
 
   $: {

@@ -105,7 +105,7 @@
                 <div class="grow">
                   <h1 class="font-semibold">{cart_item.product.title}</h1>
                   <div class="flex gap-2 flex-wrap">
-                    {#if cart_item.variant && cart_item.product.variants.find((v) => v._id === cart_item.variant)}
+                    {#if cart_item.variant &&  cart_item.product.variants && cart_item.product.variants.find((v) => v._id === cart_item.variant)}
                       {#each Object.entries(
                         cart_item.product.variants.find(
                           (v) => v._id === cart_item.variant

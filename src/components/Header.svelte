@@ -96,11 +96,17 @@
                 href={`/product/${cart_item.product.slug}`}
               >
                 <div class="w-16">
+                  {#if cart_item.product.assets.length}
                   <img
                     class="aspect-square object-cover rounded-lg"
                     src={cart_item.product.assets[0].url}
                     alt={cart_item.product.title}
                   />
+                  {:else}
+                  <div class="aspect-square bg-gray-300 rounded-lg">
+
+                  </div>
+                  {/if}
                 </div>
                 <div class="grow">
                   <h1 class="font-semibold">{cart_item.product.title}</h1>
@@ -154,11 +160,17 @@
                 href={`/product/${product.slug}`}
               >
                 <div class="w-16">
+                  {#if product.assets.length}
                   <img
                     class="aspect-square object-cover rounded-lg"
                     src={product.assets[0].url}
                     alt={product.title}
                   />
+                  {:else}
+                  <div class="aspect-square bg-gray-300 rounded-lg">
+
+                  </div>
+                  {/if}
                 </div>
                 <div class="grow">
                   <h1 class="font-semibold">{product.title}</h1>

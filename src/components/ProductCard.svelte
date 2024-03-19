@@ -1,6 +1,6 @@
 <script>
   //@ts-nocheck
-  import { formatCurrency } from "../helper/utils";
+  import { formatCurrency, formatPercentage } from "../helper/utils";
   import HeartIcon from "./svg/HeartIcon.svelte";
   import { httpClient } from "../helper/httpClient";
   import {
@@ -16,7 +16,7 @@
   } from "../helper/store";
   import ShareIcon from "./svg/ShareIcon.svelte";
   import { page } from "$app/stores";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import HeartFillIcon from "./svg/HeartFillIcon.svelte";
   import HeartDuotoneIcon from "./svg/HeartDuotoneIcon.svelte";
   export let product;
@@ -25,6 +25,11 @@
   export let hideShare = false;
 
   let class_ = "";
+  let price;
+  let compareAtPrice = 0;
+  let active_slide = 0;
+  let interval;
+
   export { class_ as class };
 
   const initWishlist = async () => {
@@ -79,6 +84,11 @@
     }
   };
 
+  const calculateDiscount = (price, compareAtPrice) => {
+    //calculate percentage of discount
+    return (compareAtPrice - price) / compareAtPrice;
+  };
+
   const handleShare = async (e) => {
     e.stopImmediatePropagation();
     e.preventDefault();
@@ -86,10 +96,41 @@
     // To be implemented
   };
 
-  $ : {
+  const init = (product_) => {
+    active_slide = 0;
+    if (product_.variants) {
+      let p = product_.variants.reduce((prev, curr) => {
+        return prev.price < curr.price ? prev : curr;
+      }, product_.variants[0]);
+
+      price = p.price;
+      compareAtPrice = p.compareAtPrice;
+    } else {
+      price = product_.price;
+      compareAtPrice = product.compareAtPrice;
+    }
+
+
+  };
+
+  if (product.assets.length) {
+      interval = setInterval(() => {
+        active_slide = (active_slide + 1) % product.assets.length;
+      }, 5000);
+    }
+
+  onDestroy(() => {
+    clearInterval(interval);
+  });
+
+  $: {
+    init(product);
+  }
+
+  $: {
     const exist = $wishlist_store.find((item) => {
       return item._id === product._id;
-    })
+    });
 
     if (exist) {
       product.favorite = true;
@@ -103,25 +144,36 @@
   href={`/product/${product.slug}`}
   class="relative block rounded-lg bg-white hover:shadow-lg border border-gray-200 w-full"
 >
+  {#if compareAtPrice}
+    <div
+      class="absolute bg-green-500 font-semibold text-white text-xs p-1 rounded-tr-lg rounded-br-lg top-0 left-0 mt-2"
+    >
+      You save {formatPercentage(calculateDiscount(price, compareAtPrice))}
+    </div>
+  {/if}
+
   <!-- <div
     class="absolute bg-purple-500 text-white text-xs p-1 rounded-tr-lg rounded-br-lg top-0 left-0 mt-2"
   >
     Collection
   </div> -->
   {#if !hideShare}
-  <button
-    on:click={handleShare}
-    class="absolute top-2 right-2 hover:text-purple-500 rounded-full p-2"
-  >
-    <ShareIcon />
-  </button>
+    <button
+      on:click={handleShare}
+      class="absolute top-2 right-2 hover:text-purple-500 rounded-full p-2"
+    >
+      <ShareIcon />
+    </button>
   {/if}
+
   <div class="aspect-square bg-gray-200 rounded-t-lg">
-    <img
-      class="object-cover object-center w-full h-full rounded-t-lg"
-      src={product.assets[0].url}
-      alt={product.title}
-    />
+    {#if product.assets.length}
+      <img
+        class="object-cover object-center w-full h-full rounded-t-lg"
+        src={product.assets[active_slide].url}
+        alt={product.title}
+      />
+    {/if}
   </div>
   <div class="pb-2 pt-2">
     <div class="flex px-2">
@@ -131,28 +183,41 @@
       {#if !hideWishlist}
         <div class="relative">
           {#if !product.favorite}
-          <button
-            class=" hover:text-purple-500 hover:bg-purple-200 rounded-full"
-            on:click={addToWishlist}
-          >
-            <HeartIcon />
-          </button>
+            <button
+              class=" hover:text-purple-500 hover:bg-purple-200 rounded-full"
+              on:click={addToWishlist}
+            >
+              <HeartIcon />
+            </button>
           {:else}
-          <button
-            class=" text-purple-500 hover:bg-purple-200 rounded-full"
-            on:click={removeFromWishlist}
-          >
-            <HeartDuotoneIcon/>
-          </button>
+            <button
+              class=" text-purple-500 hover:bg-purple-200 rounded-full"
+              on:click={removeFromWishlist}
+            >
+              <HeartDuotoneIcon />
+            </button>
           {/if}
         </div>
       {/if}
     </div>
     <!-- <div class="text-sm text-gray-500 px-2">xyz</div> -->
     {#if !hidePrice}
-      <div class="font-semibold px-2">
-        {formatCurrency(product.price)}
-      </div>
+      {#if product.status === "active"}
+        <div class=" px-2 gap-1 items-end">
+          <div class="flex gap-1 items-end">
+            <div class="font-semibold">
+              {formatCurrency(price)}
+            </div>
+            {#if compareAtPrice}
+              <div class="line-through text-gray-500 font-semibold text-sm">
+                {formatCurrency(compareAtPrice)}
+              </div>
+            {/if}
+          </div>
+        </div>
+      {:else}
+        <div class="text-red-500 px-2">Unavailable</div>
+      {/if}
     {/if}
   </div>
 </a>

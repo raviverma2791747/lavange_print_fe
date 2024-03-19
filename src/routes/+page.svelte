@@ -62,7 +62,7 @@
         <p>Explore our wide range of products</p>
       </div>
       <div class="w-full mb-4">
-        {#if homeConfig.exploreProducts.length === 0}
+        {#if homeConfig.exploreProducts.length === 0 && loading}
           <Carousel disabled>
             {#each Array(3) as A, index}
               <div class="w-32 shrink-0">
@@ -113,7 +113,7 @@
       Explore Collections
     </h2>
     <div class="w-full">
-      {#if homeConfig.exploreCollections.length === 0}
+      {#if homeConfig.exploreCollections.length === 0 && loading}
         <Carousel disabled>
           {#each Array(4) as A, index}
             <div class=" w-48 md:w-64 shrink-0">
@@ -138,7 +138,7 @@
       Best Sellers
     </h2>
     <div class="w-full">
-      {#if homeConfig.bestSellerProducts.length === 0}
+      {#if homeConfig.bestSellerProducts.length === 0 && loading}
         <Carousel disabled>
           {#each Array(4) as A, index}
             <div class="w-48 md:w-64 shrink-0">
@@ -161,12 +161,13 @@
     </div>
   </section>
 
+
   <section>
     <h2 class="font-semibold text-xl md:text-3xl text-center mb-4">
       New Arrivals
     </h2>
     <div class="w-full">
-      {#if homeConfig.newArrivalProducts.length === 0}
+      {#if homeConfig.newArrivalProducts.length === 0 && loading}
         <Carousel disabled>
           {#each Array(4) as A, index}
             <div class="w-48 md:w-64 shrink-0">
@@ -191,7 +192,7 @@
         {collection.name} Collection
       </h2>
       <div class="w-full">
-        {#if collection.products.length === 0}
+        {#if collection.products.length === 0 && loading}
           <Carousel disabled>
             {#each Array(4) as A, index}
               <div class="w-48 md:w-64 shrink-0">

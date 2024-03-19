@@ -214,17 +214,22 @@
             href={`/product/${item.product.slug}`}
           >
             <div class="w-24">
+
+              {#if item.product.assets.length }
               <img
                 class="aspect-square object-cover rounded-lg"
                 src={item.product.assets[0].url}
                 alt={item.product.title}
               />
+              {:else}
+              <div class="aspect-square bg-gray-300 rounded-lg"></div>
+              {/if}
             </div>
             <div class="grow">
               <h1 class="font-semibold">{item.product.title}</h1>
 
               <div class="flex gap-2 flex-wrap">
-                {#if item.variant && item.product.variants.find((v) => v._id === item.variant)}
+                {#if item.variant && item.product.variants && item.product.variants.find((v) => v._id === item.variant)}
                   {#each Object.entries(item.product.variants.find((v) => v._id === item.variant).attributes).map( (a) => {
                       return item.product.variantOptions
                         .find((v) => v.name === a[0])
@@ -236,6 +241,8 @@
                       {attribute}
                     </div>
                   {/each}
+                {:else if item.variant && !item.product.variants}
+                  <p class="text-red-500">Unavailable</p>
                 {/if}
               </div>
 

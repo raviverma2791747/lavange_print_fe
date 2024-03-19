@@ -11,3 +11,9 @@ export function formatCurrency(amount) {
     currency: "INR",
   }).format(amount);
 }
+
+export function formatPercentage(amount) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "percent",
+  }).format(amount);
+}

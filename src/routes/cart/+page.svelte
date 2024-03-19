@@ -10,6 +10,7 @@
     token_store,
   } from "../../helper/store";
   import { formatCurrency } from "../../helper/utils";
+  import { goto } from "$app/navigation";
 
   const handleRemoveFromCart = async (item_id) => {
     const response = await httpClient(removeUserCart, {
@@ -55,34 +56,40 @@
             href={`/product/${cartItem.product.slug}`}
           >
             <div class="w-16">
+              {#if cartItem.product.assets.length}
               <img
                 class="aspect-square object-cover rounded-lg"
                 src={cartItem.product.assets[0].url}
                 alt={cartItem.product.title}
               />
+              {:else}
+              <div class="aspect-square bg-gray-300 rounded-lg">
+
+              </div>
+              {/if}
             </div>
             <div class="grow">
               <h1 class="font-semibold">{cartItem.product.title}</h1>
 
               <div class="flex gap-2 flex-wrap">
-                {#if cartItem.variant && cartItem.product.variants.find((v) => v._id === cartItem.variant)}
-                  {#each Object.entries(
-                    cartItem.product.variants.find(
-                      (v) => v._id === cartItem.variant
-                    ).attributes
-                  ).map((a) => {
-                    return cartItem.product.variantOptions
-                      .find((v) => v.name === a[0])
-                      .options.find((o) => o.value === a[1]).displayName;
-                  }) as attribute}
-                  <div class="border border-purple-500 text-purple-500 bg-purple-200 px-2 rounded-lg">{attribute}</div>
+                {#if cartItem.variant && cartItem.product.variants && cartItem.product.variants.find((v) => v._id === cartItem.variant)}
+                  {#each Object.entries(cartItem.product.variants.find((v) => v._id === cartItem.variant).attributes).map( (a) => {
+                      return cartItem.product.variantOptions
+                        .find((v) => v.name === a[0])
+                        .options.find((o) => o.value === a[1]).displayName;
+                    } ) as attribute}
+                    <div
+                      class="border border-purple-500 text-purple-500 bg-purple-200 px-2 rounded-lg"
+                    >
+                      {attribute}
+                    </div>
                   {/each}
                 {/if}
               </div>
 
               <p>
                 {#if cartItem.variant}
-                  {#if cartItem.product.variants.find((v) => v._id === cartItem.variant)}
+                  {#if cartItem.product.variants && cartItem.product.variants.find((v) => v._id === cartItem.variant)}
                     {formatCurrency(
                       cartItem.variant
                         ? cartItem.product.variants.find(
@@ -90,9 +97,7 @@
                           ).price
                         : cartItem.product.price
                     )}
-                  {:else}
-                    Out of stock
-                  {/if}
+                  {:else}{/if}
                 {:else}
                   {formatCurrency(cartItem.product.price)}
                 {/if}
@@ -102,21 +107,26 @@
                 {cartItem.quantity}
               </p>
               <p>
-                <span class="font-semibold">Total Price</span>
-                {#if cartItem.variant}
-                  {#if cartItem.product.variants.find((v) => v._id === cartItem.variant)}
-                    {formatCurrency(
-                      (cartItem.variant
-                        ? cartItem.product.variants.find(
-                            (v) => v._id === cartItem.variant
-                          ).price
-                        : cartItem.product.price) * cartItem.quantity
-                    )}
+                {#if cartItem.product.status === "active"}
+                  {#if cartItem.variant && cartItem.product.variants}
+                    {#if cartItem.product.variants.find((v) => v._id === cartItem.variant)}
+                      <span class="font-semibold">Total Price</span>
+                      {formatCurrency(
+                        (cartItem.variant
+                          ? cartItem.product.variants.find(
+                              (v) => v._id === cartItem.variant
+                            ).price
+                          : cartItem.product.price) * cartItem.quantity
+                      )}
+                    {/if}
+                  {:else if cartItem.variant && !cartItem.product.variants}
+                    <p class="text-red-500">Unavailable</p>
                   {:else}
-                    Out of stock
+                    <span class="font-semibold">Total Price</span>
+                    {formatCurrency(cartItem.product.price * cartItem.quantity)}
                   {/if}
                 {:else}
-                  {formatCurrency(cartItem.product.price * cartItem.quantity)}
+                  <p class="text-red-500">Unavailable</p>
                 {/if}
               </p>
             </div>
@@ -141,36 +151,55 @@
         </div>
         <div class="mb-4">
           <span class="font-semibold">Grand Total Price:</span>
-          {formatCurrency(
-            $cart_store.reduce((a, b) => {
-              let price = 0;
-              let variant;
+          {#if $cart_store.every((c) => c.product.status === "active")}
+            {formatCurrency(
+              $cart_store.reduce((a, b) => {
+                let price = 0;
+                let variant;
 
-              if (b.variant) {
-                console.log(b.variant),
-                  (variant = b.product.variants.find(
-                    (v) => v._id === b.variant
-                  ));
-              } else {
-                price = b.product.price;
-              }
+                if (b.variant && b.product.variants) {
+                  variant = b.product.variants.find((v) => v._id === b.variant);
+                } else {
+                  price = b.product.price;
+                }
 
-              if (variant) {
-                price = variant.price;
-              }
+                if (variant) {
+                  price = variant.price;
+                }
 
-              //console.log(price);
+                //console.log(price);
 
-              return a + b.quantity * price;
-            }, 0)
-          )}
+                return a + b.quantity * price;
+              }, 0)
+            )}
+          {:else}{/if}
         </div>
         <div class="mb-4">
-          <a
-            href="/checkout"
+          <button
+            on:click={() => {
+              goto("/checkout");
+            }}
+            disabled={$cart_store.length === 0 ||
+              !$cart_store.every((c) => c.product.status === "active") ||
+              !$cart_store.every((c) => {
+                if (c.variant && !c.product.variants) {
+                  return false;
+                }
+                return true;
+              })}
             class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
-            >Checkout</a
+            >Checkout</button
           >
+          {#if !$cart_store.every((c) => c.product.status === "active") || !$cart_store.every( (c) => {
+                if (c.variant && !c.product.variants) {
+                  return false;
+                }
+                return true;
+              } )}
+            <p class="text-red-500">
+              Remove all out of stock or unavailable items to checkout
+            </p>
+          {/if}
         </div>
       </div>
     </div>

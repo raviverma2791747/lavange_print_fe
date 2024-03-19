@@ -4,7 +4,7 @@
   import { page } from "$app/stores";
   import { httpClient } from "../../../helper/httpClient";
   import ProductCard from "../../../components/ProductCard.svelte";
-  import { getCollection } from "../../../helper/endpoints";
+  import {  getCollectionSlug } from "../../../helper/endpoints";
   import { header_title_store } from "../../../helper/store";
   import { collection_cache } from "../../../helper/cache_store";
 
@@ -17,7 +17,7 @@
     if($collection_cache.get(collection_id)){
       collection = $collection_cache.get(collection_id);
     } else {
-      const response = await httpClient(`${getCollection}/${collection_id}`);
+      const response = await httpClient(`${getCollectionSlug}/${collection_id}`);
       if (response.status === 200) {
         collection = response.data.collection ?? [];
         $collection_cache.set(collection_id, collection);

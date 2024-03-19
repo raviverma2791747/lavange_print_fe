@@ -2,6 +2,7 @@
   //@ts-nocheck
   import ProductCard from "../../components/ProductCard.svelte";
   import TrashIcon from "../../components/svg/TrashIcon.svelte";
+  import { product_cache } from "../../helper/cache_store";
   import { getUserWishlist, removeUserWishlist } from "../../helper/endpoints";
   import { httpClient } from "../../helper/httpClient";
   import {
@@ -9,7 +10,7 @@
     token_store,
     wishlist_store,
   } from "../../helper/store";
-  import {formatCurrency} from "../../helper/utils";
+  import { formatCurrency } from "../../helper/utils";
 
   const handleRemoveFromWishlist = async (product_id) => {
     const response = await httpClient(removeUserWishlist, {
@@ -54,15 +55,23 @@
           href={`/product/${product.slug}`}
         >
           <div class="w-16">
+            {#if product.assets.length}
             <img
               class="aspect-square object-cover rounded-lg"
               src={product.assets[0].url}
               alt={product.title}
             />
+            {:else}
+            <div class="aspect-square bg-gray-300 rounded-lg"></div>
+            {/if}
           </div>
           <div class="grow">
             <h1 class="font-semibold">{product.title}</h1>
-            <p>{formatCurrency(product.price)}</p>
+            {#if product.status === "active"}
+              <p>{formatCurrency(product.price)}</p>
+            {:else}
+              <p class="text-red-500">Unavailable</p>
+            {/if}
           </div>
           <button
             class="hover:text-red-500"

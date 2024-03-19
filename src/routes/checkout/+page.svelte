@@ -13,9 +13,9 @@
   import { createUserOrder, getUserWishlist } from "../../helper/endpoints";
   import { goto } from "$app/navigation";
 
-
   let selected_address;
   let selected_payment_method;
+  let enable_checkout = false;
 
   let order_data = {
     cart_total: 0,
@@ -37,14 +37,15 @@
   };
 
   const handlePlaceOrder = async () => {
-
-
-    if (selected_address === undefined || selected_payment_method === undefined) {
+    if (
+      selected_address === undefined ||
+      selected_payment_method === undefined
+    ) {
       return;
     }
 
     $loading_store = true;
-    
+
     const data = await httpClient(createUserOrder, {
       method: "POST",
       token: $token_store,
@@ -62,9 +63,9 @@
     });
     if (data.status === 200) {
       goto(`/checkout/success/${data.data.order.id}`);
-        initWishlist();
+      initWishlist();
 
-        $cart_store = [];
+      $cart_store = [];
     } else {
       goto(`/checkout/failure/${data.data.order.id}`);
     }
@@ -76,7 +77,7 @@
       let price = 0;
       let variant;
 
-      if (b.variant) {
+      if (b.variant && b.product.variants) {
         variant = b.product.variants.find((v) => v._id === b.variant);
       } else {
         price = b.product.price;
@@ -138,12 +139,17 @@
           <h1 class="font-semibold text-lg mb-4">Payment Method</h1>
           <div class="flex flex-col gap-4">
             <label
-             for="paytm"
+              for="paytm"
               class="border border-gray-200 rounded-lg p-4 hover:shadow flex gap-2 cursor-pointer"
               class:bg-purple-50={selected_payment_method === "paytm"}
             >
               <div>
-                <input type="radio" id="paytm" value="paytm" bind:group={selected_payment_method} />
+                <input
+                  type="radio"
+                  id="paytm"
+                  value="paytm"
+                  bind:group={selected_payment_method}
+                />
               </div>
               <div>Paytm</div>
             </label>
@@ -153,7 +159,12 @@
               class:bg-purple-50={selected_payment_method === "phonepe"}
             >
               <div>
-                <input type="radio" id="phonepe" value="phonepe" bind:group={selected_payment_method}  />
+                <input
+                  type="radio"
+                  id="phonepe"
+                  value="phonepe"
+                  bind:group={selected_payment_method}
+                />
               </div>
               <div>Phonepe</div>
             </label>
@@ -167,18 +178,26 @@
                 class="w-full p-2 flex gap-2 cursor-pointer hover:bg-gray-200 border border-gray-20 rounded-lg"
                 href={`/product/${cartItem.product.slug}`}
               >
+
                 <div class="w-16">
+                  {#if cartItem.product.assets.length}
                   <img
                     class="aspect-square object-cover rounded-lg"
                     src={cartItem.product.assets[0].url}
                     alt={cartItem.product.title}
                   />
+                  {:else}
+                  <div class="aspect-square bg-gray-300 rounded-lg">
+
+                  </div>
+                  {/if}
+                  
                 </div>
                 <div class="grow">
                   <h1 class="font-semibold">{cartItem.product.title}</h1>
 
                   <div class="flex gap-2 flex-wrap">
-                    {#if cartItem.variant && cartItem.product.variants.find((v) => v._id === cartItem.variant)}
+                    {#if cartItem.variant && cartItem.product.variants && cartItem.product.variants.find((v) => v._id === cartItem.variant)}
                       {#each Object.entries(cartItem.product.variants.find((v) => v._id === cartItem.variant).attributes).map( (a) => {
                           return cartItem.product.variantOptions
                             .find((v) => v.name === a[0])
@@ -193,23 +212,29 @@
                     {/if}
                   </div>
 
-                  <p>
-                    {#if cartItem.variant}
-                      {#if cartItem.product.variants.find((v) => v._id === cartItem.variant)}
-                        {formatCurrency(
-                          cartItem.variant
-                            ? cartItem.product.variants.find(
-                                (v) => v._id === cartItem.variant
-                              ).price
-                            : cartItem.product.price
-                        )}
+                  {#if cartItem.product.status === "active"}
+                    <p>
+                      {#if cartItem.variant && cartItem.product.variants}
+                        {#if cartItem.product.variants.find((v) => v._id === cartItem.variant)}
+                          {formatCurrency(
+                            cartItem.variant
+                              ? cartItem.product.variants.find(
+                                  (v) => v._id === cartItem.variant
+                                ).price
+                              : cartItem.product.price
+                          )}
+                        {:else}
+                          Out of stock
+                        {/if}
+                      {:else if cartItem.variant && !cartItem.product.variants}
+                        <p class="text-red-500">Unavailable</p>
                       {:else}
-                        Out of stock
+                        {formatCurrency(cartItem.product.price)}
                       {/if}
-                    {:else}
-                      {formatCurrency(cartItem.product.price)}
-                    {/if}
-                  </p>
+                    </p>
+                  {:else}
+                    <p class="text-red-500">Unavailable</p>
+                  {/if}
                   <p>Quantity {cartItem.quantity}</p>
                 </div>
               </a>
@@ -217,26 +242,38 @@
           </div>
           <div class="mb-4">
             <span class="font-semibold">Total Price</span>
-            {formatCurrency(
-              $cart_store.reduce((a, b) => {
-                let price = 0;
-                let variant;
 
-                if (b.variant) {
-                  variant = b.product.variants.find((v) => v._id === b.variant);
-                } else {
-                  price = b.product.price;
-                }
+            {#if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                  if (c.variant && !c.product.variants) {
+                    return false;
+                  }
+                  return true;
+                } )}
+              {formatCurrency(
+                $cart_store.reduce((a, b) => {
+                  let price = 0;
+                  let variant;
 
-                if (variant) {
-                  price = variant.price;
-                }
+                  if (b.variant && b.product.variants) {
+                    variant = b.product.variants.find(
+                      (v) => v._id === b.variant
+                    );
+                  } else {
+                    price = b.product.price;
+                  }
 
-                //console.log(price);
+                  if (variant) {
+                    price = variant.price;
+                  }
 
-                return a + b.quantity * price;
-              }, 0)
-            )}
+                  //console.log(price);
+
+                  return a + b.quantity * price;
+                }, 0)
+              )}
+            {:else}
+              ---
+            {/if}
           </div>
         </div>
       </div>
@@ -248,47 +285,113 @@
           <div class="text-sm flex flex-col gap-4 mb-2">
             <div class="flex">
               <div class="grow">Bag Total</div>
-              <div>{formatCurrency(order_data.cart_total)}</div>
+              <div>
+                {#if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                      if (c.variant && !c.product.variants) {
+                        return false;
+                      }
+                      return true;
+                    } )}
+                  {formatCurrency(order_data.cart_total)}
+                {:else}
+                  ---
+                {/if}
+              </div>
             </div>
 
             <div class="flex">
               <div class="grow">Bag Discount</div>
-              <div>{formatCurrency(order_data.discount)}</div>
+              <div>
+                {#if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                      if (c.variant && !c.product.variants) {
+                        return false;
+                      }
+                      return true;
+                    } )}{formatCurrency(order_data.discount)}{:else}---{/if}
+              </div>
             </div>
 
             <div class="flex">
               <div class="grow">Tax</div>
-              <div>{formatCurrency(order_data.tax)}</div>
+              <div>
+                {#if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                      if (c.variant && !c.product.variants) {
+                        return false;
+                      }
+                      return true;
+                    } )}{formatCurrency(order_data.tax)}{:else}---{/if}
+              </div>
             </div>
 
             <div class="flex">
               <div class="grow">Delivery Charges</div>
-              <div>{formatCurrency(order_data.delivery_charge)}</div>
+              <div>
+                {#if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                      if (c.variant && !c.product.variants) {
+                        return false;
+                      }
+                      return true;
+                    } )}{formatCurrency(
+                    order_data.delivery_charge
+                  )}{:else}---{/if}
+              </div>
             </div>
           </div>
           <hr class="mb-2" />
           <div class="flex font-semibold mb-4">
             <div class="grow">Total</div>
             <div>
-              {formatCurrency(
-                order_data.cart_total +
-                  order_data.delivery_charge +
-                  order_data.tax -
-                  order_data.discount
-              )}
+              {#if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                    if (c.variant && !c.product.variants) {
+                      return false;
+                    }
+                    return true;
+                  } )}
+                {formatCurrency(
+                  order_data.cart_total +
+                    order_data.delivery_charge +
+                    order_data.tax -
+                    order_data.discount
+                )}
+              {:else}
+                ---
+              {/if}
             </div>
           </div>
           <button
             href="/checkout"
             class="w-full grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
             on:click={handlePlaceOrder}
-            disabled={selected_address && selected_payment_method ? false : true}
-            >Place Order</button
+            disabled={selected_address &&
+            selected_payment_method &&
+            $cart_store.every((c) => c.product.status === "active") &&
+            $cart_store.every((c) => {
+              if (c.variant && !c.product.variants) {
+                return false;
+              }
+              return true;
+            })
+              ? false
+              : true}>Place Order</button
           >
+          {#if !$cart_store.every((c) => c.product.status === "active")}
+            <p class="text-red-500 text-sm">
+              Remove all out of stock or unavailable items to checkout
+            </p>
+          {/if}
         </div>
       </div>
     </div>
   </div>
 {:else}
-  <h1>No product in cart_store</h1>
+  <div
+    class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 pt-4 flex items-center flex-col justify-center h-[calc(100vh-80px)]"
+  >
+    <h1 class="font-semibold text-2xl mb-4">No product in the cart!</h1>
+    <a
+      href="/search"
+      class="w-full md:w-auto hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+      >Continue shopping</a
+    >
+  </div>
 {/if}

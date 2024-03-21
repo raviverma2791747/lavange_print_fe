@@ -34,12 +34,19 @@
     {:else}
       {#each announcements as announcement, index}
         <a href={announcement.ctaUrl}>
+          {#if announcement.asset}
           <img
-            src={announcement.assetUrl}
+            src={announcement.asset.url}
             alt={announcement.title}
             class="transition duration-1000 ease-in-out bg-gray-400 h-64 object-cover"
             class:hidden={active_slide !== index}
           />
+          {:else}
+          <div
+            class="transition duration-1000 ease-in-out bg-gray-400 h-64"
+            class:hidden={active_slide !== index}
+          ></div>
+          {/if}
         </a>
       {/each}
     {/if}

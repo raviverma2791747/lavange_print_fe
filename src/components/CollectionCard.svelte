@@ -16,11 +16,13 @@
  Collection
 </div>
   <div class="aspect-square bg-gray-200 rounded-t-lg p-2 bg-white">
+    {#if collection.asset}
     <img
       class="object-cover object-center w-full h-full rounded-t-lg"
-      src={collection.assetUrl}
+      src={collection.asset.url}
       alt={collection.name}
     />
+    {/if}
   </div>
   <div class="pb-4 px-2 pt-2">
     <div class="font-semibold text-sm grow truncate">

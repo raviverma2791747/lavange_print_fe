@@ -57,8 +57,13 @@
       product = product_cached;
     } else {
       const data = await httpClient(`${getProduct}/${product_id}`);
-      product = data["data"]["product"] ?? null;
-      $product_cache.set(product_id, product);
+
+      if (data.status === 200) {
+        product = data["data"]["product"] ?? null;
+
+        console.log(product);
+        $product_cache.set(product_id, product);
+      }
     }
 
     if (product === null) {
@@ -67,7 +72,7 @@
       return;
     }
 
-    if (product.variants) {
+    if (product?.variants) {
       variantFilter = {};
       product.variantOptions.forEach((option) => {
         variantFilter[option.name] = option.options[0].value;
@@ -324,8 +329,9 @@
               <HeartIcon />
             </button>
           {:else}
-            <button class=" text-purple-500 hover:bg-purple-200 rounded-full"
-            on:click={handleRemoveFromWishlist}
+            <button
+              class=" text-purple-500 hover:bg-purple-200 rounded-full"
+              on:click={handleRemoveFromWishlist}
             >
               <HeartDuotoneIcon />
             </button>

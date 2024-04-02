@@ -133,11 +133,10 @@
       <div>
         <div class="font-semibold">Total</div>
         <div>
-          {formatCurrency(
-            order.items.reduce((a, b) => a + b.quantity * b.price, 0),
-            0
-          )}
+          {formatCurrency(order.total)}
         </div>
+        <div class="font-semibold">Discount</div>
+        <div>{formatCurrency(order.discount)}</div>
       </div>
 
       {#if order.shipping.trackingId && order.shipping.trackingUrl}
@@ -214,15 +213,14 @@
             href={`/product/${item.product.slug}`}
           >
             <div class="w-24">
-
-              {#if item.product.assets.length }
-              <img
-                class="aspect-square object-cover rounded-lg"
-                src={item.product.assets[0].url}
-                alt={item.product.title}
-              />
+              {#if item.product.assets.length}
+                <img
+                  class="aspect-square object-cover rounded-lg"
+                  src={item.product.assets[0].url}
+                  alt={item.product.title}
+                />
               {:else}
-              <div class="aspect-square bg-gray-300 rounded-lg"></div>
+                <div class="aspect-square bg-gray-300 rounded-lg"></div>
               {/if}
             </div>
             <div class="grow">

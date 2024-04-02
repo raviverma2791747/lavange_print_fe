@@ -10,18 +10,29 @@
   } from "../../helper/store";
   import { formatCurrency } from "../../helper/utils";
   import { httpClient } from "../../helper/httpClient";
-  import { createUserOrder, getUserWishlist } from "../../helper/endpoints";
+  import {
+    createUserOrder,
+    getCheckout,
+    getUserWishlist,
+  } from "../../helper/endpoints";
   import { goto } from "$app/navigation";
+  import CloseIcon from "../../components/svg/CloseIcon.svelte";
 
   let selected_address;
   let selected_payment_method;
   let enable_checkout = false;
+
+  let coupon_code = "";
+  let coupon_valid = false;
+  let coupon_msg = "";
+  let loading = true;
 
   let order_data = {
     cart_total: 0,
     delivery_charge: 0,
     discount: 0,
     tax: 0,
+    total: 0,
   };
 
   const initWishlist = async () => {
@@ -50,6 +61,7 @@
       method: "POST",
       token: $token_store,
       payload: {
+        coupon_code: coupon_valid ? coupon_code : null,
         items: $cart_store.map((ci) => {
           return {
             product: ci.product._id,
@@ -72,35 +84,143 @@
     $loading_store = false;
   };
 
+  const initCheckout = async (cart, userID) => {
+    if (cart.length === 0) {
+      return;
+    }
+    loading = true;
+    const response = await httpClient(getCheckout, {
+      token: $token_store,
+      method: "POST",
+      payload: {
+        coupon_code: coupon_code,
+        cart: cart.map((ci) => {
+          return {
+            product: ci.product._id,
+            quantity: ci.quantity,
+            variant: ci.variant,
+            variantSchema: ci.variantSchema,
+          };
+        }),
+        userID: userID,
+      },
+    });
+
+    if (response.status === 200) {
+      order_data.cart_total = response.data.cartTotal;
+      order_data.discount = response.data.discount;
+      order_data.total = response.data.grandTotal;
+      coupon_valid = response.data.couponValid;
+      if (coupon_valid && coupon_code.trim()) {
+        coupon_msg = "Coupon applied successfully!";
+      } else if (coupon_code.trim()) {
+        coupon_msg = "Coupon not valid!";
+      }
+    } else {
+    }
+    loading = false;
+  };
+
+  const handleApplyCoupon = async () => {
+    if (coupon_code.trim() === "") {
+      return;
+    }
+
+    initCheckout($cart_store, $user_info_store?._id);
+    // coupon_loading = true;
+    // const response = await httpClient(applyCoupon, {
+    //   method: "POST",
+    //   token: $token_store,
+    //   payload: {
+    //     code: coupon_code,
+    //     cart: $cart_store,
+    //     userID: $user_info_store?._id,
+    //   },
+    // });
+
+    // if (response.status === 200) {
+    //   coupon_discount = response.data.discount;
+    //   coupon_valid = true;
+    //   coupon_msg = "Coupon applied successfully!";
+    // } else {
+    //   coupon_discount = 0;
+    //   coupon_valid = false;
+    //   coupon_msg = response.data.errors.join(",");
+    // }
+    // coupon_loading = false;
+  };
+
+  // $: {
+  //   order_data.cart_total = $cart_store.reduce((a, b) => {
+  //     let price = 0;
+  //     let variant;
+
+  //     if (b.variant && b.product.variants) {
+  //       variant = b.product.variants.find((v) => v._id === b.variant);
+  //     } else {
+  //       if (b.product.compareAtPrice) {
+  //         price = b.product.compareAtPrice;
+  //       } else {
+  //         price = b.product.price;
+  //       }
+  //     }
+
+  //     if (variant) {
+  //       if (variant.compareAtPrice) {
+  //         price = variant.compareAtPrice;
+  //       } else {
+  //         price = variant.price;
+  //       }
+  //     }
+
+  //     //console.log(price);
+
+  //     return a + b.quantity * price;
+  //   }, 0);
+
+  //   order_data.discount = coupon_discount
+  //     ? coupon_discount
+  //     : order_data.cart_total -
+  //       $cart_store.reduce((a, b) => {
+  //         let price = 0;
+  //         let variant;
+
+  //         if (b.variant && b.product.variants) {
+  //           variant = b.product.variants.find((v) => v._id === b.variant);
+  //         } else {
+  //           price = b.product.price;
+  //         }
+
+  //         if (variant) {
+  //           price = variant.price;
+  //         }
+
+  //         //console.log(price);
+
+  //         return a + b.quantity * price;
+  //       }, 0);
+
+  //   order_data.total = order_data.cart_total - order_data.discount;
+  // }
+
   $: {
-    order_data.cart_total = $cart_store.reduce((a, b) => {
-      let price = 0;
-      let variant;
-
-      if (b.variant && b.product.variants) {
-        variant = b.product.variants.find((v) => v._id === b.variant);
-      } else {
-        price = b.product.price;
-      }
-
-      if (variant) {
-        price = variant.price;
-      }
-
-      //console.log(price);
-
-      return a + b.quantity * price;
-    }, 0);
+    initCheckout($cart_store, $user_info_store?._id);
   }
 
   $: {
     $header_title_store = "Checkout";
   }
+
+  // $ : {
+  //   coupon_code = $page.p
+  // }
 </script>
 
 {#if $cart_store.length > 0}
-  <div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 pt-4">
-    <div class="grid md:grid-cols-3 gap-4">
+  <div
+    class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 pt-4 min-h-[calc(100vh-80px)] flex"
+  >
+    <div class="grid md:grid-cols-3 gap-4 grow">
       <div class="col-span-3 md:col-span-2">
         <div class="mb-4">
           <h1 class="font-semibold text-lg mb-4">Billing Address</h1>
@@ -178,20 +298,16 @@
                 class="w-full p-2 flex gap-2 cursor-pointer hover:bg-gray-200 border border-gray-20 rounded-lg"
                 href={`/product/${cartItem.product.slug}`}
               >
-
                 <div class="w-16">
                   {#if cartItem.product.assets.length}
-                  <img
-                    class="aspect-square object-cover rounded-lg"
-                    src={cartItem.product.assets[0].url}
-                    alt={cartItem.product.title}
-                  />
+                    <img
+                      class="aspect-square object-cover rounded-lg"
+                      src={cartItem.product.assets[0].url}
+                      alt={cartItem.product.title}
+                    />
                   {:else}
-                  <div class="aspect-square bg-gray-300 rounded-lg">
-
-                  </div>
+                    <div class="aspect-square bg-gray-300 rounded-lg"></div>
                   {/if}
-                  
                 </div>
                 <div class="grow">
                   <h1 class="font-semibold">{cartItem.product.title}</h1>
@@ -278,107 +394,172 @@
         </div>
       </div>
       <div class="col-span-3 md:col-span-1">
-        <div
-          class="border border-gray-200 rounded-lg p-4 md:sticky md:top-[80px]"
-        >
-          <div class="font-semibold mb-4">Order Summary</div>
-          <div class="text-sm flex flex-col gap-4 mb-2">
-            <div class="flex">
-              <div class="grow">Bag Total</div>
-              <div>
-                {#if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+        <div class="md:sticky md:top-[80px]">
+          <div class="border border-gray-200 rounded-lg p-4 mb-4">
+            <div class="font-semibold mb-4">Order Summary</div>
+            <div class="text-sm flex flex-col gap-4 mb-2">
+              <div class="flex">
+                <div class="grow">Bag Total</div>
+                <div class:w-16={loading}>
+                  {#if loading}
+                    <div class=" bg-gray-300 rounded-lg">&nbsp;</div>
+                  {:else if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                        if (c.variant && !c.product.variants) {
+                          return false;
+                        }
+                        return true;
+                      } )}
+                    {formatCurrency(order_data.cart_total)}
+                  {:else}
+                    ---
+                  {/if}
+                </div>
+              </div>
+
+              <div class="flex">
+                <div class="grow">Bag Discount</div>
+                <div class:w-16={loading}>
+                  {#if loading}
+                    <div class=" bg-gray-300 rounded-lg">&nbsp;</div>
+                  {:else if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                        if (c.variant && !c.product.variants) {
+                          return false;
+                        }
+                        return true;
+                      } )}-{formatCurrency(order_data.discount)}{:else}---{/if}
+                </div>
+              </div>
+
+              <div class="flex">
+                <div class="grow">Tax</div>
+                <div class:w-16={loading}>
+                  {#if loading}
+                    <div class=" bg-gray-300 rounded-lg">&nbsp;</div>
+                  {:else if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                        if (c.variant && !c.product.variants) {
+                          return false;
+                        }
+                        return true;
+                      } )}{formatCurrency(order_data.tax)}{:else}---{/if}
+                </div>
+              </div>
+
+              <div class="flex">
+                <div class="grow">Delivery Charges</div>
+                <div class:w-16={loading}>
+                  {#if loading}
+                    <div class=" bg-gray-300 rounded-lg">&nbsp;</div>
+                  {:else if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                        if (c.variant && !c.product.variants) {
+                          return false;
+                        }
+                        return true;
+                      } )}{formatCurrency(
+                      order_data.delivery_charge
+                    )}{:else}---{/if}
+                </div>
+              </div>
+            </div>
+            <hr class="mb-2" />
+            <div class="flex font-semibold mb-4">
+              <div class="grow">Total</div>
+              <div class:w-16={loading}>
+                {#if loading}
+                  <div class=" bg-gray-300 rounded-lg">&nbsp;</div>
+                {:else if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
                       if (c.variant && !c.product.variants) {
                         return false;
                       }
                       return true;
                     } )}
-                  {formatCurrency(order_data.cart_total)}
+                  {formatCurrency(order_data.total)}
                 {:else}
                   ---
                 {/if}
               </div>
             </div>
-
-            <div class="flex">
-              <div class="grow">Bag Discount</div>
-              <div>
-                {#if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
-                      if (c.variant && !c.product.variants) {
-                        return false;
-                      }
-                      return true;
-                    } )}{formatCurrency(order_data.discount)}{:else}---{/if}
-              </div>
-            </div>
-
-            <div class="flex">
-              <div class="grow">Tax</div>
-              <div>
-                {#if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
-                      if (c.variant && !c.product.variants) {
-                        return false;
-                      }
-                      return true;
-                    } )}{formatCurrency(order_data.tax)}{:else}---{/if}
-              </div>
-            </div>
-
-            <div class="flex">
-              <div class="grow">Delivery Charges</div>
-              <div>
-                {#if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
-                      if (c.variant && !c.product.variants) {
-                        return false;
-                      }
-                      return true;
-                    } )}{formatCurrency(
-                    order_data.delivery_charge
-                  )}{:else}---{/if}
-              </div>
-            </div>
+            <button
+              href="/checkout"
+              class="w-full grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+              on:click={handlePlaceOrder}
+              disabled={!loading &&
+              selected_address &&
+              selected_payment_method &&
+              $cart_store.every((c) => c.product.status === "active") &&
+              $cart_store.every((c) => {
+                if (c.variant && !c.product.variants) {
+                  return false;
+                }
+                return true;
+              }) || (coupon_code.trim() && coupon_valid)
+                ? false
+                : true}>Place Order</button
+            >
+            {#if !$cart_store.every((c) => c.product.status === "active")}
+              <p class="text-red-500 text-sm">
+                Remove all out of stock or unavailable items to checkout
+              </p>
+            {/if}
           </div>
-          <hr class="mb-2" />
-          <div class="flex font-semibold mb-4">
-            <div class="grow">Total</div>
-            <div>
-              {#if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+
+          <div class="border border-gray-200 rounded-lg p-4">
+            <div class="mb-2">
+              <div class="relative">
+                <input
+                  type="text"
+                  class="w-full rounded-lg border border-gray-200 p-2 pe-8"
+                  placeholder="Enter coupon code"
+                  bind:value={coupon_code}
+                  disabled={!loading &&
+                  $cart_store.every((c) => c.product.status === "active") &&
+                  $cart_store.every((c) => {
                     if (c.variant && !c.product.variants) {
                       return false;
                     }
                     return true;
-                  } )}
-                {formatCurrency(
-                  order_data.cart_total +
-                    order_data.delivery_charge +
-                    order_data.tax -
-                    order_data.discount
-                )}
-              {:else}
-                ---
-              {/if}
+                  })
+                    ? false
+                    : true}
+                />
+                <button 
+                class:hidden={!coupon_code}
+                class="absolute top-1/2 -translate-y-1/2 right-2"
+                on:click={() => {
+                  coupon_code = "";
+                  coupon_msg = "";
+                  coupon_valid = false;
+                }}
+                  ><CloseIcon /></button
+                >
+              </div>
             </div>
+            {#if coupon_msg && coupon_code}
+              {#if coupon_valid}
+                <div class="text-sm text-green-500 font-semibold mb-4">
+                  {coupon_msg}
+                </div>
+              {:else}
+                <div class="text-sm text-red-500 font-semibold mb-4">
+                  {coupon_msg}
+                </div>
+              {/if}
+            {/if}
+            <button
+              disabled={!loading &&
+              $cart_store.every((c) => c.product.status === "active") &&
+              $cart_store.every((c) => {
+                if (c.variant && !c.product.variants) {
+                  return false;
+                }
+                return true;
+              })
+                ? false
+                : true}
+              href="/checkout"
+              class="w-full grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+              on:click={handleApplyCoupon}>Apply Coupon</button
+            >
           </div>
-          <button
-            href="/checkout"
-            class="w-full grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
-            on:click={handlePlaceOrder}
-            disabled={selected_address &&
-            selected_payment_method &&
-            $cart_store.every((c) => c.product.status === "active") &&
-            $cart_store.every((c) => {
-              if (c.variant && !c.product.variants) {
-                return false;
-              }
-              return true;
-            })
-              ? false
-              : true}>Place Order</button
-          >
-          {#if !$cart_store.every((c) => c.product.status === "active")}
-            <p class="text-red-500 text-sm">
-              Remove all out of stock or unavailable items to checkout
-            </p>
-          {/if}
         </div>
       </div>
     </div>

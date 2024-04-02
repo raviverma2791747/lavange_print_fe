@@ -26,3 +26,5 @@ export const getCategory = "/public/category";
 export const fetchUserCategory = "/public/category";
 export const fetchUserCollection = "/public/collection";
 export const getSearchFilters = "/public/filters";
+export const applyCoupon = "/public/coupon/apply";
+export const getCheckout = "/public/checkout";

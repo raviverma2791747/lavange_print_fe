@@ -1,5 +1,7 @@
 <script>
   //@ts-nocheck
+  import Breadcrumb from "../../components/Breadcrumb.svelte";
+  import BreadcrumbShimmer from "../../components/BreadcrumbShimmer.svelte";
   import ProductCard from "../../components/ProductCard.svelte";
   import TrashIcon from "../../components/svg/TrashIcon.svelte";
   import { product_cache } from "../../helper/cache_store";
@@ -12,6 +14,7 @@
   } from "../../helper/store";
   import { formatCurrency } from "../../helper/utils";
 
+  let loading = false;
   const handleRemoveFromWishlist = async (product_id) => {
     const response = await httpClient(removeUserWishlist, {
       method: "POST",
@@ -42,27 +45,38 @@
 </script>
 
 {#if $wishlist_store.length > 0}
-  <div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0">
-    <h1
+  <div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 py-4">
+    {#if loading}
+      <BreadcrumbShimmer count={2} />
+    {:else}
+      <Breadcrumb
+        routes={[
+          { name: "Home", path: "/" },
+          { name: "Wishlist", path: "/wishlist" },
+        ]}
+      />
+    {/if}
+
+    <!-- <h1
       class="hidden md:block font-semibold text-xl md:text-3xl text-center mb-4 capitalize"
     >
       Wishlist
-    </h1>
+    </h1> -->
     <div class="grid gap-4 md:grid-cols-4 lg:grid-cols-6 py-4">
       {#each $wishlist_store as product}
         <a
-          class="w-full p-2 flex gap-2 cursor-pointer hover:bg-gray-200 md:hidden border border-gray-200 rounded-lg"
+          class="w-full p-2 flex gap-2 cursor-pointer hover:bg-primary-250 md:hidden rounded-lg"
           href={`/product/${product.slug}`}
         >
-          <div class="w-16">
+          <div class="w-1/4">
             {#if product.assets.length}
-            <img
-              class="aspect-square object-cover rounded-lg"
-              src={product.assets[0].url}
-              alt={product.title}
-            />
+              <img
+                class="aspect-square object-cover rounded-lg"
+                src={product.assets[0].url}
+                alt={product.title}
+              />
             {:else}
-            <div class="aspect-square bg-gray-300 rounded-lg"></div>
+              <div class="aspect-square bg-gray-300 rounded-lg"></div>
             {/if}
           </div>
           <div class="grow">
@@ -73,16 +87,18 @@
               <p class="text-red-500">Unavailable</p>
             {/if}
           </div>
-          <button
-            class="hover:text-red-500"
-            on:click={(e) => {
-              e.stopImmediatePropagation();
-              e.preventDefault();
-              handleRemoveFromWishlist(product._id);
-            }}
-          >
-            <TrashIcon />
-          </button>
+          <div>
+            <button
+              class="hover:text-red-500"
+              on:click={(e) => {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+                handleRemoveFromWishlist(product._id);
+              }}
+            >
+              <TrashIcon />
+            </button>
+          </div>
         </a>
 
         <div class="hidden md:block">
@@ -92,11 +108,13 @@
     </div>
   </div>
 {:else}
-  <div class="flex justify-center items-center flex-col gap-4 p-4 h-full">
+  <div
+    class="flex justify-center items-center flex-col gap-4 p-4 h-[calc(100vh-64px)]"
+  >
     <div>Your wishlist is empty</div>
     <a
       href="/search"
-      class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+      class="w-full sm:w-fit hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
       >Continue shopping</a
     >
   </div>

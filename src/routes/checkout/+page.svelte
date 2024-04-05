@@ -17,6 +17,7 @@
   } from "../../helper/endpoints";
   import { goto } from "$app/navigation";
   import CloseIcon from "../../components/svg/CloseIcon.svelte";
+  import CartItem from "../../components/cart/CartItem.svelte";
 
   let selected_address;
   let selected_payment_method;
@@ -126,7 +127,7 @@
       return;
     }
 
-    initCheckout($cart_store, $user_info_store?._id);
+    await initCheckout($cart_store, $user_info_store?._id);
     // coupon_loading = true;
     // const response = await httpClient(applyCoupon, {
     //   method: "POST",
@@ -148,6 +149,13 @@
     //   coupon_msg = response.data.errors.join(",");
     // }
     // coupon_loading = false;
+  };
+
+  const handleRemoveCoupon = async () => {
+    coupon_code = "";
+    coupon_valid = false;
+    coupon_msg = "";
+    await initCheckout($cart_store, $user_info_store?._id);
   };
 
   // $: {
@@ -224,12 +232,13 @@
       <div class="col-span-3 md:col-span-2">
         <div class="mb-4">
           <h1 class="font-semibold text-lg mb-4">Billing Address</h1>
+          {#if $user_info_store.addresses.length}
           <div class="flex flex-col gap-4">
             {#each $user_info_store.addresses as address}
               <label
                 for={`address-${address._id}`}
                 class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow flex gap-2"
-                class:bg-purple-50={selected_address === address._id}
+                class:bg-primary-50={selected_address === address._id}
               >
                 <div>
                   <input
@@ -254,6 +263,14 @@
               </label>
             {/each}
           </div>
+          {:else}
+            <p>No address found!</p>
+            <a
+            href="/account/address/create"
+            class="text-primary-500 hover:underline"
+            >Click here to add address</a
+          >
+          {/if}
         </div>
         <div class="mb-4">
           <h1 class="font-semibold text-lg mb-4">Payment Method</h1>
@@ -261,7 +278,7 @@
             <label
               for="paytm"
               class="border border-gray-200 rounded-lg p-4 hover:shadow flex gap-2 cursor-pointer"
-              class:bg-purple-50={selected_payment_method === "paytm"}
+              class:bg-primary-50={selected_payment_method === "paytm"}
             >
               <div>
                 <input
@@ -276,7 +293,7 @@
             <label
               for="phonepe"
               class="border border-gray-200 rounded-lg p-4 hover:shadow flex gap-2"
-              class:bg-purple-50={selected_payment_method === "phonepe"}
+              class:bg-primary-50={selected_payment_method === "phonepe"}
             >
               <div>
                 <input
@@ -294,66 +311,7 @@
           <h1 class="font-semibold text-lg mb-4">Order Details</h1>
           <div class="grid gap-4 mb-4">
             {#each $cart_store as cartItem}
-              <a
-                class="w-full p-2 flex gap-2 cursor-pointer hover:bg-gray-200 border border-gray-20 rounded-lg"
-                href={`/product/${cartItem.product.slug}`}
-              >
-                <div class="w-16">
-                  {#if cartItem.product.assets.length}
-                    <img
-                      class="aspect-square object-cover rounded-lg"
-                      src={cartItem.product.assets[0].url}
-                      alt={cartItem.product.title}
-                    />
-                  {:else}
-                    <div class="aspect-square bg-gray-300 rounded-lg"></div>
-                  {/if}
-                </div>
-                <div class="grow">
-                  <h1 class="font-semibold">{cartItem.product.title}</h1>
-
-                  <div class="flex gap-2 flex-wrap">
-                    {#if cartItem.variant && cartItem.product.variants && cartItem.product.variants.find((v) => v._id === cartItem.variant)}
-                      {#each Object.entries(cartItem.product.variants.find((v) => v._id === cartItem.variant).attributes).map( (a) => {
-                          return cartItem.product.variantOptions
-                            .find((v) => v.name === a[0])
-                            .options.find((o) => o.value === a[1]).displayName;
-                        } ) as attribute}
-                        <div
-                          class="border border-purple-500 text-purple-500 bg-purple-200 px-2 rounded-lg"
-                        >
-                          {attribute}
-                        </div>
-                      {/each}
-                    {/if}
-                  </div>
-
-                  {#if cartItem.product.status === "active"}
-                    <p>
-                      {#if cartItem.variant && cartItem.product.variants}
-                        {#if cartItem.product.variants.find((v) => v._id === cartItem.variant)}
-                          {formatCurrency(
-                            cartItem.variant
-                              ? cartItem.product.variants.find(
-                                  (v) => v._id === cartItem.variant
-                                ).price
-                              : cartItem.product.price
-                          )}
-                        {:else}
-                          Out of stock
-                        {/if}
-                      {:else if cartItem.variant && !cartItem.product.variants}
-                        <p class="text-red-500">Unavailable</p>
-                      {:else}
-                        {formatCurrency(cartItem.product.price)}
-                      {/if}
-                    </p>
-                  {:else}
-                    <p class="text-red-500">Unavailable</p>
-                  {/if}
-                  <p>Quantity {cartItem.quantity}</p>
-                </div>
-              </a>
+              <CartItem item={cartItem} />
             {/each}
           </div>
           <div class="mb-4">
@@ -480,18 +438,19 @@
             </div>
             <button
               href="/checkout"
-              class="w-full grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+              class="w-full grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
               on:click={handlePlaceOrder}
-              disabled={!loading &&
-              selected_address &&
-              selected_payment_method &&
-              $cart_store.every((c) => c.product.status === "active") &&
-              $cart_store.every((c) => {
-                if (c.variant && !c.product.variants) {
-                  return false;
-                }
-                return true;
-              }) || (coupon_code.trim() && coupon_valid)
+              disabled={(!loading &&
+                selected_address &&
+                selected_payment_method &&
+                $cart_store.every((c) => c.product.status === "active") &&
+                $cart_store.every((c) => {
+                  if (c.variant && !c.product.variants) {
+                    return false;
+                  }
+                  return true;
+                })) ||
+              (coupon_code.trim() && coupon_valid)
                 ? false
                 : true}>Place Order</button
             >
@@ -521,15 +480,10 @@
                     ? false
                     : true}
                 />
-                <button 
-                class:hidden={!coupon_code}
-                class="absolute top-1/2 -translate-y-1/2 right-2"
-                on:click={() => {
-                  coupon_code = "";
-                  coupon_msg = "";
-                  coupon_valid = false;
-                }}
-                  ><CloseIcon /></button
+                <button
+                  class:hidden={!coupon_code}
+                  class="absolute top-1/2 -translate-y-1/2 right-2"
+                  on:click={handleRemoveCoupon}><CloseIcon /></button
                 >
               </div>
             </div>
@@ -552,11 +506,11 @@
                   return false;
                 }
                 return true;
-              })
+              }) 
                 ? false
                 : true}
               href="/checkout"
-              class="w-full grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+              class="w-full grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
               on:click={handleApplyCoupon}>Apply Coupon</button
             >
           </div>
@@ -571,7 +525,7 @@
     <h1 class="font-semibold text-2xl mb-4">No product in the cart!</h1>
     <a
       href="/search"
-      class="w-full md:w-auto hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+      class="w-full md:w-auto hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
       >Continue shopping</a
     >
   </div>

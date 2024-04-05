@@ -25,7 +25,7 @@
 </script>
 
 <div
-  class="text-gray-800 border-2 border-gray-200 rounded-lg p-4 aspect-square text-sm hover:shadow flex flex-col"
+  class="text-gray-800 border-2 border-gray-200 rounded-lg p-4 h-full w-full text-sm hover:shadow flex flex-col"
 >
   <div class="grow">
     <div class="font-semibold">{address.fullName}</div>
@@ -38,9 +38,9 @@
     <div>{address.country}</div>
   </div>
   <div class="flex gap-4">
-    <a href={`address/${address._id}`} class="block text-purple-500">Edit</a>
+    <a href={`address/${address._id}`} class="block text-primary-500">Edit</a>
     <button
-      class="text-purple-500"
+      class="text-primary-500"
       on:click={() => (confirm_remove_open = true)}>Remove</button
     >
   </div>
@@ -55,7 +55,7 @@
         class="relative p-4 font-semibold text-lg text-center border-b border-gray-200"
       >
         <button
-          class="absolute top-4 left-4 rounded-full hover:text-purple-600 hover:bg-purple-50"
+          class="absolute top-4 left-4 rounded-full hover:text-primary-600 hover:bg-primary-50"
           on:click={() => {
             confirm_remove_open = false;
           }}
@@ -80,13 +80,13 @@
 
         <div class="flex gap-4">
           <button
-            class=" grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-purple-600 text-purple-600 disabled:opacity-50 disabled:pointer-events-none"
+            class=" grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 disabled:opacity-50 disabled:pointer-events-none"
             on:click={() => {
               confirm_remove_open = false;
             }}>No</button
           >
           <button
-            class="grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+            class="grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
             on:click={handleRemoveAddress}>Yes</button
           >
         </div>

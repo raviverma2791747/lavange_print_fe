@@ -142,7 +142,7 @@
         class="relative p-4 font-semibold text-lg text-center border-b border-gray-200"
       >
         <button
-          class="absolute top-4 left-4 rounded-full hover:text-purple-600 hover:bg-purple-50"
+          class="absolute top-4 left-4 rounded-full hover:text-primary-600 hover:bg-primary-50"
           on:click={() => {
             login_signup_modal_open.set(false);
           }}
@@ -165,7 +165,7 @@
           </div>
 
           <button
-            class="mb-4 w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+            class="mb-4 w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
           >
             Continue
           </button>
@@ -177,7 +177,7 @@
 
         <div class="flex flex-col gap-4">
           <button
-            class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-purple-600 text-purple-600 hover:bg-purple-50 disabled:opacity-50 disabled:pointer-events-none"
+            class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
             on:click={handleGoogleLogin}
           >
             <GoogleSocialIcon />
@@ -185,7 +185,7 @@
           </button>
 
           <button
-            class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-purple-600 text-purple-600 hover:bg-purple-50 disabled:opacity-50 disabled:pointer-events-none"
+            class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
             on:click={() => {
               selected_auth_mode = AUTH_MODE.EMAIL;
             }}
@@ -196,7 +196,7 @@
           </button>
 
           <button
-            class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-purple-600 text-purple-600 hover:bg-purple-50 disabled:opacity-50 disabled:pointer-events-none"
+            class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
             on:click={() => {
               selected_auth_mode = AUTH_MODE.PHONE;
             }}

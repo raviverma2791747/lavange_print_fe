@@ -51,9 +51,33 @@
 <!-- svelte-ignore missing-declaration -->
 {#if !loading}
   <div class="bg-white max-w-7xl mx-auto px-4 lg:px-0 py-2">
-    <h1 class="hidden md:block font-semibold text-3xl text-center mb-4">
+    {#if loading}{:else}
+      <div class="mb-4 flex">
+        {#if loading}
+          <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
+            &nbsp;
+          </div>
+          /
+          <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
+            &nbsp;
+          </div>
+          /
+          <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
+            &nbsp;
+          </div>
+        {:else}
+          <div>
+            <a class="hover:text-primary-500" href="/order">Order</a> /
+            <a class="hover:text-primary-500" href={`/order/${order._id}`}
+              >Details</a
+            >
+          </div>
+        {/if}
+      </div>
+    {/if}
+    <!-- <h1 class="hidden md:block font-semibold text-3xl text-center mb-4">
       Order Details
-    </h1>
+    </h1> -->
     <!-- <div class="mb-4">
       {#if loading}
         <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
@@ -68,15 +92,15 @@
           &nbsp;
         </div>
       {:else}
-        <a class="hover:text-purple-500 font-semibold" href="/">Home</a> /
-        <a class="hover:text-purple-500 font-semibold" href={`/order`}> Order</a>/ Details
+        <a class="hover:text-primary-500 font-semibold" href="/">Home</a> /
+        <a class="hover:text-primary-500 font-semibold" href={`/order`}> Order</a>/ Details
       {/if}
     </div> -->
     <div class="flex gap-4 mb-4 flex-wrap">
       <div>
         <div class="font-semibold">Order Status</div>
         <div
-          class="capitalize px-2 py-1 inline-flex border border-purple-500 rounded-full bg-purple-100 text-purple-500"
+          class="capitalize px-2 py-1 inline-flex border border-primary-500 rounded-full bg-primary-100 text-primary-500"
         >
           {order.status}
         </div>
@@ -111,7 +135,7 @@
         <div class="mb-4">
           <div class="font-semibold">Payment Status</div>
           <div
-            class="capitalize px-2 py-1 inline-flex border border-purple-500 text-sm rounded-full bg-purple-100 text-purple-500"
+            class="capitalize px-2 py-1 inline-flex border border-primary-500 text-sm rounded-full bg-primary-100 text-primary-500"
           >
             {order.paymentStatus}
           </div>
@@ -119,7 +143,7 @@
         <div class="mb-4">
           <div class="font-semibold">Payment Mode</div>
           <div
-            class="capitalize px-2 py-1 inline-flex border border-purple-500 text-sm rounded-full bg-purple-100 text-purple-500"
+            class="capitalize px-2 py-1 inline-flex border border-primary-500 text-sm rounded-full bg-primary-100 text-primary-500"
           >
             {order.paymentType}
           </div>
@@ -151,7 +175,7 @@
             <a
               href={order.shipping.trackingUrl}
               target="_blank"
-              class="text-purple-500"
+              class="text-primary-500"
             >
               Track Your Order
             </a>
@@ -170,11 +194,11 @@
 
     <div class="mb-4">
       <div class="font-semibold mb-2">Timeline</div>
-      <ol class="relative border-s border-purple-300 mb-4">
+      <ol class="relative border-s border-primary-300 mb-4">
         {#each order.timeline as item}
           <li class="ms-4">
             <div
-              class="absolute w-3 h-3 bg-purple-500 rounded-full mt-1.5 -start-1.5 border border-white"
+              class="absolute w-3 h-3 bg-primary-500 rounded-full mt-1.5 -start-1.5 border border-white"
             ></div>
             <time
               class="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500"
@@ -234,7 +258,7 @@
                         .options.find((o) => o.value === a[1]).displayName;
                     } ) as attribute}
                     <div
-                      class="border border-purple-500 text-purple-500 bg-purple-200 px-2 rounded-lg"
+                      class="border border-primary-500 text-primary-500 bg-primary-200 px-2 rounded-lg"
                     >
                       {attribute}
                     </div>
@@ -273,7 +297,7 @@
     <!-- 
     <div class="">
       <button
-        class="hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+        class="hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
       >
         Cancel
     </button>

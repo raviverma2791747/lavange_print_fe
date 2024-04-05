@@ -140,7 +140,7 @@
           {#each $searchFilters_store.categories as category}
             <div
               class="flex items-center"
-              class:text-purple-500={filters.categories.includes(category.name)}
+              class:text-primary-500={filters.categories.includes(category.name)}
             >
               <input
                 id={`categories-${category._id}`}
@@ -161,7 +161,7 @@
           {#each $searchFilters_store.collections as collection}
             <div
               class="flex items-center"
-              class:text-purple-500={filters.collections.includes(
+              class:text-primary-500={filters.collections.includes(
                 collection._id
               )}
             >
@@ -184,8 +184,8 @@
           {#each $searchFilters_store.sizes as size}
             <button
               class="border border-gray-200 p-2 rounded-lg text-sm"
-              class:border-purple-500={filters.sizes.includes(size.value)}
-              class:text-purple-500={filters.sizes.includes(size.value)}
+              class:border-primary-500={filters.sizes.includes(size.value)}
+              class:text-primary-500={filters.sizes.includes(size.value)}
               on:click={() => {
                 handleToggleSize(size.value);
               }}

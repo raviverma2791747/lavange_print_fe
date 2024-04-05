@@ -5,7 +5,7 @@
   import { formatCurrency, formatDate } from "../../helper/utils";
   import { fetchUserOrder } from "../../helper/endpoints";
   import {
-  header_title_store,
+    header_title_store,
     login_signup_modal_open,
     token_store,
     user_info_store,
@@ -14,10 +14,14 @@
   import { DATE_FORMAT, DATE_TIME_FORMAT } from "../../helper/constants";
   import CopyIcon from "../../components/svg/CopyIcon.svelte";
   import { order_cache } from "../../helper/cache_store";
+  import BreadcrumbShimmer from "../../components/BreadcrumbShimmer.svelte";
+  import Breadcrumb from "../../components/Breadcrumb.svelte";
+  import OrderCard from "../../components/OrderCard.svelte";
+  import OrderCardShimmer from "../../components/OrderCardShimmer.svelte";
   let orders = [];
-
+  let loading = true;
   const initOrders = async () => {
-    //loading = true;
+    loading = true;
     const response = await httpClient(fetchUserOrder, {
       method: "GET",
       token: $token_store,
@@ -29,7 +33,7 @@
         return new Date(b.createdAt) - new Date(a.createdAt);
       });
     }
-   // loading = false;
+    loading = false;
   };
 
   // onMount(async () => {
@@ -44,55 +48,39 @@
     }
   }
 
-  $ : {
+  $: {
     $header_title_store = "Order";
   }
 </script>
 
-<div class="bg-white max-w-7xl mx-auto px-4 lg:px-0 py-2">
-  <h1 class="hidden md:block font-semibold text-3xl text-center mb-4">
+<div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 mb-4 mt-4">
+  {#if $user_info_store}
+    {#if loading}
+      <BreadcrumbShimmer count={1} />
+      <div class="flex gap-4 flex-col">
+        {#each {length: 5} as item}
+        <OrderCardShimmer/>
+        {/each}
+        </div>
+    {:else}
+      <Breadcrumb
+        routes={[
+          {
+            name: "Order",
+            path: "/order",
+          },
+        ]}
+      />
+      <!-- <h1 class="hidden md:block font-semibold text-3xl text-center mb-4">
     Orders
-  </h1>
-  <div class="flex gap-4 flex-col">
-    {#each orders as order}
-      <a
-        href={`/order/${order._id}`}
-        class="block border border-gray-200 rounded-lg"
-      >
-        <div
-          class="border-b border-gray-200 grid md:grid-cols-4 gap-4 p-4 "
-        >
-          <div>
-            <div class="font-semibold">Order Placed</div>
-            <div>{formatDate(order.createdAt, DATE_FORMAT)}</div>
-          </div>
-          <div>
-            <div class="font-semibold">Total</div>
-            <div>
-              {formatCurrency(
-                order.items.reduce((a, b) => a + b.quantity * b.price, 0)
-              )}
-            </div>
-          </div>
-          <div>
-            <div class="font-semibold">Ship To</div>
-            <div>{order.address.fullName}</div>
-          </div>
-          <div>
-            <div class="font-semibold">Order #</div>
-            <div class="uppercase text-purple-500"  on:click={(e) =>{
-              e.stopImmediatePropagation();
-              e.preventDefault();
-              navigator.clipboard.writeText(order._id);
-            }} >{order._id} </div>
-          </div>
-        </div>
-        <div >
-          
-        </div>
-      </a>
-    {/each}
-  </div>
-  //create pagination here
-  
+  </h1> -->
+      <div class="flex gap-4 flex-col">
+        {#each orders as order}
+          <OrderCard {order} />
+        {/each}
+      </div>
+    {/if}
+  {:else}
+    Please Login
+  {/if}
 </div>

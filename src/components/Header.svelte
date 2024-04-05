@@ -18,6 +18,8 @@
   import SliderIcon from "./svg/SliderIcon.svelte";
   import { page } from "$app/stores";
   import ChevronLeft from "./svg/ChevronLeft.svelte";
+  import { PUBLIC_BRAND_NAME } from "$env/static/public";
+  import ShoppingBagIcon from "./svg/ShoppingBagIcon.svelte";
 
   let hidden = false;
   let innnerWidth;
@@ -37,13 +39,15 @@
 
 <svelte:window bind:innerWidth={innnerWidth} />
 
-<header class="border-b border-gray-200 sticky top-0 bg-white z-50">
+<header class="border-b border-gray-200 sticky top-0 bg-white z-50 h-16">
   <div
     class:hidden
     class="max-w-7xl mx-auto flex items-center py-2 px-4 7xl:px-0 gap-4"
   >
     <div class="hidden md:block">
-      <a class="flex-none text-xl font-semibold" href="/"> Brand</a>
+      <a class="flex-none text-xl font-semibold" href="/">
+        {PUBLIC_BRAND_NAME}</a
+      >
     </div>
     <div class="grow">
       <div class="lg:w-4/12 mx-auto relative">
@@ -69,17 +73,28 @@
       </div>
     </div>
     <div class="md:hidden">
-      <button class="text-gray-600 hover:text-purple-500">
+      <button class="text-gray-600 hover:text-primary-500">
         <SliderIcon />
       </button>
     </div>
-    <div class="hidden md:flex gap-4">
+    <div class="hidden md:flex gap-4 items-center">
       <Dropdown
         class="inline-flex"
-        triggerClass="hover:text-purple-500 text-gray-600"
+        triggerClass="hover:text-primary-500 text-gray-600 relative py-2"
       >
         <svelte:fragment slot="trigger">
-          <ShoppingCartIcon />
+          <ShoppingBagIcon />
+          {#if $cart_store.length > 0}
+            <div
+              class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-4"
+            >
+              {#if $cart_store.reduce((a, b) => a + b.quantity, 0) > 9}
+                9+
+              {:else}
+                {$cart_store.reduce((a, b) => a + b.quantity, 0)}
+              {/if}
+            </div>
+          {/if}
         </svelte:fragment>
         <div
           slot="menu"
@@ -97,31 +112,29 @@
               >
                 <div class="w-16">
                   {#if cart_item.product.assets.length}
-                  <img
-                    class="aspect-square object-cover rounded-lg"
-                    src={cart_item.product.assets[0].url}
-                    alt={cart_item.product.title}
-                  />
+                    <img
+                      class="aspect-square object-cover rounded-lg"
+                      src={cart_item.product.assets[0].url}
+                      alt={cart_item.product.title}
+                    />
                   {:else}
-                  <div class="aspect-square bg-gray-300 rounded-lg">
-
-                  </div>
+                    <div class="aspect-square bg-gray-300 rounded-lg"></div>
                   {/if}
                 </div>
                 <div class="grow">
                   <h1 class="font-semibold">{cart_item.product.title}</h1>
                   <div class="flex gap-2 flex-wrap">
-                    {#if cart_item.variant &&  cart_item.product.variants && cart_item.product.variants.find((v) => v._id === cart_item.variant)}
-                      {#each Object.entries(
-                        cart_item.product.variants.find(
-                          (v) => v._id === cart_item.variant
-                        ).attributes
-                      ).map((a) => {
-                        return cart_item.product.variantOptions
-                          .find((v) => v.name === a[0])
-                          .options.find((o) => o.value === a[1]).displayName;
-                      }) as attribute}
-                      <div class="border border-purple-500 text-purple-500 bg-purple-200 px-2 rounded-lg">{attribute}</div>
+                    {#if cart_item.variant && cart_item.product.variants && cart_item.product.variants.find((v) => v._id === cart_item.variant)}
+                      {#each Object.entries(cart_item.product.variants.find((v) => v._id === cart_item.variant).attributes).map( (a) => {
+                          return cart_item.product.variantOptions
+                            .find((v) => v.name === a[0])
+                            .options.find((o) => o.value === a[1]).displayName;
+                        } ) as attribute}
+                        <div
+                          class="border border-primary-500 text-primary-500 bg-primary-200 px-2 rounded-lg"
+                        >
+                          {attribute}
+                        </div>
                       {/each}
                     {/if}
                   </div>
@@ -140,10 +153,21 @@
       </Dropdown>
       <Dropdown
         class="inline-flex"
-        triggerClass="hover:text-purple-500 text-gray-600"
+        triggerClass="hover:text-primary-500 text-gray-600 relative py-2"
       >
         <svelte:fragment slot="trigger">
           <HeartIcon />
+          {#if $wishlist_store.length > 0}
+            <div
+              class="absolute inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-2 -end-4"
+            >
+              {#if $wishlist_store.length > 9}
+                9+
+              {:else}
+                {$wishlist_store.length}
+              {/if}
+            </div>
+          {/if}
         </svelte:fragment>
         <div
           slot="menu"
@@ -161,15 +185,13 @@
               >
                 <div class="w-16">
                   {#if product.assets.length}
-                  <img
-                    class="aspect-square object-cover rounded-lg"
-                    src={product.assets[0].url}
-                    alt={product.title}
-                  />
+                    <img
+                      class="aspect-square object-cover rounded-lg"
+                      src={product.assets[0].url}
+                      alt={product.title}
+                    />
                   {:else}
-                  <div class="aspect-square bg-gray-300 rounded-lg">
-
-                  </div>
+                    <div class="aspect-square bg-gray-300 rounded-lg"></div>
                   {/if}
                 </div>
                 <div class="grow">
@@ -188,7 +210,7 @@
       </Dropdown>
       <Dropdown
         class="inline-flex"
-        triggerClass="text-gray-600 flex gap-2 p-3 border border-gray-200 rounded-full hover:shadow"
+        triggerClass="text-gray-600 flex gap-2 py-2 px-3 border border-gray-200 rounded-full hover:shadow"
       >
         <svelte:fragment slot="trigger">
           <MenuIcon />

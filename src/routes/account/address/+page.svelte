@@ -10,6 +10,8 @@
     user_info_store,
   } from "../../../helper/store";
 
+
+  let loading  = false;
   const initUserInfo = async () => {
     const response = await httpClient(getUserInfo);
 
@@ -28,14 +30,36 @@
 
 {#if $user_info_store}
   <div class="bg-white max-w-5xl mx-auto px-4 5xl:px-0 py-2">
-    <h1 class="hidden md:block font-semibold text-3xl text-center mb-4">
+    {#if loading}{:else}
+      <div class="mb-4 flex">
+        {#if loading}
+          <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
+            &nbsp;
+          </div>
+          /
+          <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
+            &nbsp;
+          </div>
+          /
+          <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
+            &nbsp;
+          </div>
+        {:else}
+          <div>
+            <a class="hover:text-primary-500" href="/account">Account</a> /
+            <a class="hover:text-primary-500" href="/account/address">Address</a>
+          </div>
+        {/if}
+      </div>
+    {/if}
+    <!-- <h1 class="hidden md:block font-semibold text-3xl text-center mb-4">
       Address
-    </h1>
+    </h1> -->
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1  sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       <a
         href="/account/address/create"
-        class="text-gray-800 border-2 border-dashed border-gray-200 rounded-lg flex justify-center items-center aspect-square"
+        class="text-gray-800 border-2 border-dashed border-gray-200 rounded-lg flex justify-center items-center aspect-[4/2]   sm:aspect-square"
       >
         <div class="flex flex-col justify-center items-center">
           <PlusIcon class="h-8 w-8" />
@@ -43,7 +67,9 @@
         </div>
       </a>
       {#each $user_info_store.addresses as address}
+      <div class="aspect-[4/2] sm:aspect-square">
         <Address {address} on:remove={initUserInfo} />
+      </div>
       {/each}
     </div>
   </div>

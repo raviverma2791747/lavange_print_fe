@@ -109,15 +109,13 @@
       price = product_.price;
       compareAtPrice = product.compareAtPrice;
     }
-
-
   };
 
   if (product.assets.length) {
-      interval = setInterval(() => {
-        active_slide = (active_slide + 1) % product.assets.length;
-      }, 5000);
-    }
+    interval = setInterval(() => {
+      active_slide = (active_slide + 1) % product.assets.length;
+    }, 5000);
+  }
 
   onDestroy(() => {
     clearInterval(interval);
@@ -142,7 +140,7 @@
 
 <a
   href={`/product/${product.slug}`}
-  class="relative block rounded-lg bg-white hover:shadow-lg border border-gray-200 w-full"
+  class="relative block rounded-lg bg-white hover:shadow-lg w-full"
 >
   {#if compareAtPrice}
     <div
@@ -153,14 +151,14 @@
   {/if}
 
   <!-- <div
-    class="absolute bg-purple-500 text-white text-xs p-1 rounded-tr-lg rounded-br-lg top-0 left-0 mt-2"
+    class="absolute bg-primary-500 text-white text-xs p-1 rounded-tr-lg rounded-br-lg top-0 left-0 mt-2"
   >
     Collection
   </div> -->
   {#if !hideShare}
     <button
       on:click={handleShare}
-      class="absolute top-2 right-2 hover:text-purple-500 rounded-full p-2"
+      class="absolute top-2 right-2 hover:text-primary-500 rounded-full p-2"
     >
       <ShareIcon />
     </button>
@@ -184,14 +182,14 @@
         <div class="relative">
           {#if !product.favorite}
             <button
-              class=" hover:text-purple-500 hover:bg-purple-200 rounded-full"
+              class=" hover:text-primary-500 rounded-full"
               on:click={addToWishlist}
             >
               <HeartIcon />
             </button>
           {:else}
             <button
-              class=" text-purple-500 hover:bg-purple-200 rounded-full"
+              class=" text-primary-500 rounded-full"
               on:click={removeFromWishlist}
             >
               <HeartDuotoneIcon />
@@ -203,17 +201,15 @@
     <!-- <div class="text-sm text-gray-500 px-2">xyz</div> -->
     {#if !hidePrice}
       {#if product.status === "active"}
-        <div class=" px-2 gap-1 items-end">
-          <div class="flex gap-1 items-end">
-            <div class="font-semibold">
-              {formatCurrency(price)}
-            </div>
-            {#if compareAtPrice}
-              <div class="line-through text-gray-500 font-semibold text-sm">
-                {formatCurrency(compareAtPrice)}
-              </div>
-            {/if}
+        <div class="px-2 flex gap-1 items-center">
+          <div class="font-semibold">
+            {formatCurrency(price)}
           </div>
+          {#if compareAtPrice}
+            <div class="line-through text-gray-500 font-semibold text-sm">
+              {formatCurrency(compareAtPrice)}
+            </div>
+          {/if}
         </div>
       {:else}
         <div class="text-red-500 px-2">Unavailable</div>

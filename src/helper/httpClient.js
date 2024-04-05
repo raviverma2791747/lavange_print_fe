@@ -36,7 +36,6 @@ export const httpClient = async (
     network_error.set(false);
     return data;
   } catch (error) {
-
     console.log(error);
     network_error.set(true);
     return error;

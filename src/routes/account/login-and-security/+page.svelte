@@ -8,6 +8,8 @@
   let current_password = "";
   let new_password = "";
   let confirm_password = "";
+  let loading = false;
+
   const handleSave = async () => {
     const response = await httpClient(updateUserPassword, {
       method: "POST",
@@ -34,8 +36,30 @@
 </script>
 
 {#if $user_info_store}
-  <div class="bg-white max-w-3xl mx-auto px-4 3xl:px-0">
-    <h1 class="hidden md:block font-semibold text-3xl text-center mb-4">Login & Security</h1>
+  <div class="bg-white max-w-3xl mx-auto px-4 3xl:px-0 mt-4">
+    {#if loading}{:else}
+    <div class="mb-4 flex">
+      {#if loading}
+        <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
+          &nbsp;
+        </div>
+        /
+        <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
+          &nbsp;
+        </div>
+        /
+        <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
+          &nbsp;
+        </div>
+      {:else}
+        <div>
+          <a class="hover:text-primary-500" href="/account">Account</a> /
+          <a class="hover:text-primary-500" href="/account/login-and-security">Login & Security</a> 
+        </div>
+      {/if}
+    </div>
+  {/if}
+    <!-- <h1 class="hidden md:block font-semibold text-3xl text-center mb-4">Login & Security</h1> -->
     <div class="mb-4 flex justify-between">
       <div class="font-semibold">Password</div>
       <button
@@ -48,7 +72,7 @@
             confirm_password = "";
           }
         }}
-        class="text-purple-500 underline cursor-pointer"
+        class="text-primary-500 underline cursor-pointer"
       >
         {edit_password ? "Cancel" : "Update"}
       </button>
@@ -62,7 +86,7 @@
         <input
           name="current_password"
           type="password"
-          class="w-full py-3 px-4 block border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border-gray-200 rounded-lg text-sm outline-primary-500 border disabled:opacity-50 disabled:pointer-events-none"
           bind:value={current_password}
           placeholder="Current Password"
         />
@@ -74,7 +98,7 @@
         <input
           name="new_password"
           type="password"
-          class="w-full py-3 px-4 block border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border-gray-200 rounded-lg text-sm outline-primary-500 border disabled:opacity-50 disabled:pointer-events-none"
           bind:value={new_password}
           placeholder="New Password"
         />
@@ -86,13 +110,13 @@
         <input
           name="confirm_password"
           type="password"
-          class="w-full py-3 px-4 block border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border-gray-200 rounded-lg text-sm outline-primary-500 border disabled:opacity-50 disabled:pointer-events-none"
           bind:value={confirm_password}
           placeholder="Confirm Password"
         />
       </div>
       <button
-        class="w-full bg-purple-500 text-white py-3 px-4 block border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+        class="w-full bg-primary-500 text-white py-3 px-4 block border-gray-200 rounded-lg text-sm outline-primary-500 border disabled:opacity-50 disabled:pointer-events-none"
         on:click={handleSave}>Update password</button
       >
     {/if}

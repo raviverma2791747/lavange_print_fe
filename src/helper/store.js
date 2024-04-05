@@ -14,4 +14,9 @@ export const searchFilters_store = writable({
 });
 export const header_title_store = writable("");
 export const network_error = writable(false);
-export const notification_store = writable([])
+export const notification_store = writable([]);
+export const policy_store = writable({
+  privacy_policy: null,
+  terms_and_conditions: null,
+  shipping_and_return_policy: null,
+});

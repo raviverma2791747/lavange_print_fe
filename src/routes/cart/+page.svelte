@@ -1,6 +1,5 @@
 <script>
   //@ts-nocheck
-  import { stringify } from "postcss";
   import TrashIcon from "../../components/svg/TrashIcon.svelte";
   import { getUserCart, removeUserCart } from "../../helper/endpoints";
   import { httpClient } from "../../helper/httpClient";
@@ -11,6 +10,11 @@
   } from "../../helper/store";
   import { formatCurrency } from "../../helper/utils";
   import { goto } from "$app/navigation";
+  import CartItem from "../../components/cart/CartItem.svelte";
+  import Breadcrumb from "../../components/Breadcrumb.svelte";
+  import BreadcrumbShimmer from "../../components/BreadcrumbShimmer.svelte";
+
+  let loading = false;
 
   const handleRemoveFromCart = async (item_id) => {
     const response = await httpClient(removeUserCart, {
@@ -42,105 +46,26 @@
 </script>
 
 {#if $cart_store.length > 0}
-  <div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0">
-    <h1
+  <div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 py-4">
+    {#if loading}
+    <BreadcrumbShimmer count={2} />
+  {:else}
+    <Breadcrumb
+      routes={[
+        { name: "Home", path: "/" },
+        { name: "Bag", path: "/cart" },
+      ]}
+    />
+  {/if}
+    <!-- <h1
       class="hidden md:block font-semibold text-3xl text-center mb-4 capitalize rou"
     >
       Cart
-    </h1>
+    </h1> -->
     <div class="grid md:grid-cols-3 gap-4">
       <div class="grid gap-4 pt-4 md:pt-0 md:col-span-2">
         {#each $cart_store as cartItem}
-          <a
-            class="w-full p-2 flex gap-2 cursor-pointer hover:bg-gray-200 rounded-lg border border-gray-200"
-            href={`/product/${cartItem.product.slug}`}
-          >
-            <div class="w-16">
-              {#if cartItem.product.assets.length}
-              <img
-                class="aspect-square object-cover rounded-lg"
-                src={cartItem.product.assets[0].url}
-                alt={cartItem.product.title}
-              />
-              {:else}
-              <div class="aspect-square bg-gray-300 rounded-lg">
-
-              </div>
-              {/if}
-            </div>
-            <div class="grow">
-              <h1 class="font-semibold">{cartItem.product.title}</h1>
-
-              <div class="flex gap-2 flex-wrap">
-                {#if cartItem.variant && cartItem.product.variants && cartItem.product.variants.find((v) => v._id === cartItem.variant)}
-                  {#each Object.entries(cartItem.product.variants.find((v) => v._id === cartItem.variant).attributes).map( (a) => {
-                      return cartItem.product.variantOptions
-                        .find((v) => v.name === a[0])
-                        .options.find((o) => o.value === a[1]).displayName;
-                    } ) as attribute}
-                    <div
-                      class="border border-purple-500 text-purple-500 bg-purple-200 px-2 rounded-lg"
-                    >
-                      {attribute}
-                    </div>
-                  {/each}
-                {/if}
-              </div>
-
-              <p>
-                {#if cartItem.variant}
-                  {#if cartItem.product.variants && cartItem.product.variants.find((v) => v._id === cartItem.variant)}
-                    {formatCurrency(
-                      cartItem.variant
-                        ? cartItem.product.variants.find(
-                            (v) => v._id === cartItem.variant
-                          ).price
-                        : cartItem.product.price
-                    )}
-                  {:else}{/if}
-                {:else}
-                  {formatCurrency(cartItem.product.price)}
-                {/if}
-              </p>
-              <p>
-                <span class="font-semibold">Quantity</span>
-                {cartItem.quantity}
-              </p>
-              <p>
-                {#if cartItem.product.status === "active"}
-                  {#if cartItem.variant && cartItem.product.variants}
-                    {#if cartItem.product.variants.find((v) => v._id === cartItem.variant)}
-                      <span class="font-semibold">Total Price</span>
-                      {formatCurrency(
-                        (cartItem.variant
-                          ? cartItem.product.variants.find(
-                              (v) => v._id === cartItem.variant
-                            ).price
-                          : cartItem.product.price) * cartItem.quantity
-                      )}
-                    {/if}
-                  {:else if cartItem.variant && !cartItem.product.variants}
-                    <p class="text-red-500">Unavailable</p>
-                  {:else}
-                    <span class="font-semibold">Total Price</span>
-                    {formatCurrency(cartItem.product.price * cartItem.quantity)}
-                  {/if}
-                {:else}
-                  <p class="text-red-500">Unavailable</p>
-                {/if}
-              </p>
-            </div>
-            <button
-              class="hover:text-red-500"
-              on:click={(e) => {
-                e.stopImmediatePropagation();
-                e.preventDefault();
-                handleRemoveFromCart(cartItem._id);
-              }}
-            >
-              <TrashIcon />
-            </button>
-          </a>
+          <CartItem item={cartItem} />
         {/each}
       </div>
 
@@ -187,7 +112,7 @@
                 }
                 return true;
               })}
-            class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+            class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
             >Checkout</button
           >
           {#if !$cart_store.every((c) => c.product.status === "active") || !$cart_store.every( (c) => {
@@ -205,11 +130,11 @@
     </div>
   </div>
 {:else}
-  <div class="flex justify-center items-center flex-col gap-4 p-4 h-full">
+  <div class="flex justify-center items-center flex-col gap-4 p-4 h-[calc(100vh-64px)]">
     <div>Your cart is empty</div>
     <a
       href="/search"
-      class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+      class="w-full sm:w-fit hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
       >Continue shopping</a
     >
   </div>

@@ -2,9 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @layer base {
     html {
-        font-family: "Figtree", system-ui, sans-serif;
+        font-family: "Poppins", system-ui, sans-serif;
+        color: rgb(22, 29, 37);
     }
 }
 
@@ -22,4 +24,45 @@
         scrollbar-width: none;
         /* Firefox */
     }
+
+    .dynamic-html {}
+
+    .dynamic-html h1 {
+        @apply text-4xl;
+    }
+
+    .dynamic-html h2 {
+        @apply text-3xl;
+    }
+
+    .dynamic-html h3 {
+        @apply text-2xl;
+    }
+
+    .dynamic-html h4 {
+        @apply text-xl;
+    }
+
+    .dynamic-html h5 {
+        @apply text-lg;
+    }
+
+    .dynamic-html h6 {
+        @apply text-base;
+    }
+
+    .dynamic-html p {
+        @apply text-base;
+    }
+
+    .dynamic-html li {
+        @apply list-inside list-disc;
+    }
+    .dynamic-html a {
+        @apply text-primary-500;
+    }
+}
+
+.splide:not(.is-overflow) .splide__arrows {
+    display: none;
 }

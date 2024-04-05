@@ -1,5 +1,7 @@
 <script>
   //@ts-nocheck
+  import "@splidejs/svelte-splide/css";
+  import { Splide, SplideSlide } from "@splidejs/svelte-splide";
   import { httpClient } from "../../../helper/httpClient";
   import { page } from "$app/stores";
   import { formatCurrency } from "../../../helper/utils";
@@ -29,12 +31,13 @@
     getCollection,
     removeUserWishlist,
   } from "../../../helper/endpoints";
-  import Carousel from "../../../components/Carousel.svelte";
   import not_found_img from "$lib/assets/images/not_found.svg";
   import ProductCard from "../../../components/ProductCard.svelte";
   import { goto } from "$app/navigation";
   import { assets } from "$app/paths";
   import { onMount } from "svelte";
+  import Breadcrumb from "../../../components/Breadcrumb.svelte";
+  import BreadcrumbShimmer from "../../../components/BreadcrumbShimmer.svelte";
 
   let product;
   let quantity = 1;
@@ -49,6 +52,22 @@
   let collections = [];
   const MAX_QUANTITY = 100;
   const MIN_QUANTITY = 1;
+
+  const slideOptions = {
+    // type: "loop",
+    perPage: 6,
+    gap: "1rem",
+    breakpoints: {
+      640: {
+        perPage: 3,
+        gap: ".7rem",
+      },
+      480: {
+        perPage: 2,
+        gap: ".7rem",
+      },
+    },
+  };
 
   const initProduct = async (product_id) => {
     loading = true;
@@ -300,37 +319,38 @@
   {:else}
     <div class="mb-4 flex">
       {#if loading}
-        <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
-          &nbsp;
-        </div>
-        /
-        <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
-          &nbsp;
-        </div>
-        /
-        <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
-          &nbsp;
-        </div>
+        <BreadcrumbShimmer count={3} />
       {:else}
-        <div>
-          <a class="hover:text-purple-500" href="/">Home</a> /
-          <a
-            class="hover:text-purple-500"
-            href={`/category/${product.category._id}`}
-            >{product.category.name}</a
-          >/ {product.title}
-        </div>
+        <Breadcrumb
+          routes={[
+            {
+              name: "Home",
+              path: "/",
+            },
+            {
+              name: product.category.name,
+              path: `/category/${product.category.slug}`,
+            },
+            {
+              name: product.title,
+              path: `/product/${product.slug}`,
+            },
+          ]}
+        />
+      {/if}
+
+      {#if !loading}
         <div class="ms-auto">
           {#if !product.favorite}
             <button
-              class=" hover:text-purple-500 hover:bg-purple-200 rounded-full"
+              class=" hover:text-primary-500 hover:bg-primary-200 rounded-full"
               on:click={handleAddToWishlist}
             >
               <HeartIcon />
             </button>
           {:else}
             <button
-              class=" text-purple-500 hover:bg-purple-200 rounded-full"
+              class=" text-primary-500 hover:bg-primary-200 rounded-full"
               on:click={handleRemoveFromWishlist}
             >
               <HeartDuotoneIcon />
@@ -347,30 +367,38 @@
           ></div>
         {:else if product.assets.length}
           <div>
-            <div class="mb-4">
+            <div class="mb-4 grow">
               <img
                 class="rounded-lg border border-gray-200 w-full h-auto aspect-[5/3] object-contain"
                 src={product.assets[active_asset].url}
                 alt={`${product.title}-${active_asset}`}
               />
             </div>
+
             {#if product.assets.length > 1}
-              <Carousel>
+              <Splide
+                options={{
+                  height: "100%",
+                  perPage: 8,
+                }}
+              >
                 {#each product.assets as asset, index}
-                  <button
-                    class="hover:scale-105 transition w-20 cursor-pointer shrink-0"
-                    on:click={() => {
-                      active_asset = index;
-                    }}
-                  >
-                    <img
-                      class="rounded-lg border border-gray-200 w-full aspect-square object-contain"
-                      src={asset.url}
-                      alt={`${product.title}-${index}`}
-                    />
-                  </button>
+                  <SplideSlide>
+                    <button
+                      class="hover:scale-105 transition w-20 cursor-pointer shrink-0"
+                      on:click={() => {
+                        active_asset = index;
+                      }}
+                    >
+                      <img
+                        class="rounded-lg border border-gray-200 w-full aspect-square object-contain"
+                        src={asset.url}
+                        alt={`${product.title}-${index}`}
+                      />
+                    </button>
+                  </SplideSlide>
                 {/each}
-              </Carousel>
+              </Splide>
             {/if}
           </div>
         {:else}
@@ -383,7 +411,7 @@
             class="h-4 font-semibold text-3xl mb-4 animate-pulse bg-gray-200 rounded-lg"
           ></div>
         {:else}
-          <h1 class="font-bold text-3xl mb-2">{product.title}</h1>
+          <h1 class="font-semibold text-3xl mb-2">{product.title}</h1>
           <div class="mb-2">
             <!-- <Rating count rating={4.95}>
             <span
@@ -447,7 +475,7 @@
                             class="border-2 rounded-full w-fit p-0.5"
                             class:border-gray-200={option.value !==
                               variantFilter[variantOption.name]}
-                            class:border-purple-500={option.value ===
+                            class:border-primary-500={option.value ===
                               variantFilter[variantOption.name]}
                             on:click={() => {
                               variantFilter[variantOption.name] = option.value;
@@ -469,7 +497,7 @@
                       {#each variantOption.options as option}
                         <button
                           class="hover:scale-105 border border-gray-600 p-2 rounded-lg transition duration-100 ease-in-out cursor-pointer text-sm text-gray-600"
-                          class:border-purple-500={option.value ===
+                          class:border-primary-500={option.value ===
                             variantFilter[variantOption.name]}
                           on:click={() => {
                             variantFilter[variantOption.name] = option.value;
@@ -479,7 +507,7 @@
                           on:click={() => {
                             variantFilter[variantOption.name] = option.value;
                           }}
-                          class:text-purple-500={option.value ===
+                          class:text-primary-500={option.value ===
                             variantFilter[variantOption.name]}
                           on:click={() => {
                             variantFilter[variantOption.name] = option.value;
@@ -600,14 +628,14 @@
           <div class="grid md:grid-cols-2 gap-4 mb-4 md:mb-0">
             <button
               type="button"
-              class="grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+              class="grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
               on:click={handleBuy}
             >
               <span>Buy</span>
             </button>
             <button
               type="button"
-              class=" grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-purple-600 text-purple-600 disabled:opacity-50 disabled:pointer-events-none"
+              class=" grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 disabled:opacity-50 disabled:pointer-events-none"
               on:click={handleAddToCart}
             >
               <!-- <ShoppingCartIcon /> -->
@@ -632,7 +660,7 @@
               />
               <button
                 type="button"
-                class="absolute top-0 right-0 py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-purple-600 hover:text-purple-700 disabled:opacity-50 disabled:pointer-events-none"
+                class="absolute top-0 right-0 py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-primary-600 hover:text-primary-700 disabled:opacity-50 disabled:pointer-events-none"
               >
                 Check
               </button>
@@ -646,15 +674,15 @@
       <div class="mb-4">
         <div class="flex mb-2 border-b-2 border-gray-200">
           <button
-            class="font-semibold hover:bg-purple-50 px-4 py-2"
-            class:text-purple-500={active_tab === 0}
+            class="font-semibold hover:bg-primary-50 px-4 py-2"
+            class:text-primary-500={active_tab === 0}
             on:click={() => {
               active_tab = 0;
             }}>Description</button
           >
           <button
-            class="font-semibold hover:bg-purple-50 px-4 py-2"
-            class:text-purple-500={active_tab === 1}
+            class="font-semibold hover:bg-primary-50 px-4 py-2"
+            class:text-primary-500={active_tab === 1}
             on:click={() => {
               active_tab = 1;
             }}>Specification</button
@@ -678,13 +706,13 @@
           Related Products
         </h1>
         <div class="w-full">
-          <Carousel gap={16}>
+          <Splide options={slideOptions}>
             {#each category.products.filter((p) => p._id !== product._id) as product}
-              <div class="w-40 shrink-0">
+              <SplideSlide>
                 <ProductCard {product} />
-              </div>
+              </SplideSlide>
             {/each}
-          </Carousel>
+          </Splide>
         </div>
       </div>
     {/if}
@@ -705,13 +733,13 @@
             </h1>
           {/if}
           <div class="w-full">
-            <Carousel gap={16}>
+            <Splide options={slideOptions}>
               {#each collection.products.filter((p) => p._id !== product._id) as product}
-                <div class="w-40 md:w-40 shrink-0">
+                <SplideSlide>
                   <ProductCard {product} />
-                </div>
+                </SplideSlide>
               {/each}
-            </Carousel>
+            </Splide>
           </div>
         {/each}
       </div>

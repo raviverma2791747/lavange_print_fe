@@ -23,6 +23,7 @@
 
   let hidden = false;
   let innnerWidth;
+  let search_input;
 
   $: {
     if (innnerWidth < 768) {
@@ -52,9 +53,11 @@
     <div class="grow">
       <div class="lg:w-4/12 mx-auto relative">
         <input
+          bind:this={search_input}
           type="text"
           placeholder="Search"
-          class="w-full py-3 pe-10 px-4 block border border-gray-200 rounded-full text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+          value={$page.url.searchParams.get("q")}
+          class="w-full py-3 pe-10 px-4 block border border-gray-200 rounded-full text-sm outline-primary-500 disabled:opacity-50 disabled:pointer-events-none"
           on:keypress={(e) => {
             if (e.key === "Enter") {
               if (e.target.value) {

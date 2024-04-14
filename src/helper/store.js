@@ -10,7 +10,7 @@ export const homeConfig_store = writable(null);
 export const searchFilters_store = writable({
   categories: [],
   collections: [],
-  sizes: [],
+  facets: [],
 });
 export const header_title_store = writable("");
 export const network_error = writable(false);

@@ -17,6 +17,7 @@
   import { goto } from "$app/navigation";
   import { createEventDispatcher } from "svelte";
   import throttle from "lodash/throttle";
+  import { STATUS } from "../../helper/constants";
 
   const dispatcher = createEventDispatcher();
 
@@ -253,7 +254,7 @@
       </div>
     </div>
     <p>
-      {#if item.product.status === "active"}
+      {#if item.product.status === STATUS.ACTIVE}
         {#if item.variant && item.product.variants}
           {#if item.product.variants.find((v) => v._id === item.variant)}
             <span class="font-semibold">Total Price</span>

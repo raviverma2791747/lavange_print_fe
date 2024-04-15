@@ -81,7 +81,7 @@
           </div>
           <div class="grow">
             <h1 class="font-semibold">{product.title}</h1>
-            {#if product.status === "active"}
+            {#if product.status === STATU.ACTIVE}
               <p>{formatCurrency(product.price)}</p>
             {:else}
               <p class="text-red-500">Unavailable</p>

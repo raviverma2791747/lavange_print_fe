@@ -19,7 +19,7 @@
         href={`/order/${$page.params._id}`}
         class=" grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 disabled:opacity-50 disabled:pointer-events-none"
       >
-        <span>View Order</span>
+        <span>View Orders</span>
       </a>
       <a
         href="/search"

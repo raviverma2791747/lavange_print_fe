@@ -5,6 +5,8 @@
   import CloseIcon from "../svg/CloseIcon.svelte";
   import { updateUserAddress } from "../../helper/endpoints";
   import { token_store } from "../../helper/store";
+  import { ADDRESS_TYPE } from "../../helper/constants";
+  import { getByValue } from "../../helper/utils";
   const dispatch = createEventDispatcher();
 
   export let address;
@@ -30,7 +32,7 @@
   <div class="grow">
     <div class="font-semibold">{address.fullName}</div>
     <div>{address.mobile}</div>
-    <div>{address.type}</div>
+    <div>{getByValue(ADDRESS_TYPE, address.type)}</div>
     <div>{address.addressLine1}</div>
     <div>{address.addressLine2}</div>
     <div>{address.landmark}</div>

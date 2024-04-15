@@ -19,6 +19,7 @@
   import { onDestroy, onMount } from "svelte";
   import HeartFillIcon from "./svg/HeartFillIcon.svelte";
   import HeartDuotoneIcon from "./svg/HeartDuotoneIcon.svelte";
+  import { STATUS } from "../helper/constants";
   export let product;
   export let hidePrice = false;
   export let hideWishlist = false;
@@ -200,7 +201,7 @@
     </div>
     <!-- <div class="text-sm text-gray-500 px-2">xyz</div> -->
     {#if !hidePrice}
-      {#if product.status === "active"}
+      {#if product.status === STATUS.ACTIVE}
         <div class="px-2 flex gap-1 items-center">
           <div class="font-semibold">
             {formatCurrency(price)}

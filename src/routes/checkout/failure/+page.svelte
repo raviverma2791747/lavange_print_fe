@@ -1,6 +1,6 @@
 <script>
   //@ts-nocheck
-  import CloseFillIcon from "../../../../components/svg/CloseFillIcon.svelte";
+  import CloseFillIcon from "../../../components/svg/CloseFillIcon.svelte";
   import { page } from "$app/stores";
 </script>
 
@@ -25,10 +25,10 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <a
-        href={`/order/${$page.params._id}`}
+        href={`/order`}
         class=" grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 disabled:opacity-50 disabled:pointer-events-none"
       >
-        <span>View Order</span>
+        <span>View Orders</span>
       </a>
       <a
         href="/checkout"

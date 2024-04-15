@@ -13,11 +13,13 @@
   import {
     createUserOrder,
     getCheckout,
+    getUserCart,
     getUserWishlist,
   } from "../../helper/endpoints";
   import { goto } from "$app/navigation";
   import CloseIcon from "../../components/svg/CloseIcon.svelte";
   import CartItem from "../../components/cart/CartItem.svelte";
+  import { STATUS } from "../../helper/constants";
 
   let selected_address;
   let selected_payment_method;
@@ -45,6 +47,18 @@
       wishlist_store.set([...response.data.wishList]);
     } else {
       wishlist_store.set([]);
+    }
+  };
+
+  const initCart = async () => {
+    const response = await httpClient(getUserCart, {
+      token: $token_store,
+    });
+
+    if (response.status === 200) {
+      cart_store.set([...response.data.cart]);
+    } else {
+      cart_store.set([]);
     }
   };
 
@@ -76,11 +90,10 @@
     });
     if (data.status === 200) {
       goto(`/checkout/success/${data.data.order.id}`);
-      initWishlist();
-
+      //await initCart();
       $cart_store = [];
     } else {
-      goto(`/checkout/failure/${data.data.order.id}`);
+      goto(`/checkout/failure`);
     }
     $loading_store = false;
   };
@@ -233,43 +246,43 @@
         <div class="mb-4">
           <h1 class="font-semibold text-lg mb-4">Billing Address</h1>
           {#if $user_info_store.addresses.length}
-          <div class="flex flex-col gap-4">
-            {#each $user_info_store.addresses as address}
-              <label
-                for={`address-${address._id}`}
-                class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow flex gap-2"
-                class:bg-primary-50={selected_address === address._id}
-              >
-                <div>
-                  <input
-                    id={`address-${address._id}`}
-                    type="radio"
-                    name="address"
-                    bind:group={selected_address}
-                    value={address._id}
-                  />
-                </div>
-                <div class="flex gap-1 flex-wrap">
-                  <div class="font-semibold">{address.fullName}</div>
-                  <div>{address.mobile}</div>
-                  <div>{address.addressLine1}</div>
-                  <div>{address.addressLine2}</div>
-                  <div>{address.landmark}</div>
-                  <div>{address.city}</div>
-                  <div>{address.state}</div>
-                  <div>{address.pincode}</div>
-                  <div>{address.country}</div>
-                </div>
-              </label>
-            {/each}
-          </div>
+            <div class="flex flex-col gap-4">
+              {#each $user_info_store.addresses as address}
+                <label
+                  for={`address-${address._id}`}
+                  class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow flex gap-2"
+                  class:bg-primary-50={selected_address === address._id}
+                >
+                  <div>
+                    <input
+                      id={`address-${address._id}`}
+                      type="radio"
+                      name="address"
+                      bind:group={selected_address}
+                      value={address._id}
+                    />
+                  </div>
+                  <div class="flex gap-1 flex-wrap">
+                    <div class="font-semibold">{address.fullName}</div>
+                    <div>{address.mobile}</div>
+                    <div>{address.addressLine1}</div>
+                    <div>{address.addressLine2}</div>
+                    <div>{address.landmark}</div>
+                    <div>{address.city}</div>
+                    <div>{address.state}</div>
+                    <div>{address.pincode}</div>
+                    <div>{address.country}</div>
+                  </div>
+                </label>
+              {/each}
+            </div>
           {:else}
             <p>No address found!</p>
             <a
-            href="/account/address/create"
-            class="text-primary-500 hover:underline"
-            >Click here to add address</a
-          >
+              href="/account/address/create"
+              class="text-primary-500 hover:underline"
+              >Click here to add address</a
+            >
           {/if}
         </div>
         <div class="mb-4">
@@ -317,7 +330,7 @@
           <div class="mb-4">
             <span class="font-semibold">Total Price</span>
 
-            {#if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+            {#if $cart_store.every((c) => c.product.status === STATUS.ACTIVE) && $cart_store.every( (c) => {
                   if (c.variant && !c.product.variants) {
                     return false;
                   }
@@ -361,7 +374,7 @@
                 <div class:w-16={loading}>
                   {#if loading}
                     <div class=" bg-gray-300 rounded-lg">&nbsp;</div>
-                  {:else if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                  {:else if $cart_store.every((c) => c.product.status === STATUS.ACTIVE) && $cart_store.every( (c) => {
                         if (c.variant && !c.product.variants) {
                           return false;
                         }
@@ -379,7 +392,7 @@
                 <div class:w-16={loading}>
                   {#if loading}
                     <div class=" bg-gray-300 rounded-lg">&nbsp;</div>
-                  {:else if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                  {:else if $cart_store.every((c) => c.product.status === STATUS.ACTIVE) && $cart_store.every( (c) => {
                         if (c.variant && !c.product.variants) {
                           return false;
                         }
@@ -393,7 +406,7 @@
                 <div class:w-16={loading}>
                   {#if loading}
                     <div class=" bg-gray-300 rounded-lg">&nbsp;</div>
-                  {:else if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                  {:else if $cart_store.every((c) => c.product.status === STATUS.ACTIVE) && $cart_store.every( (c) => {
                         if (c.variant && !c.product.variants) {
                           return false;
                         }
@@ -407,7 +420,7 @@
                 <div class:w-16={loading}>
                   {#if loading}
                     <div class=" bg-gray-300 rounded-lg">&nbsp;</div>
-                  {:else if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                  {:else if $cart_store.every((c) => c.product.status === STATUS.ACTIVE) && $cart_store.every( (c) => {
                         if (c.variant && !c.product.variants) {
                           return false;
                         }
@@ -424,7 +437,7 @@
               <div class:w-16={loading}>
                 {#if loading}
                   <div class=" bg-gray-300 rounded-lg">&nbsp;</div>
-                {:else if $cart_store.every((c) => c.product.status === "active") && $cart_store.every( (c) => {
+                {:else if $cart_store.every((c) => c.product.status === STATUS.ACTIVE) && $cart_store.every( (c) => {
                       if (c.variant && !c.product.variants) {
                         return false;
                       }
@@ -443,7 +456,7 @@
               disabled={(!loading &&
                 selected_address &&
                 selected_payment_method &&
-                $cart_store.every((c) => c.product.status === "active") &&
+                $cart_store.every((c) => c.product.status === STATUS.ACTIVE) &&
                 $cart_store.every((c) => {
                   if (c.variant && !c.product.variants) {
                     return false;
@@ -454,7 +467,7 @@
                 ? false
                 : true}>Place Order</button
             >
-            {#if !$cart_store.every((c) => c.product.status === "active")}
+            {#if !$cart_store.every((c) => c.product.status === STATUS.ACTIVE)}
               <p class="text-red-500 text-sm">
                 Remove all out of stock or unavailable items to checkout
               </p>
@@ -470,7 +483,9 @@
                   placeholder="Enter coupon code"
                   bind:value={coupon_code}
                   disabled={!loading &&
-                  $cart_store.every((c) => c.product.status === "active") &&
+                  $cart_store.every(
+                    (c) => c.product.status === STATUS.ACTIVE
+                  ) &&
                   $cart_store.every((c) => {
                     if (c.variant && !c.product.variants) {
                       return false;
@@ -500,13 +515,13 @@
             {/if}
             <button
               disabled={!loading &&
-              $cart_store.every((c) => c.product.status === "active") &&
+              $cart_store.every((c) => c.product.status === STATUS.ACTIVE) &&
               $cart_store.every((c) => {
                 if (c.variant && !c.product.variants) {
                   return false;
                 }
                 return true;
-              }) 
+              })
                 ? false
                 : true}
               href="/checkout"

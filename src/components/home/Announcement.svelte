@@ -55,11 +55,13 @@
 <div>
   {#if loading}
     <Splide options={slideOptions}>
-      <SplideSlide>
-        <div
-          class="transition duration-1000 ease-in-out bg-gray-200 h-64 animate-pulse"
-        ></div>
-      </SplideSlide>
+      {#each { length: 3 } as A}
+        <SplideSlide>
+          <div
+            class="transition duration-1000 ease-in-out bg-gray-200 h-64 animate-pulse"
+          ></div>
+        </SplideSlide>
+      {/each}
     </Splide>
   {:else}
     <Splide options={slideOptions}>

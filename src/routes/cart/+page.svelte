@@ -13,6 +13,7 @@
   import CartItem from "../../components/cart/CartItem.svelte";
   import Breadcrumb from "../../components/Breadcrumb.svelte";
   import BreadcrumbShimmer from "../../components/BreadcrumbShimmer.svelte";
+  import { STATUS } from "../../helper/constants";
 
   let loading = false;
 
@@ -76,7 +77,7 @@
         </div>
         <div class="mb-4">
           <span class="font-semibold">Grand Total Price:</span>
-          {#if $cart_store.every((c) => c.product.status === "active")}
+          {#if $cart_store.every((c) => c.product.status === STATUS.ACTIVE)}
             {formatCurrency(
               $cart_store.reduce((a, b) => {
                 let price = 0;
@@ -105,7 +106,7 @@
               goto("/checkout");
             }}
             disabled={$cart_store.length === 0 ||
-              !$cart_store.every((c) => c.product.status === "active") ||
+              !$cart_store.every((c) => c.product.status === STATUS.ACTIVE) ||
               !$cart_store.every((c) => {
                 if (c.variant && !c.product.variants) {
                   return false;
@@ -115,7 +116,7 @@
             class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
             >Checkout</button
           >
-          {#if !$cart_store.every((c) => c.product.status === "active") || !$cart_store.every( (c) => {
+          {#if !$cart_store.every((c) => c.product.status === STATUS.ACTIVE) || !$cart_store.every( (c) => {
                 if (c.variant && !c.product.variants) {
                   return false;
                 }

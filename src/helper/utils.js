@@ -17,3 +17,7 @@ export function formatPercentage(amount) {
     style: "percent",
   }).format(amount);
 }
+
+export const getByValue = (obj, val) => {
+  return Object.keys(obj).find((key) => obj[key] === val);
+};

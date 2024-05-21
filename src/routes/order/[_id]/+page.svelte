@@ -2,7 +2,11 @@
   //@ts-nocheck
   import { onMount } from "svelte";
   import { httpClient } from "../../../helper/httpClient";
-  import { formatCurrency, formatDate } from "../../../helper/utils";
+  import {
+    formatCurrency,
+    formatDate,
+    getByValue,
+  } from "../../../helper/utils";
   import { page } from "$app/stores";
   import {
     token_store,
@@ -11,7 +15,13 @@
     user_info_store,
   } from "../../../helper/store";
   import { getUserOrder } from "../../../helper/endpoints";
-  import { DATE_FORMAT, DATE_TIME_FORMAT } from "../../../helper/constants";
+  import {
+    DATE_FORMAT,
+    DATE_TIME_FORMAT,
+    ORDER_STATUS,
+    PAYMENT_MODE,
+    PAYMENT_STATUS,
+  } from "../../../helper/constants";
   import { order_cache } from "../../../helper/cache_store";
 
   let loading = true;
@@ -102,7 +112,7 @@
         <div
           class="capitalize px-2 py-1 inline-flex border border-primary-500 rounded-full bg-primary-100 text-primary-500"
         >
-          {order.status}
+          {getByValue(ORDER_STATUS, order.status)}
         </div>
       </div>
       <div>
@@ -137,7 +147,7 @@
           <div
             class="capitalize px-2 py-1 inline-flex border border-primary-500 text-sm rounded-full bg-primary-100 text-primary-500"
           >
-            {order.paymentStatus}
+            {getByValue(PAYMENT_STATUS, order.paymentStatus)}
           </div>
         </div>
         <div class="mb-4">
@@ -145,7 +155,7 @@
           <div
             class="capitalize px-2 py-1 inline-flex border border-primary-500 text-sm rounded-full bg-primary-100 text-primary-500"
           >
-            {order.paymentType}
+            {getByValue(PAYMENT_MODE, order.paymentMode)}
           </div>
         </div>
         <!-- <div class="mb-4">
@@ -205,7 +215,7 @@
               >{formatDate(item.updatedAt, DATE_TIME_FORMAT)}</time
             >
             <h3 class="text-lg font-semibold text-gray-900 capitalize">
-              {item.status}
+              {getByValue(ORDER_STATUS, item.status)}
             </h3>
             <p class="text-base font-normal text-gray-500">
               {item.message}

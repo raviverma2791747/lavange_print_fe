@@ -6,6 +6,7 @@
   import InstagramIcon from "./svg/InstagramIcon.svelte";
   import {
     PUBLIC_BRAND_NAME,
+    PUBLIC_COMPANY_NAME,
     PUBLIC_SOCIAL_EMAIL,
     PUBLIC_SOCIAL_INSTAGRAM,
     PUBLIC_SOCIAL_LINKEDIN,
@@ -68,7 +69,10 @@
       </div>
     </div>
     <div class="text-center text-gray-600">
-      ©2024 {PUBLIC_BRAND_NAME}. All Rights Reserved.
+      ©2024 {PUBLIC_BRAND_NAME}
+      {#if PUBLIC_COMPANY_NAME}
+        powered by {PUBLIC_COMPANY_NAME}
+      {/if}. All Rights Reserved.
     </div>
   </div>
 </footer>

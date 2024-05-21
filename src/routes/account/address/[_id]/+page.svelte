@@ -5,6 +5,7 @@
   import { page } from "$app/stores";
   import {
     getUserAddress,
+    getUserInfo,
     updateUserAddress,
   } from "../../../../helper/endpoints";
   import { token_store, user_info_store } from "../../../../helper/store";
@@ -36,6 +37,18 @@
     if (response.status === 200) {
       address = response.data.address;
       loading = false;
+    }
+  };
+
+  const initUserInfo = async () => {
+    const response = await httpClient(getUserInfo);
+
+    if (response.status === 200) {
+      $user_info_store = response.data.user;
+    } else {
+      // token.set(null);
+      $user_info_store = null;
+      $token_store = null;
     }
   };
 
@@ -73,8 +86,6 @@
       return;
     }
 
-
-
     const response = await httpClient(updateUserAddress, {
       method: "POST",
       token: $token_store,
@@ -82,6 +93,7 @@
     });
 
     if (response.status === 200) {
+      await initUserInfo();
       goto("/account/address");
     }
 

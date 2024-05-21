@@ -1,8 +1,8 @@
 <script>
   //@ts-nocheck
   import { formatDate } from "date-fns";
-  import { DATE_FORMAT } from "../helper/constants";
-  import { formatCurrency } from "../helper/utils";
+  import { DATE_FORMAT, ORDER_STATUS } from "../helper/constants";
+  import { formatCurrency, getByValue } from "../helper/utils";
 
   export let order;
 </script>
@@ -23,7 +23,7 @@
       <div
         class="capitalize px-2 py-1 text-sm inline-flex border border-primary-500 rounded-full bg-primary-100 text-primary-500"
       >
-        {order.status}
+        {getByValue(ORDER_STATUS, order.status)}
       </div>
     </div>
     <div>

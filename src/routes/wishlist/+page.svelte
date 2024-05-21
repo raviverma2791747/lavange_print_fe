@@ -5,6 +5,7 @@
   import ProductCard from "../../components/ProductCard.svelte";
   import TrashIcon from "../../components/svg/TrashIcon.svelte";
   import { product_cache } from "../../helper/cache_store";
+  import { STATUS } from "../../helper/constants";
   import { getUserWishlist, removeUserWishlist } from "../../helper/endpoints";
   import { httpClient } from "../../helper/httpClient";
   import {
@@ -81,7 +82,7 @@
           </div>
           <div class="grow">
             <h1 class="font-semibold">{product.title}</h1>
-            {#if product.status === STATU.ACTIVE}
+            {#if product.status === STATUS.ACTIVE}
               <p>{formatCurrency(product.price)}</p>
             {:else}
               <p class="text-red-500">Unavailable</p>

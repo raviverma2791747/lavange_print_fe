@@ -19,13 +19,17 @@
     if (response.status === 200) {
       user_info_store.set(response.data.user);
     } else {
-      token.set(null);
+      //token.set(null);
       token_store.set(null);
     }
   };
 
   $: {
     $header_title_store = "Address";
+  }
+
+  $: {
+    $user_info_store;
   }
 </script>
 

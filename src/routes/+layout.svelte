@@ -25,6 +25,7 @@
   import Loading from "../components/Loading.svelte";
   import { MetaTags } from "svelte-meta-tags";
   import NetworkError from "../components/NetworkError.svelte";
+  import Cookies from "js-cookie";
 
   const initUserInfo = async () => {
     const response = await httpClient(getUserInfo, {
@@ -72,7 +73,13 @@
   });
 
   onMount(async () => {
-    const token = localStorage.getItem("token");
+    console.log("onMount",new Date( ));
+    const cookie_token = Cookies.get("token");
+    let token = localStorage.getItem("token");
+    if (cookie_token) {
+      token = cookie_token;
+      console.log("token", cookie_token);
+    }
     if (token) {
       token_store.set(token);
     } else {

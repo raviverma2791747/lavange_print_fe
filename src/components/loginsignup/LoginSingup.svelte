@@ -1,11 +1,8 @@
 <script>
   //@ts-nocheck
+  import { httpClient } from "../../helper/httpClient";
   import {
-    httpClient,
-
-  } from "../../helper/httpClient";
-  import {
-  loading_store,
+    loading_store,
     login_signup_modal_open,
     token_store,
     user_info_store,
@@ -15,10 +12,11 @@
   import GoogleSocialIcon from "../svg/GoogleSocialIcon.svelte";
   import MobileIcon from "../svg/MobileIcon.svelte";
   import EmailLoginSignup from "./EmailLoginSignup.svelte";
-  import { PUBLIC_GOOGLE_CLIENT_ID } from "$env/static/public";
+  import { PUBLIC_GOOGLE_CLIENT_ID, PUBLIC_API_URI } from "$env/static/public";
   import { browser } from "$app/environment";
   import * as jwt from "jsonwebtoken-esm";
   import { userLoginGoogle } from "../../helper/endpoints";
+  import { page } from "$app/stores";
   //import {OAuth2Client} from 'google-auth-library';
   //import { GOOGLE_CLIENT_SECRET } from "$env/static/pivate";
 
@@ -131,6 +129,11 @@
     //auth2.grantOfflineAccess().then(signInCallback);
     googleButtonWrapper.click();
   };
+
+  const getURL = () => {
+    return $page.url.href;
+  }
+
 </script>
 
 {#if open}
@@ -176,13 +179,13 @@
         <div class="text-center mbn-4">or</div>
 
         <div class="flex flex-col gap-4">
-          <button
+          <a
             class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
-            on:click={handleGoogleLogin}
+            href={`${PUBLIC_API_URI}/public/user/auth/google?redirect_uri=${getURL()}`}
           >
             <GoogleSocialIcon />
             Continue with Google
-          </button>
+          </a>
 
           <button
             class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"

@@ -73,12 +73,12 @@
   });
 
   onMount(async () => {
-    console.log("onMount",new Date( ));
-    const cookie_token = Cookies.get("token");
     let token = localStorage.getItem("token");
+    const cookie_token = Cookies.get("token");
     if (cookie_token) {
       token = cookie_token;
       console.log("token", cookie_token);
+      Cookies.remove('token')
     }
     if (token) {
       token_store.set(token);

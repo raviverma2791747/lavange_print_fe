@@ -24,11 +24,11 @@ export const getByValue = (obj, val) => {
 
 export const getAvatarName = (obj) => {
   let avatar_name = "  ";
-  if (obj.hasOwnProperty("firstName")) {
+  if (obj.hasOwnProperty("firstName") && obj.firstName) {
     avatar_name = "" + obj.firstName.charAt(0);
   }
 
-  if (obj.hasOwnProperty("lastName")) {
+  if (obj.hasOwnProperty("lastName") && obj.lastName) {
     avatar_name += obj.lastName.charAt(0);
   }
 

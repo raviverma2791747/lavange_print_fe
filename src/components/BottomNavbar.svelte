@@ -14,6 +14,7 @@
   import UserIcon from "./svg/UserIcon.svelte";
   import { page } from "$app/stores";
   import ShoppingBagIcon from "./svg/ShoppingBagIcon.svelte";
+  import { getAvatarName } from "../helper/utils";
 </script>
 
 <div class="h-16 md:hidden"></div>
@@ -91,8 +92,7 @@
           class="rounded-full w-6 h-6 bg-gray-600 text-white text-xs flex justify-center items-center"
         >
           <div>
-            {$user_info_store?.firstName.charAt(0) +
-              $user_info_store?.lastName.charAt(0)}
+            {getAvatarName($user_info_store)}
           </div>
         </div>
       {:else}

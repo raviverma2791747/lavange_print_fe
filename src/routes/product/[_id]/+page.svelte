@@ -105,7 +105,9 @@
       active_variant = null;
     }
 
-    initCategory(product.category._id);
+    if (product) {
+      initCategory(product.category._id);
+    }
 
     if (product.collections.length) {
       fetchCollection();

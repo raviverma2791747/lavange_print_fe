@@ -79,9 +79,14 @@
       token = cookie_token;
       console.log("token", cookie_token);
       Cookies.remove('token')
+      localStorage.setItem("token", cookie_token);
+      console.log("Cookie Token Set");
+    } else {
+      console.log("Cookie Token Not Set");
     }
     if (token) {
       token_store.set(token);
+      console.log("token", token);
     } else {
     }
   });

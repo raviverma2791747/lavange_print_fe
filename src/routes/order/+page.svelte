@@ -7,7 +7,6 @@
   import {
     header_title_store,
     login_signup_modal_open,
-    token_store,
     user_info_store,
   } from "../../helper/store";
   import { goto } from "$app/navigation";
@@ -24,7 +23,6 @@
     loading = true;
     const response = await httpClient(fetchUserOrder, {
       method: "GET",
-      token: $token_store,
     });
     if (response.status === 200) {
       orders = response.data.orders ?? [];

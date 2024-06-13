@@ -8,7 +8,6 @@
   import HeartIcon from "./svg/HeartIcon.svelte";
   import {
     login_signup_modal_open,
-    token_store,
     user_info_store,
     wishlist_store,
     cart_store,
@@ -255,7 +254,6 @@
             <button
               class="flex items-center w-full gap-x-3.5 py-2 px-3 text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
               on:click={() => {
-                token_store.set(null);
                 user_info_store.set(null);
                 wishlist_store.set([]);
                 cart_store.set([]);

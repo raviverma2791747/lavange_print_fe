@@ -15,10 +15,6 @@ export const httpClient = async (
 
   let headers = new Headers();
 
-  if (config.token) {
-    headers.append("Authorization", `Bearer ${config.token}`);
-  }
-
   if (config.payload) {
     headers.append("Content-Type", "application/json");
     options.body = JSON.stringify(config.payload);
@@ -29,6 +25,7 @@ export const httpClient = async (
   }
 
   options.headers = headers;
+  options.credentials = "include";
 
   try {
     const response = await fetch(url, options)

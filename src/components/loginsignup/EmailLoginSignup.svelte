@@ -4,7 +4,6 @@
   import { userExist, userLogin, userRegister } from "../../helper/endpoints";
   import {
     login_signup_modal_open,
-    token_store,
     user_info_store,
   } from "../../helper/store";
 
@@ -31,7 +30,7 @@
       loading = true;
       const response = await httpClient(userExist, {
         method: "POST",
-        token: $token_store,
+        
         payload: { username: user.email },
       });
       let user_exists = response.status === 200 ? true : false;
@@ -49,7 +48,7 @@
     loading = true;
     const response = await httpClient(userRegister, {
       method: "POST",
-      token: $token_store,
+      
       payload: user,
     });
     if (response.status === 200) {
@@ -62,7 +61,7 @@
     loading = true;
     const response = await httpClient(userLogin, {
       method: "POST",
-      token: $token_store,
+      
       payload: {
         username: user.email,
         password: user.password,
@@ -70,8 +69,6 @@
     });
 
     if (response.status === 200) {
-      localStorage.setItem("token", response.data.token);
-      token_store.set(response.data.token);
       login_signup_modal_open.set(false);
     }
     loading = false;

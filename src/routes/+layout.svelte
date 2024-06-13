@@ -11,7 +11,6 @@
   import {
     cart_store,
     login_signup_modal_open,
-    token_store,
     user_info_store,
     wishlist_store,
     loading_store,
@@ -29,20 +28,20 @@
 
   const initUserInfo = async () => {
     const response = await httpClient(getUserInfo, {
-      token: $token_store,
+     
     });
 
     if (response.status === 200) {
       user_info_store.set(response.data.user);
       // login_signup_modal_open.set(false);
     } else {
-      token_store.set(null);
+   
     }
   };
 
   const initWishlist = async () => {
     const response = await httpClient(getUserWishlist, {
-      token: $token_store,
+     
     });
 
     if (response.status === 200) {
@@ -54,7 +53,7 @@
 
   const initCart = async () => {
     const response = await httpClient(getUserCart, {
-      token: $token_store,
+ 
     });
 
     if (response.status === 200) {
@@ -64,31 +63,15 @@
     }
   };
 
-  token_store.subscribe(async (token) => {
-    if (token) {
-      initUserInfo();
+  user_info_store.subscribe(async (user) => {
+    if (user) {
       initWishlist();
       initCart();
     }
   });
 
   onMount(async () => {
-    let token = localStorage.getItem("token");
-    const cookie_token = Cookies.get("token");
-    if (cookie_token) {
-      token = cookie_token;
-      console.log("token", cookie_token);
-      Cookies.remove('token')
-      localStorage.setItem("token", cookie_token);
-      console.log("Cookie Token Set");
-    } else {
-      console.log("Cookie Token Not Set");
-    }
-    if (token) {
-      token_store.set(token);
-      console.log("token", token);
-    } else {
-    }
+    await initUserInfo();
   });
 </script>
 

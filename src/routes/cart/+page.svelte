@@ -6,7 +6,6 @@
   import {
     cart_store,
     header_title_store,
-    token_store,
   } from "../../helper/store";
   import { formatCurrency } from "../../helper/utils";
   import { goto } from "$app/navigation";
@@ -20,7 +19,6 @@
   const handleRemoveFromCart = async (item_id) => {
     const response = await httpClient(removeUserCart, {
       method: "POST",
-      token: $token_store,
       payload: {
         itemId: item_id,
       },
@@ -32,9 +30,7 @@
   };
 
   const initCart = async () => {
-    const response = await httpClient(getUserCart, {
-      token: $token_store,
-    });
+    const response = await httpClient(getUserCart, {});
 
     if (response.status === 200) {
       cart_store.set([...response.data.cart]);
@@ -49,15 +45,15 @@
 {#if $cart_store.length > 0}
   <div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 py-4">
     {#if loading}
-    <BreadcrumbShimmer count={2} />
-  {:else}
-    <Breadcrumb
-      routes={[
-        { name: "Home", path: "/" },
-        { name: "Bag", path: "/cart" },
-      ]}
-    />
-  {/if}
+      <BreadcrumbShimmer count={2} />
+    {:else}
+      <Breadcrumb
+        routes={[
+          { name: "Home", path: "/" },
+          { name: "Bag", path: "/cart" },
+        ]}
+      />
+    {/if}
     <!-- <h1
       class="hidden md:block font-semibold text-3xl text-center mb-4 capitalize rou"
     >
@@ -131,7 +127,9 @@
     </div>
   </div>
 {:else}
-  <div class="flex justify-center items-center flex-col gap-4 p-4 h-[calc(100vh-64px)]">
+  <div
+    class="flex justify-center items-center flex-col gap-4 p-4 h-[calc(100vh-64px)]"
+  >
     <div>Your cart is empty</div>
     <a
       href="/search"

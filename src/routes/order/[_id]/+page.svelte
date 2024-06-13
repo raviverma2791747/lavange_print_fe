@@ -9,7 +9,6 @@
   } from "../../../helper/utils";
   import { page } from "$app/stores";
   import {
-    token_store,
     header_title_store,
     loading_store,
     user_info_store,
@@ -35,7 +34,6 @@
     } else {
       const response = await httpClient(`${getUserOrder}/${order_id}`, {
         method: "GET",
-        token: $token_store,
       });
       if (response.status === 200) {
         order = response.data.order;

@@ -5,7 +5,6 @@
   import ShieldIcon from "../../components/svg/ShieldIcon.svelte";
   import {
     user_info_store,
-    token_store,
     wishlist_store,
     cart_store,
     header_title_store,
@@ -98,7 +97,6 @@
       </a>
       <button
         on:click={() => {
-          token_store.set(null);
           user_info_store.set(null);
           wishlist_store.set([]);
           cart_store.set([]);

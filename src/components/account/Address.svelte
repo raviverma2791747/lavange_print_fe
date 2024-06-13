@@ -4,19 +4,16 @@
   import { httpClient } from "../../helper/httpClient";
   import CloseIcon from "../svg/CloseIcon.svelte";
   import { updateUserAddress } from "../../helper/endpoints";
-  import { token_store } from "../../helper/store";
   import { ADDRESS_TYPE, STATUS } from "../../helper/constants";
   import { getByValue } from "../../helper/utils";
   const dispatch = createEventDispatcher();
 
   export let address;
   let confirm_remove_open = false;
-  
 
   const handleRemoveAddress = async () => {
     address.status = STATUS.ARCHIVE;
     const response = await httpClient(updateUserAddress, {
-      token: $token_store,
       method: "POST",
       payload: address,
     });

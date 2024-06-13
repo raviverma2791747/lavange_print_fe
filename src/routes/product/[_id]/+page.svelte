@@ -11,7 +11,6 @@
   import {
     cart_store,
     header_title_store,
-    token_store,
     login_signup_modal_open,
     user_info_store,
     wishlist_store,
@@ -122,9 +121,7 @@
   };
 
   const initCart = async () => {
-    const response = await httpClient(getUserCart, {
-      token: $token_store,
-    });
+    const response = await httpClient(getUserCart);
 
     if (response.status === 200) {
       cart_store.set([...response.data.cart]);
@@ -134,9 +131,7 @@
   };
 
   const initWishlist = async () => {
-    const response = await httpClient(getUserWishlist, {
-      token: $token_store,
-    });
+    const response = await httpClient(getUserWishlist);
 
     if (response.status === 200) {
       wishlist_store.set([...response.data.wishList]);
@@ -160,7 +155,7 @@
     }
     const data = await httpClient(addUserCart, {
       method: "POST",
-      token: $token_store,
+
       payload: {
         productId: product._id,
         variantId: active_variant ?? undefined,
@@ -181,7 +176,7 @@
     }
     const data = await httpClient(addUserCart, {
       method: "POST",
-      token: $token_store,
+
       payload: {
         productId: product._id,
         variantId: active_variant ?? undefined,
@@ -204,7 +199,7 @@
 
     const response = await httpClient(addUserWishlist, {
       method: "POST",
-      token: $token_store,
+
       payload: {
         productId: product._id,
       },
@@ -223,7 +218,7 @@
 
     const response = await httpClient(removeUserWishlist, {
       method: "POST",
-      token: $token_store,
+
       payload: {
         productId: product._id,
       },

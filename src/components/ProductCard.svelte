@@ -9,7 +9,6 @@
     getUserWishlist,
   } from "../helper/endpoints";
   import {
-    token_store,
     wishlist_store,
     user_info_store,
     login_signup_modal_open,
@@ -34,9 +33,7 @@
   export { class_ as class };
 
   const initWishlist = async () => {
-    const response = await httpClient(getUserWishlist, {
-      token: $token_store,
-    });
+    const response = await httpClient(getUserWishlist);
 
     if (response.status === 200) {
       wishlist_store.set([...response.data.wishList]);
@@ -54,7 +51,6 @@
     } else {
       const response = await httpClient(addUserWishlist, {
         method: "POST",
-        token: $token_store,
         payload: {
           productId: product._id,
         },
@@ -73,7 +69,6 @@
 
     const data = await httpClient(removeUserWishlist, {
       method: "POST",
-      token: $token_store,
       payload: {
         productId: product._id,
       },

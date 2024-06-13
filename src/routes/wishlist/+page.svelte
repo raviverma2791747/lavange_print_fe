@@ -10,7 +10,6 @@
   import { httpClient } from "../../helper/httpClient";
   import {
     header_title_store,
-    token_store,
     wishlist_store,
   } from "../../helper/store";
   import { formatCurrency } from "../../helper/utils";
@@ -19,7 +18,6 @@
   const handleRemoveFromWishlist = async (product_id) => {
     const response = await httpClient(removeUserWishlist, {
       method: "POST",
-      token: $token_store,
       payload: {
         productId: product_id,
       },
@@ -31,9 +29,7 @@
   };
 
   const initWishlist = async () => {
-    const response = await httpClient(getUserWishlist, {
-      token: $token_store,
-    });
+    const response = await httpClient(getUserWishlist);
 
     if (response.status === 200) {
       wishlist_store.set([...response.data.wishList]);

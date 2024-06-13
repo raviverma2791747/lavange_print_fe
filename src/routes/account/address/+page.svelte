@@ -6,7 +6,6 @@
   import { getUserInfo } from "../../../helper/endpoints";
   import {
     header_title_store,
-    token_store,
     user_info_store,
   } from "../../../helper/store";
   import BreadcrumbShimmer from "../../../components/BreadcrumbShimmer.svelte";
@@ -19,8 +18,6 @@
     if (response.status === 200) {
       user_info_store.set(response.data.user);
     } else {
-      //token.set(null);
-      token_store.set(null);
     }
   };
 

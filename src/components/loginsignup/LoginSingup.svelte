@@ -4,7 +4,6 @@
   import {
     loading_store,
     login_signup_modal_open,
-    token_store,
     user_info_store,
   } from "../../helper/store";
   import CloseIcon from "../svg/CloseIcon.svelte";
@@ -62,8 +61,6 @@
       });
 
       if (response_.status === 200) {
-        token_store.set(response_.data.token);
-        localStorage.setItem("token", response_.data.token);
         // user_info.set({
         //   userId: decodedToken.payload.userId,
         //   username: decodedToken.payload.username,

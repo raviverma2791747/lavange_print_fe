@@ -2,7 +2,7 @@
   //@ts-nocheck
   import { httpClient } from "../../../helper/httpClient";
   import { updateUserPassword } from "../../../helper/endpoints";
-  import { header_title_store, token_store, user_info_store } from "../../../helper/store";
+  import { header_title_store,  user_info_store } from "../../../helper/store";
 
   let edit_password = false;
   let current_password = "";
@@ -13,7 +13,6 @@
   const handleSave = async () => {
     const response = await httpClient(updateUserPassword, {
       method: "POST",
-      token: $token_store,
       payload: {
         currentPassword: current_password,
         newPassword: new_password,

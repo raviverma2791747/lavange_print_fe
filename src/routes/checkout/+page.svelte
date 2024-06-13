@@ -4,7 +4,6 @@
     cart_store,
     header_title_store,
     loading_store,
-    token_store,
     user_info_store,
     wishlist_store,
   } from "../../helper/store";
@@ -39,9 +38,7 @@
   };
 
   const initWishlist = async () => {
-    const response = await httpClient(getUserWishlist, {
-      token: $token_store,
-    });
+    const response = await httpClient(getUserWishlist);
 
     if (response.status === 200) {
       wishlist_store.set([...response.data.wishList]);
@@ -51,9 +48,7 @@
   };
 
   const initCart = async () => {
-    const response = await httpClient(getUserCart, {
-      token: $token_store,
-    });
+    const response = await httpClient(getUserCart);
 
     if (response.status === 200) {
       cart_store.set([...response.data.cart]);
@@ -74,7 +69,6 @@
 
     const data = await httpClient(createUserOrder, {
       method: "POST",
-      token: $token_store,
       payload: {
         coupon_code: coupon_valid ? coupon_code : null,
         items: $cart_store.map((ci) => {
@@ -104,7 +98,6 @@
     }
     loading = true;
     const response = await httpClient(getCheckout, {
-      token: $token_store,
       method: "POST",
       payload: {
         coupon_code: coupon_code,
@@ -144,7 +137,7 @@
     // coupon_loading = true;
     // const response = await httpClient(applyCoupon, {
     //   method: "POST",
-    //   token: $token_store,
+    //   
     //   payload: {
     //     code: coupon_code,
     //     cart: $cart_store,

@@ -8,11 +8,7 @@
     removeUserCart,
   } from "../../helper/endpoints";
   import { httpClient } from "../../helper/httpClient";
-  import {
-    cart_store,
-    header_title_store,
-    token_store,
-  } from "../../helper/store";
+  import { cart_store, header_title_store } from "../../helper/store";
   import { formatCurrency } from "../../helper/utils";
   import { goto } from "$app/navigation";
   import { createEventDispatcher } from "svelte";
@@ -32,7 +28,7 @@
     disabled = true;
     const response = await httpClient(deleteUserCart, {
       method: "POST",
-      token: $token_store,
+
       payload: {
         itemId: item_id,
       },
@@ -46,9 +42,7 @@
   };
 
   const initCart = async () => {
-    const response = await httpClient(getUserCart, {
-      token: $token_store,
-    });
+    const response = await httpClient(getUserCart, {});
 
     if (response.status === 200) {
       cart_store.set([...response.data.cart]);
@@ -59,7 +53,7 @@
     disabled = true;
     const data = await httpClient(addUserCart, {
       method: "POST",
-      token: $token_store,
+
       payload: {
         productId: item.product._id,
         variantId: item.variant ?? undefined,
@@ -81,7 +75,7 @@
     disabled = true;
     const data = await httpClient(removeUserCart, {
       method: "POST",
-      token: $token_store,
+
       payload: {
         productId: item.product._id,
         variantId: item.variant ?? undefined,

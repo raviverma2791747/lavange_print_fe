@@ -8,7 +8,7 @@
     getUserInfo,
     updateUserAddress,
   } from "../../../../helper/endpoints";
-  import { token_store, user_info_store } from "../../../../helper/store";
+  import {  user_info_store } from "../../../../helper/store";
   import { ADDRESS_TYPE } from "../../../../helper/constants";
   import { goto } from "$app/navigation";
   import BreadcrumbShimmer from "../../../../components/BreadcrumbShimmer.svelte";
@@ -32,7 +32,6 @@
     loading = true;
     const response = await httpClient(`${getUserAddress}/${address_id}`, {
       method: "GET",
-      token: $token_store,
     });
     if (response.status === 200) {
       address = response.data.address;
@@ -48,7 +47,6 @@
     } else {
       // token.set(null);
       $user_info_store = null;
-      $token_store = null;
     }
   };
 
@@ -88,7 +86,6 @@
 
     const response = await httpClient(updateUserAddress, {
       method: "POST",
-      token: $token_store,
       payload: address,
     });
 

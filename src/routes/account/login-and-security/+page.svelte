@@ -2,7 +2,9 @@
   //@ts-nocheck
   import { httpClient } from "../../../helper/httpClient";
   import { updateUserPassword } from "../../../helper/endpoints";
-  import { header_title_store,  user_info_store } from "../../../helper/store";
+  import { header_title_store, user_info_store } from "../../../helper/store";
+  import BreadcrumbShimmer from "../../../components/BreadcrumbShimmer.svelte";
+  import Breadcrumb from "../../../components/Breadcrumb.svelte";
 
   let edit_password = false;
   let current_password = "";
@@ -14,8 +16,8 @@
     const response = await httpClient(updateUserPassword, {
       method: "POST",
       payload: {
-        currentPassword: current_password,
-        newPassword: new_password,
+        password: new_password,
+        confirmPassword: confirm_password,
       },
     });
 
@@ -37,27 +39,25 @@
 {#if $user_info_store}
   <div class="bg-white max-w-3xl mx-auto px-4 3xl:px-0 mt-4">
     {#if loading}{:else}
-    <div class="mb-4 flex">
-      {#if loading}
-        <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
-          &nbsp;
-        </div>
-        /
-        <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
-          &nbsp;
-        </div>
-        /
-        <div class="inline-block bg-gray-200 animate-pulse rounded-lg w-12">
-          &nbsp;
-        </div>
-      {:else}
-        <div>
-          <a class="hover:text-primary-500" href="/account">Account</a> /
-          <a class="hover:text-primary-500" href="/account/login-and-security">Login & Security</a> 
-        </div>
-      {/if}
-    </div>
-  {/if}
+      <div class="mb-4 flex">
+        {#if loading}
+          <BreadcrumbShimmer count={2} />
+        {:else}
+          <Breadcrumb
+            routes={[
+              {
+                name: "Account",
+                path: "/account",
+              },
+              {
+                name: "Login & Security",
+                path: "/account/login-and-security",
+              },
+            ]}
+          />
+        {/if}
+      </div>
+    {/if}
     <!-- <h1 class="hidden md:block font-semibold text-3xl text-center mb-4">Login & Security</h1> -->
     <div class="mb-4 flex justify-between">
       <div class="font-semibold">Password</div>
@@ -78,7 +78,7 @@
     </div>
 
     {#if edit_password}
-      <div class="mb-4">
+      <!-- <div class="mb-4">
         <label for="current_password" class="block text-sm font-semibold mb-2"
           >Current Password</label
         >
@@ -89,7 +89,7 @@
           bind:value={current_password}
           placeholder="Current Password"
         />
-      </div>
+      </div> -->
       <div class="mb-4">
         <label for="new_password" class="block text-sm font-semibold mb-2"
           >New Password</label

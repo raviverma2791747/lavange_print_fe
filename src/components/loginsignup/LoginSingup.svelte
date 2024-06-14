@@ -15,7 +15,7 @@
   import { PUBLIC_GOOGLE_CLIENT_ID, PUBLIC_API_URI } from "$env/static/public";
   import { browser } from "$app/environment";
   import * as jwt from "jsonwebtoken-esm";
-  import { userLoginGoogle } from "../../helper/endpoints";
+  import { userLoginFacebook, userLoginGoogle } from "../../helper/endpoints";
   import { page } from "$app/stores";
   //import {OAuth2Client} from 'google-auth-library';
   //import { GOOGLE_CLIENT_SECRET } from "$env/static/pivate";
@@ -184,7 +184,7 @@
             {#if AUTH_MODE.GOOGLE}
               <a
                 class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
-                href={`${PUBLIC_API_URI}/public/user/auth/google?redirect_uri=${getURL()}`}
+                href={`${PUBLIC_API_URI}${userLoginGoogle}?redirect_uri=${getURL()}`}
               >
                 <GoogleSocialIcon />
                 Continue with Google
@@ -194,7 +194,7 @@
             {#if AUTH_MODE.FACEBOOK}
               <a
                 class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
-                href={`${PUBLIC_API_URI}/public/user/auth/google?redirect_uri=${getURL()}`}
+                href={`${PUBLIC_API_URI}${userLoginFacebook}?redirect_uri=${getURL()}`}
               >
                 <FacebookSocialIcon />
                 Continue with Facebook

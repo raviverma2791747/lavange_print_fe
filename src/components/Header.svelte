@@ -20,6 +20,8 @@
   import { PUBLIC_BRAND_NAME } from "$env/static/public";
   import ShoppingBagIcon from "./svg/ShoppingBagIcon.svelte";
   import { getAvatarName } from "../helper/utils";
+  import { httpClient } from "../helper/httpClient";
+  import { userLogout } from "../helper/endpoints";
 
   let hidden = false;
   let innnerWidth;
@@ -36,6 +38,18 @@
       hidden = false;
     }
   }
+
+  const logout = async () => {
+    const response = await httpClient(userLogout, {
+      method: "POST",
+    });
+
+    if (response.status === 200) {
+      user_info_store.set(null);
+      wishlist_store.set([]);
+      cart_store.set([]);
+    }
+  };
 </script>
 
 <svelte:window bind:innerWidth={innnerWidth} />
@@ -253,12 +267,7 @@
             </button>
             <button
               class="flex items-center w-full gap-x-3.5 py-2 px-3 text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
-              on:click={() => {
-                user_info_store.set(null);
-                wishlist_store.set([]);
-                cart_store.set([]);
-                localStorage.removeItem("token");
-              }}
+              on:click={logout}
             >
               Logout
             </button>

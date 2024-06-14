@@ -9,12 +9,13 @@
   import CloseIcon from "../svg/CloseIcon.svelte";
   import EnvelopeIcon from "../svg/EnvelopeIcon.svelte";
   import GoogleSocialIcon from "../svg/GoogleSocialIcon.svelte";
+  import FacebookSocialIcon from "../svg/FacebookSocialIcon.svelte";
   import MobileIcon from "../svg/MobileIcon.svelte";
   import EmailLoginSignup from "./EmailLoginSignup.svelte";
   import { PUBLIC_GOOGLE_CLIENT_ID, PUBLIC_API_URI } from "$env/static/public";
   import { browser } from "$app/environment";
   import * as jwt from "jsonwebtoken-esm";
-  import { userLoginGoogle } from "../../helper/endpoints";
+  import { userLoginFacebook, userLoginGoogle } from "../../helper/endpoints";
   import { page } from "$app/stores";
   //import {OAuth2Client} from 'google-auth-library';
   //import { GOOGLE_CLIENT_SECRET } from "$env/static/pivate";
@@ -38,9 +39,10 @@
   export let open = false;
 
   const AUTH_MODE = {
-    PHONE: "PHONE",
+    // PHONE: "PHONE",
     EMAIL: "EMAIL",
     GOOGLE: "GOOGLE",
+    FACEBOOK: "FACEBOOK",
   };
   let selected_auth_mode = AUTH_MODE.EMAIL;
   let phone = "";
@@ -129,8 +131,7 @@
 
   const getURL = () => {
     return $page.url.href;
-  }
-
+  };
 </script>
 
 {#if open}
@@ -154,58 +155,83 @@
       </div>
 
       <div class="p-4">
-        {#if AUTH_MODE.PHONE === selected_auth_mode}
-          <div class="mb-4">
-            <input
-              type="number"
-              class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
-              placeholder="Phone Number"
-              bind:value={phone}
-            />
+        {#if Object.keys(AUTH_MODE).length}
+          {#if AUTH_MODE.PHONE === selected_auth_mode && selected_auth_mode}
+            <div class="mb-4">
+              <input
+                type="number"
+                class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                placeholder="Phone Number"
+                bind:value={phone}
+              />
+            </div>
+
+            <button
+              class="mb-4 w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
+            >
+              Continue
+            </button>
+            {#if Object.keys(AUTH_MODE).length > 1}
+              <div class="text-center mbn-4">or</div>
+            {/if}
+          {:else if AUTH_MODE.EMAIL === selected_auth_mode && selected_auth_mode}
+            <EmailLoginSignup />
+            {#if Object.keys(AUTH_MODE).length > 1}
+              <div class="text-center mbn-4">or</div>
+            {/if}
+          {/if}
+          <div class="flex flex-col gap-4">
+            {#if AUTH_MODE.GOOGLE}
+              <a
+                class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
+                href={`${PUBLIC_API_URI}${userLoginGoogle}?redirect_uri=${getURL()}`}
+              >
+                <GoogleSocialIcon />
+                Continue with Google
+              </a>
+            {/if}
+
+            {#if AUTH_MODE.FACEBOOK}
+              <a
+                class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
+                href={`${PUBLIC_API_URI}${userLoginFacebook}?redirect_uri=${getURL()}`}
+              >
+                <FacebookSocialIcon />
+                Continue with Facebook
+              </a>
+            {/if}
+
+            {#if AUTH_MODE.EMAIL}
+              <button
+                class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
+                on:click={() => {
+                  selected_auth_mode = AUTH_MODE.EMAIL;
+                }}
+                class:hidden={AUTH_MODE.EMAIL === selected_auth_mode}
+              >
+                <EnvelopeIcon />
+                Continue with Email
+              </button>
+            {/if}
+
+            {#if AUTH_MODE.PHONE}
+              <button
+                class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
+                on:click={() => {
+                  selected_auth_mode = AUTH_MODE.PHONE;
+                }}
+                class:hidden={AUTH_MODE.PHONE === selected_auth_mode}
+              >
+                <MobileIcon />
+                Continue with Phone
+              </button>
+            {/if}
           </div>
-
-          <button
-            class="mb-4 w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
-          >
-            Continue
-          </button>
-        {:else if AUTH_MODE.EMAIL === selected_auth_mode}
-          <EmailLoginSignup />
+        {:else}
+          <p class="text-center font-semibold">
+            Sorry No Authentication Mode Available
+          </p>
         {/if}
-
-        <div class="text-center mbn-4">or</div>
-
-        <div class="flex flex-col gap-4">
-          <a
-            class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
-            href={`${PUBLIC_API_URI}/public/user/auth/google?redirect_uri=${getURL()}`}
-          >
-            <GoogleSocialIcon />
-            Continue with Google
-          </a>
-
-          <button
-            class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
-            on:click={() => {
-              selected_auth_mode = AUTH_MODE.EMAIL;
-            }}
-            class:hidden={AUTH_MODE.EMAIL === selected_auth_mode}
-          >
-            <EnvelopeIcon />
-            Continue with Email
-          </button>
-
-          <button
-            class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex items-center justify-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 hover:bg-primary-50 disabled:opacity-50 disabled:pointer-events-none"
-            on:click={() => {
-              selected_auth_mode = AUTH_MODE.PHONE;
-            }}
-            class:hidden={AUTH_MODE.PHONE === selected_auth_mode}
-          >
-            <MobileIcon />
-            Continue with Phone
-          </button>
-        </div>
       </div>
     </div>
   </div>

@@ -25,24 +25,19 @@
   import { MetaTags } from "svelte-meta-tags";
   import NetworkError from "../components/NetworkError.svelte";
   import Cookies from "js-cookie";
+  import { PUBLIC_BRAND_NAME } from "$env/static/public";
 
   const initUserInfo = async () => {
-    const response = await httpClient(getUserInfo, {
-     
-    });
+    const response = await httpClient(getUserInfo, {});
 
     if (response.status === 200) {
       user_info_store.set(response.data.user);
-      // login_signup_modal_open.set(false);
     } else {
-   
     }
   };
 
   const initWishlist = async () => {
-    const response = await httpClient(getUserWishlist, {
-     
-    });
+    const response = await httpClient(getUserWishlist, {});
 
     if (response.status === 200) {
       wishlist_store.set([...response.data.wishList]);
@@ -52,9 +47,7 @@
   };
 
   const initCart = async () => {
-    const response = await httpClient(getUserCart, {
- 
-    });
+    const response = await httpClient(getUserCart, {});
 
     if (response.status === 200) {
       cart_store.set([...response.data.cart]);
@@ -76,7 +69,7 @@
 </script>
 
 <MetaTags
-  title="Brand Print"
+  title={PUBLIC_BRAND_NAME}
   titleTemplate="%s"
   description="Brand Print - Home of your next print."
   canonical="https://www.print.lavange.in"

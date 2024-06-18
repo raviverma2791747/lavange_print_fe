@@ -2,6 +2,61 @@
   //@ts-nocheck
   import CheckFillIcon from "../../../../components/svg/CheckFillIcon.svelte";
   import { page } from "$app/stores";
+  import { onDestroy, onMount } from "svelte";
+
+  let interval;
+
+  onMount(() => {
+    const count = 200,
+      defaults = {
+        origin: { y: 0.7 },
+      };
+
+    function fire(particleRatio, opts) {
+      confetti(
+        Object.assign({}, defaults, opts, {
+          particleCount: Math.floor(count * particleRatio),
+        })
+      );
+    }
+
+    const launch = () => {
+      fire(0.25, {
+        spread: 26,
+        startVelocity: 55,
+      });
+
+      fire(0.2, {
+        spread: 60,
+      });
+
+      fire(0.35, {
+        spread: 100,
+        decay: 0.91,
+        scalar: 0.8,
+      });
+
+      fire(0.1, {
+        spread: 120,
+        startVelocity: 25,
+        decay: 0.92,
+        scalar: 1.2,
+      });
+
+      fire(0.1, {
+        spread: 120,
+        startVelocity: 45,
+      });
+    };
+
+    interval = setInterval(() => {
+      launch();
+    }, 2000);
+  });
+
+  onDestroy(() => {
+    clearTimeout(interval);
+  });
 </script>
 
 <div
@@ -19,7 +74,7 @@
         href={`/order/${$page.params._id}`}
         class=" grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 disabled:opacity-50 disabled:pointer-events-none"
       >
-        <span>View Orders</span>
+        <span>View Order</span>
       </a>
       <a
         href="/search"

@@ -151,7 +151,7 @@
           <CloseIcon />
         </button>
 
-        <div>Log in or Signup</div>
+        <div>Please Login To Continue</div>
       </div>
 
       <div class="p-4">
@@ -172,12 +172,12 @@
               Continue
             </button>
             {#if Object.keys(AUTH_MODE).length > 1}
-              <div class="text-center mbn-4">or</div>
+              <div class="text-center mb-4">or</div>
             {/if}
           {:else if AUTH_MODE.EMAIL === selected_auth_mode && selected_auth_mode}
             <EmailLoginSignup />
             {#if Object.keys(AUTH_MODE).length > 1}
-              <div class="text-center mbn-4">or</div>
+              <div class="text-center mb-4">or</div>
             {/if}
           {/if}
           <div class="flex flex-col gap-4">

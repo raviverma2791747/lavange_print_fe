@@ -37,6 +37,7 @@
   import { onMount } from "svelte";
   import Breadcrumb from "../../../components/Breadcrumb.svelte";
   import BreadcrumbShimmer from "../../../components/BreadcrumbShimmer.svelte";
+  import { FACET_TYPE } from "../../../helper/constants";
 
   let product;
   let quantity = 1;
@@ -58,11 +59,39 @@
     gap: "1rem",
     breakpoints: {
       640: {
-        perPage: 3,
+        perPage: 8,
         gap: ".7rem",
       },
       480: {
         perPage: 2,
+        gap: ".7rem",
+      },
+    },
+  };
+
+  const productSlideOptions = {
+    // type: "loop",
+    perPage: 6,
+    gap:".7rem",
+    breakpoints: {
+      1280: {
+        perPage: 8,
+        gap: ".7rem",
+      },
+      1024: {
+        perPage: 8,
+        gap: ".7rem",
+      },
+      768: {
+        perPage: 6,
+        gap: ".7rem",
+      },
+      640: {
+        perPage: 4,
+        gap: ".7rem",
+      },
+      480: {
+        perPage: 3,
         gap: ".7rem",
       },
     },
@@ -373,16 +402,11 @@
             </div>
 
             {#if product.assets.length > 1}
-              <Splide
-                options={{
-                  height: "100%",
-                  perPage: 8,
-                }}
-              >
+              <Splide options={productSlideOptions}>
                 {#each product.assets as asset, index}
                   <SplideSlide>
                     <button
-                      class="hover:scale-105 transition w-20 cursor-pointer shrink-0"
+                      class="hover:scale-105 transition cursor-pointer shrink-0"
                       on:click={() => {
                         active_asset = index;
                       }}
@@ -464,7 +488,7 @@
                   <div class="block text-sm font-semibold mb-2">
                     {variantOption.displayName}
                   </div>
-                  {#if variantOption.type === "color"}
+                  {#if variantOption.type === FACET_TYPE.COLOR}
                     <div class="flex gap-4">
                       {#each variantOption.options as option}
                         <div class="cursor-pointer">
@@ -489,7 +513,7 @@
                         </div>
                       {/each}
                     </div>
-                  {:else if variantOption.type === "size"}
+                  {:else if variantOption.type === FACET_TYPE.SIZE}
                     <div class="flex gap-4">
                       {#each variantOption.options as option}
                         <button
@@ -743,3 +767,11 @@
     {/if}
   {/if}
 </div>
+
+<style>
+  :global(.splide__arrow) {
+    opacity: 1;
+    background-color: white !important;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  }
+</style>

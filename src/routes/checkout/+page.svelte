@@ -19,6 +19,7 @@
   import CloseIcon from "../../components/svg/CloseIcon.svelte";
   import CartItem from "../../components/cart/CartItem.svelte";
   import { STATUS } from "../../helper/constants";
+  import { page } from "$app/stores";
 
   let selected_address;
   let selected_payment_method;
@@ -36,6 +37,8 @@
     tax: 0,
     total: 0,
   };
+
+  let paymentGateways = [];
 
   const initWishlist = async () => {
     const response = await httpClient(getUserWishlist);
@@ -80,14 +83,19 @@
           };
         }),
         address: selected_address,
+        redirectUrl: `${$page.url.origin}/checkout`,
+        paymentMethod: selected_payment_method,
       },
     });
     if (data.status === 200) {
-      goto(`/checkout/success/${data.data.order.id}`);
-      //await initCart();
-      $cart_store = [];
+      window.location.href = data.data.paymentUrl;
     } else {
-      goto(`/checkout/failure`);
+      $loading_store = false;
+      if (data?.data?.order?.id) {
+        goto(`/checkout/failure/${data.data.order.id}`);
+      } else {
+        goto(`/checkout/failure`);
+      }
     }
     $loading_store = false;
   };
@@ -123,6 +131,7 @@
       } else if (coupon_code.trim()) {
         coupon_msg = "Coupon not valid!";
       }
+      paymentGateways = response.data.paymentMethod.paymentGateways ?? [];
     } else {
     }
     loading = false;
@@ -137,7 +146,7 @@
     // coupon_loading = true;
     // const response = await httpClient(applyCoupon, {
     //   method: "POST",
-    //   
+    //
     //   payload: {
     //     code: coupon_code,
     //     cart: $cart_store,
@@ -281,36 +290,24 @@
         <div class="mb-4">
           <h1 class="font-semibold text-lg mb-4">Payment Method</h1>
           <div class="flex flex-col gap-4">
-            <label
-              for="paytm"
-              class="border border-gray-200 rounded-lg p-4 hover:shadow flex gap-2 cursor-pointer"
-              class:bg-primary-50={selected_payment_method === "paytm"}
-            >
-              <div>
-                <input
-                  type="radio"
-                  id="paytm"
-                  value="paytm"
-                  bind:group={selected_payment_method}
-                />
-              </div>
-              <div>Paytm</div>
-            </label>
-            <label
-              for="phonepe"
-              class="border border-gray-200 rounded-lg p-4 hover:shadow flex gap-2"
-              class:bg-primary-50={selected_payment_method === "phonepe"}
-            >
-              <div>
-                <input
-                  type="radio"
-                  id="phonepe"
-                  value="phonepe"
-                  bind:group={selected_payment_method}
-                />
-              </div>
-              <div>Phonepe</div>
-            </label>
+            {#each paymentGateways.filter((g) => g.status) as paymentGateway}
+              <label
+                for={paymentGateway.name}
+                class="border border-gray-200 rounded-lg p-4 hover:shadow flex gap-2 cursor-pointer"
+                class:bg-primary-50={selected_payment_method ===
+                  paymentGateway.code}
+              >
+                <div>
+                  <input
+                    type="radio"
+                    id={paymentGateway.name}
+                    value={paymentGateway.code}
+                    bind:group={selected_payment_method}
+                  />
+                </div>
+                <div>{paymentGateway.name}</div>
+              </label>
+            {/each}
           </div>
         </div>
         <div>

@@ -58,7 +58,7 @@
 
 <!-- svelte-ignore missing-declaration -->
 {#if !loading}
-  <div class="bg-white max-w-7xl mx-auto px-4 lg:px-0 py-2">
+  <div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 py-2">
     {#if loading}{:else}
       <div class="mb-4 flex">
         {#if loading}
@@ -115,7 +115,7 @@
       </div>
       <div>
         <div class="font-semibold">Order Placed</div>
-        <div>{formatDate(order.createdAt, DATE_FORMAT)}</div>
+        <div>{formatDate(order.createdAt, DATE_TIME_FORMAT)}</div>
       </div>
       <div>
         <div class="font-semibold">Order#</div>

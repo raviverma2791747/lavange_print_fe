@@ -16,7 +16,7 @@
 </script>
 
 <footer class="border-t border-gray-200 bg-gray-100 hidden md:block">
-  <div class="max-w-7xl mx-auto py-4 divide-y flex flex-col gap-2 px-4 lg:px-0">
+  <div class="max-w-7xl mx-auto py-4 divide-y flex flex-col gap-2 px-4 7xl:px-0">
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <div class="">
         <h2 class="font-semibold text-xl mb-4">Our Company</h2>

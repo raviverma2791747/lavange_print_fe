@@ -14,12 +14,17 @@
     getCheckout,
     getUserCart,
     getUserWishlist,
+    razorpayCallback,
   } from "../../helper/endpoints";
   import { goto } from "$app/navigation";
   import CloseIcon from "../../components/svg/CloseIcon.svelte";
   import CartItem from "../../components/cart/CartItem.svelte";
-  import { STATUS } from "../../helper/constants";
+  import { STATUS, PAYMENT_GATEWAY } from "../../helper/constants";
   import { page } from "$app/stores";
+  import {
+    PUBLIC_BRAND_NAME,
+    PUBLIC_API_URI,
+  } from "$env/static/public";
 
   let selected_address;
   let selected_payment_method;
@@ -60,6 +65,43 @@
     }
   };
 
+  const handleRazorpayPayment = async (rzorder, razorpay_id_key, order_id) => {
+    const options = {
+      key: razorpay_id_key,
+      amount: rzorder.amount,
+      currency: rzorder.currency,
+      name: PUBLIC_BRAND_NAME,
+      description: `"Payment for order ${order_id}`,
+      order_id: rzorder.id,
+      callback_url: `${PUBLIC_API_URI}${razorpayCallback}?redirectUrl=${$page.url.origin}/checkout`,
+      //handler: async (response) => {
+      // console.log(response);
+      // try {
+      //   const callback_response = await httpClient(razorpayCallback, {
+      //     method: "POST",
+      //     payload: {
+      //       razorpay_order_id: response.razorpay_order_id,
+      //       razorpay_payment_id: response.razorpay_payment_id,
+      //       razorpay_signature: response.razorpay_signature,
+      //     },
+      //   });
+
+      //   if (callback_response.status === 200) {
+      //     goto(`/checkout/success/${callback_response.order.id}`);
+      //   } else {
+      //     goto(`/checkout/failure/${callback_response.order.id}`);
+      //   }
+      // } catch (error) {
+      //   console.log(error);
+      //   goto(`/checkout/failure/${order_id}`);
+      // }
+      //},
+    };
+
+    const razorpay = new window.Razorpay(options);
+    razorpay.open();
+  };
+
   const handlePlaceOrder = async () => {
     if (
       selected_address === undefined ||
@@ -70,7 +112,7 @@
 
     $loading_store = true;
 
-    const data = await httpClient(createUserOrder, {
+    const response = await httpClient(createUserOrder, {
       method: "POST",
       payload: {
         coupon_code: coupon_valid ? coupon_code : null,
@@ -87,12 +129,22 @@
         paymentMethod: selected_payment_method,
       },
     });
-    if (data.status === 200) {
-      window.location.href = data.data.paymentUrl;
+    console.log(response);
+    if (response.status === 200) {
+      const paymentGateway = response.data.paymentGateway;
+      if (PAYMENT_GATEWAY.PHONEPE === paymentGateway) {
+        window.location.href = data.data.paymentUrl;
+      } else if (PAYMENT_GATEWAY.RAZORPAY === paymentGateway) {
+        await handleRazorpayPayment(
+          response.data.razorpay_order,
+          response.data.razorpay_id_key,
+          response.data.order.id
+        );
+      }
     } else {
       $loading_store = false;
-      if (data?.data?.order?.id) {
-        goto(`/checkout/failure/${data.data.order.id}`);
+      if (response?.data?.order?.id) {
+        goto(`/checkout/failure/${response.data.order.id}`);
       } else {
         goto(`/checkout/failure`);
       }

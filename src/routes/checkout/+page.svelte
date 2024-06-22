@@ -21,10 +21,7 @@
   import CartItem from "../../components/cart/CartItem.svelte";
   import { STATUS, PAYMENT_GATEWAY } from "../../helper/constants";
   import { page } from "$app/stores";
-  import {
-    PUBLIC_BRAND_NAME,
-    PUBLIC_API_URI,
-  } from "$env/static/public";
+  import { PUBLIC_BRAND_NAME, PUBLIC_API_URI } from "$env/static/public";
 
   let selected_address;
   let selected_payment_method;
@@ -133,7 +130,7 @@
     if (response.status === 200) {
       const paymentGateway = response.data.paymentGateway;
       if (PAYMENT_GATEWAY.PHONEPE === paymentGateway) {
-        window.location.href = data.data.paymentUrl;
+        window.location.href = response.data.paymentUrl;
       } else if (PAYMENT_GATEWAY.RAZORPAY === paymentGateway) {
         await handleRazorpayPayment(
           response.data.razorpay_order,

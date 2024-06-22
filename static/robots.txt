@@ -1,0 +1,3 @@
+User-agent: *
+Disallow: /orders
+Disallow: /account

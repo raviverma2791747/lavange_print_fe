@@ -136,13 +136,13 @@
 
 <a
   href={`/product/${product.slug}`}
-  class="relative block rounded-lg bg-white hover:shadow-lg w-full"
+  class="relative block rounded-lg bg-white  w-full"
 >
   {#if compareAtPrice}
     <div
-      class="absolute bg-green-500 font-semibold text-white text-xs p-1 rounded-tr-lg rounded-br-lg top-0 left-0 mt-2"
+      class="absolute bg-green-500 font-semibold text-white text-sm p-1 rounded-tr-lg rounded-br-lg top-0 left-0 mt-2"
     >
-      You save {formatPercentage(calculateDiscount(price, compareAtPrice))}
+      {formatPercentage(calculateDiscount(price, compareAtPrice))} Off
     </div>
   {/if}
 
@@ -154,7 +154,7 @@
   {#if !hideShare}
     <button
       on:click={handleShare}
-      class="absolute top-2 right-2 hover:text-primary-500 rounded-full p-2"
+      class="absolute top-2 right-2 hover:text-primary-500  bg-primary-50 rounded-full p-2"
     >
       <ShareIcon />
     </button>

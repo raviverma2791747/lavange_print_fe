@@ -1,6 +1,7 @@
 <script>
   //@ts-nocheck
   import {
+    authenticating_store,
     cart_store,
     header_title_store,
     loading_store,
@@ -22,6 +23,8 @@
   import { STATUS, PAYMENT_GATEWAY } from "../../helper/constants";
   import { page } from "$app/stores";
   import { PUBLIC_BRAND_NAME, PUBLIC_API_URI } from "$env/static/public";
+  import CartItemShimmer from "../../components/cart/CartItemShimmer.svelte";
+  import LoginSpinner from "../../components/LoginSpinner.svelte";
 
   let selected_address;
   let selected_payment_method;
@@ -31,8 +34,10 @@
   let coupon_valid = false;
   let coupon_msg = "";
   let loading = true;
+  let disabled = false;
 
   let order_data = {
+    cart: [],
     cart_total: 0,
     delivery_charge: 0,
     discount: 0,
@@ -149,28 +154,17 @@
     $loading_store = false;
   };
 
-  const initCheckout = async (cart, userID) => {
-    if (cart.length === 0) {
-      return;
-    }
+  const initCheckout = async () => {
     loading = true;
     const response = await httpClient(getCheckout, {
       method: "POST",
       payload: {
         coupon_code: coupon_code,
-        cart: cart.map((ci) => {
-          return {
-            product: ci.product._id,
-            quantity: ci.quantity,
-            variant: ci.variant,
-            variantSchema: ci.variantSchema,
-          };
-        }),
-        userID: userID,
       },
     });
 
     if (response.status === 200) {
+      order_data.cart = response.data.cart ?? [];
       order_data.cart_total = response.data.cartTotal;
       order_data.discount = response.data.discount;
       order_data.total = response.data.grandTotal;
@@ -184,6 +178,7 @@
     } else {
     }
     loading = false;
+    disabled = false;
   };
 
   const handleApplyCoupon = async () => {
@@ -191,7 +186,7 @@
       return;
     }
 
-    await initCheckout($cart_store, $user_info_store?._id);
+    await initCheckout($cart_store);
     // coupon_loading = true;
     // const response = await httpClient(applyCoupon, {
     //   method: "POST",
@@ -219,7 +214,7 @@
     coupon_code = "";
     coupon_valid = false;
     coupon_msg = "";
-    await initCheckout($cart_store, $user_info_store?._id);
+    await initCheckout();
   };
 
   // $: {
@@ -276,7 +271,11 @@
   // }
 
   $: {
-    initCheckout($cart_store, $user_info_store?._id);
+    if (!$user_info_store && !$authenticating_store) {
+      goto("/");
+    } else {
+      $user_info_store && $cart_store && initCheckout();
+    }
   }
 
   $: {
@@ -306,6 +305,7 @@
                 >
                   <div>
                     <input
+                      disabled={loading || disabled}
                       id={`address-${address._id}`}
                       type="radio"
                       name="address"
@@ -339,34 +339,70 @@
         <div class="mb-4">
           <h1 class="font-semibold text-lg mb-4">Payment Method</h1>
           <div class="flex flex-col gap-4">
-            {#each paymentGateways.filter((g) => g.status) as paymentGateway}
-              <label
-                for={paymentGateway.name}
-                class="border border-gray-200 rounded-lg p-4 hover:shadow flex gap-2 cursor-pointer"
-                class:bg-primary-50={selected_payment_method ===
-                  paymentGateway.code}
-              >
-                <div>
-                  <input
-                    type="radio"
-                    id={paymentGateway.name}
-                    value={paymentGateway.code}
-                    bind:group={selected_payment_method}
-                  />
-                </div>
-                <div>{paymentGateway.name}</div>
-              </label>
-            {/each}
+            {#if loading}
+              {#each Array(3) as _}
+                <label
+                  class="border border-gray-200 rounded-lg p-4 hover:shadow flex gap-2 cursor-pointer"
+                >
+                  <div>
+                    <input type="radio" disabled={true} />
+                  </div>
+                  <div class="bg-gray-200 animate-pulse w-32 rounded-lg">
+                    &nbsp;
+                  </div>
+                </label>
+              {/each}
+            {:else}
+              {#each paymentGateways.filter((g) => g.status) as paymentGateway}
+                <label
+                  for={paymentGateway.name}
+                  class="border border-gray-200 rounded-lg p-4 hover:shadow flex gap-2 cursor-pointer"
+                  class:bg-primary-50={selected_payment_method ===
+                    paymentGateway.code}
+                >
+                  <div>
+                    <input
+                      type="radio"
+                      id={paymentGateway.name}
+                      value={paymentGateway.code}
+                      bind:group={selected_payment_method}
+                    />
+                  </div>
+                  <div class="capitalize">{paymentGateway.name}</div>
+                </label>
+              {/each}
+            {/if}
           </div>
         </div>
         <div>
           <h1 class="font-semibold text-lg mb-4">Order Details</h1>
           <div class="grid gap-4 mb-4">
-            {#each $cart_store as cartItem}
-              <CartItem item={cartItem} />
-            {/each}
+            {#if loading}
+              {#each Array(3) as _}
+                <CartItemShimmer />
+              {/each}
+            {:else}
+              {#each order_data.cart as cartItem}
+                <CartItem
+                  on:addToCart={async () => {
+                    disabled = true;
+                  }}
+                  on:deleteCartItem={async () => {
+                    disabled = true;
+                  }}
+                  on:removeFromCart={async () => {
+                    disabled = true;
+                  }}
+                  on:updateCart={async () => {
+                    await initCart();
+                  }}
+                  disabled={loading || disabled}
+                  item={cartItem}
+                />
+              {/each}
+            {/if}
           </div>
-          <div class="mb-4">
+          <!-- <div class="mb-4">
             <span class="font-semibold">Total Price</span>
 
             {#if $cart_store.every((c) => c.product.status === STATUS.ACTIVE) && $cart_store.every( (c) => {
@@ -400,7 +436,7 @@
             {:else}
               ---
             {/if}
-          </div>
+          </div> -->
         </div>
       </div>
       <div class="col-span-3 md:col-span-1">
@@ -569,6 +605,17 @@
             >
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+{:else if !$user_info_store && $authenticating_store}
+  <div
+    class="bg-white max-w-5xl mx-auto px-4 5xl:px-0 mt-4 min-h-[calc(100vh-64px)] flex"
+  >
+    <div class="flex items-center justify-center grow">
+      <div class="flex flex-col items-center">
+        <LoginSpinner />
+        <div>Please wait while we log you in...</div>
       </div>
     </div>
   </div>

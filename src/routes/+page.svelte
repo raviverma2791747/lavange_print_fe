@@ -12,6 +12,8 @@
   import AllCategory from "../components/home/AllCategory.svelte";
   import ProductCardShimmer from "../components/ProductCardShimmer.svelte";
   import CollectionCardShimmer from "../components/CollectionCardShimmer.svelte";
+  import { MetaTags } from 'svelte-meta-tags';
+  import { PUBLIC_BRAND_NAME } from '$env/static/public';
 
   let loading = true;
 
@@ -86,6 +88,37 @@
     loading = false;
   });
 </script>
+
+<MetaTags
+title={`Home ${PUBLIC_BRAND_NAME}`}
+titleTemplate="%s"
+description={''}
+canonical="https://www.print.lavange.in"
+openGraph={{
+  url: "https://www.print.lavange.in",
+  title: "Brand Print",
+  description: "Brand Print - Home of your next print.",
+  images: [
+    {
+      url: "https://www.print.lavange.in/og_img.png",
+      width: 1200,
+      height: 630,
+      alt: "Og Image Alt",
+    },
+  ],
+  siteName: "SiteName",
+}}
+twitter={{
+  handle: "@handle",
+  site: "@site",
+  cardType: "summary_large_image",
+  title: `Home ${PUBLIC_BRAND_NAME}`,
+  description: '',
+  image: "https://www.print.lavange.in/og_img.png",
+  imageAlt: "Twitter image alt",
+}}
+/>
+
 
 <div class="border-b border-gray-200 mb-4 sticky top-[64px] z-30">
   <div class="bg-white max-w-7xl mx-auto py-4 px-4 7xl:px-0">
@@ -162,7 +195,7 @@
     <div class="w-full">
       {#if homeConfig.exploreCollections.length === 0 && loading}
         <Splide options={slideOptions}>
-          {#each Array(4) as A, index}
+          {#each Array(5) as A, index}
             <SplideSlide>
               <CollectionCardShimmer />
             </SplideSlide>
@@ -187,7 +220,7 @@
     <div class="w-full">
       {#if homeConfig.bestSellerProducts.length === 0 && loading}
         <Splide options={slideOptions}>
-          {#each Array(4) as A, index}
+          {#each Array(5) as A, index}
             <SplideSlide>
               <ProductCardShimmer />
             </SplideSlide>
@@ -212,7 +245,7 @@
     <div class="w-full">
       {#if homeConfig.newArrivalProducts.length === 0 && loading}
         <Splide options={slideOptions}>
-          {#each Array(4) as A, index}
+          {#each Array(5) as A, index}
             <SplideSlide>
               <ProductCardShimmer />
             </SplideSlide>
@@ -237,7 +270,7 @@
       <div class="w-full">
         {#if collection.products.length === 0 && loading}
           <Splide options={slideOptions}>
-            {#each Array(4) as A, index}
+            {#each Array(5) as A, index}
               <SplideSlide>
                 <ProductCardShimmer />
               </SplideSlide>

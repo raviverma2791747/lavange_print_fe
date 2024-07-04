@@ -3,6 +3,7 @@
   import { formatDate } from "date-fns";
   import { DATE_FORMAT, ORDER_STATUS } from "../helper/constants";
   import { formatCurrency, getByValue } from "../helper/utils";
+  import OrderStatusPill from "./OrderStatusPill.svelte";
 
   export let order;
 </script>
@@ -20,11 +21,7 @@
     </div>
     <div>
       <div class="font-semibold">Status</div>
-      <div
-        class="capitalize px-2 py-1 text-sm inline-flex border border-primary-500 rounded-full bg-primary-100 text-primary-500"
-      >
-        {getByValue(ORDER_STATUS, order.status)}
-      </div>
+      <OrderStatusPill status={order.status} />
     </div>
     <div>
       <div class="font-semibold">Total</div>

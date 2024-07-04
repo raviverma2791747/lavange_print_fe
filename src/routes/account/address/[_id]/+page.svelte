@@ -8,13 +8,20 @@
     getUserInfo,
     updateUserAddress,
   } from "../../../../helper/endpoints";
-  import {  user_info_store } from "../../../../helper/store";
+  import {
+    authenticating_store,
+    login_signup_modal_open,
+    user_info_store,
+  } from "../../../../helper/store";
   import { ADDRESS_TYPE } from "../../../../helper/constants";
   import { goto } from "$app/navigation";
   import BreadcrumbShimmer from "../../../../components/BreadcrumbShimmer.svelte";
   import Breadcrumb from "../../../../components/Breadcrumb.svelte";
+  import LoginSpinner from "../../../../components/LoginSpinner.svelte";
+  import BarricadeIcon from "../../../../components/svg/BarricadeIcon.svelte";
 
   let loading = false;
+  let enable_save = false;
   let address = {
     fullName: "",
     mobile: "",
@@ -40,6 +47,7 @@
   };
 
   const initUserInfo = async () => {
+    authenticating_store.set(true);
     const response = await httpClient(getUserInfo);
 
     if (response.status === 200) {
@@ -48,9 +56,10 @@
       // token.set(null);
       $user_info_store = null;
     }
+    authenticating_store.set(false);
   };
 
-  const validate = () => {
+  const validate = (address) => {
     if (
       !address.fullName ||
       !address.mobile ||
@@ -98,8 +107,14 @@
   };
 
   $: {
+    enable_save = validate(address);
+  }
+
+  $: {
     if ($page.params._id !== "create" && $user_info_store) {
       initAddress($page.params._id);
+    } else if (!$user_info_store && !$authenticating_store) {
+      goto("/");
     } else {
       loading = false;
     }
@@ -146,7 +161,7 @@
         <input
           name="country"
           type="text"
-          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm outline-primary-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none"
           bind:value={address.country}
           placeholder="Country"
           disabled={true}
@@ -165,7 +180,7 @@
         <input
           name="fullName"
           type="text"
-          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm outline-primary-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none"
           bind:value={address.fullName}
           placeholder="Full name (First and Last name)"
         />
@@ -183,7 +198,7 @@
         <input
           name="mobile"
           type="number"
-          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm outline-primary-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none"
           bind:value={address.mobile}
           placeholder="Mobile Number"
         />{/if}
@@ -197,7 +212,7 @@
       {:else}
         <select
           name="type"
-          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm outline-primary-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none"
           bind:value={address.type}
         >
           {#each Object.entries(ADDRESS_TYPE) as [key, value]}
@@ -217,7 +232,7 @@
       {:else}<input
           name="pincode"
           type="number"
-          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm outline-primary-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none"
           bind:value={address.pincode}
           placeholder="Pincode"
         />{/if}
@@ -233,7 +248,7 @@
       {:else}<input
           name="addressLine1"
           type="text"
-          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm outline-primary-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none"
           bind:value={address.addressLine1}
           placeholder="Flat, House no., Building, Company, Apartment"
         />{/if}
@@ -249,7 +264,7 @@
       {:else}<input
           name="addressLine2"
           type="text"
-          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm outline-primary-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none"
           bind:value={address.addressLine2}
           placeholder="Area, Street, Sector, Village"
         />{/if}
@@ -265,7 +280,7 @@
       {:else}<input
           name="landmark"
           type="text"
-          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm outline-primary-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none"
           bind:value={address.landmark}
           placeholder="Landmark"
         />{/if}
@@ -281,7 +296,7 @@
       {:else}<input
           name="city"
           type="text"
-          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm outline-primary-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none"
           bind:value={address.city}
           placeholder="Town/City"
         />{/if}
@@ -296,7 +311,7 @@
         </div>
       {:else}<select
           name="state"
-          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm outline-primary-500 disabled:opacity-50 disabled:pointer-events-none"
+          class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none"
           bind:value={address.state}
         >
           {#each state_list as state}
@@ -305,10 +320,36 @@
         </select>{/if}
     </div>
     <button
-      class="w-full bg-primary-500 text-white py-3 px-4 block border-gray-200 rounded-lg text-sm outline-primary-500 disabled:opacity-50 disabled:pointer-events-none"
+      disabled={!enable_save}
+      class="w-full bg-primary-500 text-white py-3 px-4 block border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none"
       on:click={handleSave}>Save</button
     >
   </div>
+{:else if !$user_info_store && $authenticating_store}
+  <div class="bg-white max-w-xl mx-auto px-4 xl:px-0 mb-24 pt-4 min-h-[calc(100vh-64px)] flex">
+    <div class="flex items-center justify-center grow">
+      <div class="flex flex-col items-center">
+        <LoginSpinner />
+        <div>Please wait while we log you in...</div>
+      </div>
+    </div>
+  </div>
 {:else}
-  Please Login
+<div
+    class="bg-white max-w-5xl mx-auto px-4 5xl:px-0 pt-4 min-h-[calc(100vh-64px)] flex"
+  >
+    <div class="flex items-center justify-center grow">
+      <div class="flex flex-col items-center">
+        <BarricadeIcon class="h-16 w-16" />
+        <div class="mb-4">Please login to view your account details</div>
+        <button
+          class="w-full sm:w-fit hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
+          on:click={() => {
+            goto("/");
+            $login_signup_modal_open = true;
+          }}>Continue to Login</button
+        >
+      </div>
+    </div>
+  </div>
 {/if}

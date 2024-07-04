@@ -11,35 +11,74 @@
   import ProductCardShimmer from "../../components/ProductCardShimmer.svelte";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
-  import { searchFilters_store } from "../../helper/store";
-  import Pagination from "../../components/Pagination.svelte";
+  import {
+    searchFilters_store,
+    homeConfig_store,
+    appliedFilters_store,
+  } from "../../helper/store";
+  import { Pagination } from "bits-ui";
+  import AllCategory from "../../components/home/AllCategory.svelte";
+  import { goto } from "$app/navigation";
+  import { browser } from "$app/environment";
+  import ChevronRight from "../../components/svg/ChevronRight.svelte";
+  import ChevronLeft from "../../components/svg/ChevronLeft.svelte";
 
   let products = [];
   let loading = true;
-  let filters = {
-    categories: [],
-    collections: [],
-    facets: {},
-    sort: "createdAt",
-    order: "desc",
+  //let facets = [];
+  let total = 0;
+  const getFacets = (entries) => {
+    let facets = {};
+    for (const [key, value] of entries) {
+      if (key.startsWith("facets.")) {
+        facets = {
+          ...facets,
+          [key.replace("facets.", "")]: value,
+        };
+      }
+    }
+    return facets;
   };
-  let facets = [];
+
+  $appliedFilters_store = {
+    categories: $page.url.searchParams.get("categories")?.split(",") ?? [],
+    collections: $page.url.searchParams.get("collections")?.split(",") ?? [],
+    facets: getFacets($page.url.searchParams.entries()),
+    sort: $page.url.searchParams.get("sort") ?? "createdAt",
+    order: $page.url.searchParams.get("order") ?? "desc",
+    q: $page.url.searchParams.get("q") ?? "",
+    page: 1,
+    limit: 10,
+  };
 
   const initFilters = async () => {
-    console.log("filters");
     const response = await httpClient(getSearchFilters);
     if (response.status === 200) {
       searchFilters_store.set(response.data ?? $searchFilters_store);
-      facets = [...response.data.facets];
+      //facets = [...response.data.facets];
     }
   };
 
-  const initProducts = async (search = "", filters = {}) => {
+  const initProducts = async (page) => {
     loading = true;
+    const response = await httpClient(
+      `${fetchUserProduct}?${page.url.searchParams.toString()}`
+    );
+    if (response.status === 200) {
+      products = response.data.products ?? [];
+      total = response.data.total;
+    }
+    //await initFacets();
+    loading = false;
+  };
+
+  const initQueryParams = (filters = {}) => {
+    let q = filters.q;
+
     let queryParams = {};
 
-    if (search) {
-      queryParams.search = search;
+    if (q) {
+      queryParams.q = q;
     }
 
     if (filters.categories.length > 0) {
@@ -50,37 +89,40 @@
       queryParams.collections = filters.collections;
     }
 
-    let f = Object.keys(filters.facets).map((key) => {
-      return filters.facets[key];
+    Object.keys(filters.facets).forEach((key) => {
+      queryParams[`facets.${key}`] = filters.facets[key];
     });
-
-    f = f.flat(1);
-
-    if (f.length > 0) {
-      queryParams.facets = f;
-    }
 
     if (filters.sort) {
       queryParams.sort = filters.sort;
       queryParams.order = filters.order;
     }
 
-    const response = await httpClient(fetchUserProduct, {
-      queryParams: queryParams,
-    });
-    if (response.status === 200) {
-      products = response.data.products ?? [];
+    if (filters.page) {
+      queryParams.page = filters.page;
     }
-    loading = false;
+
+    if (filters.limit) {
+      queryParams.limit = filters.limit;
+    }
+
+    let searchParams = new URLSearchParams(queryParams);
+
+    goto(`/search?${searchParams.toString()}`, {
+      invalidateAll: true,
+    });
   };
 
-  const initFacets = async () => {
-    //console.log(filters.facets.length);
+  const initFacets = async (filters) => {
     if (filters.categories.length) {
       let categories = [];
-      categories = filters.categories.map((category) => {
-        return $searchFilters_store.categories.find((f) => f._id === category);
-      });
+      categories = filters.categories
+        .map((category) => {
+          return $searchFilters_store.categories.find(
+            (f) => f._id === category
+          );
+        })
+        .filter((item) => item !== undefined);
 
       let raw_facets = [];
 
@@ -102,10 +144,10 @@
         raw_filters[facet.name] = filters.facets[facet.name] ?? [];
       });
 
-      facets = [...raw_facets];
+      //facets = [...raw_facets];
       filters.facets = { ...raw_filters };
     } else {
-      facets = [...$searchFilters_store.facets];
+      //facets = [...$searchFilters_store.facets];
     }
   };
 
@@ -124,12 +166,14 @@
   // };
 
   onMount(async () => {
+    //initProducts($pag);
     if (
       $searchFilters_store.categories.length == 0 &&
       $searchFilters_store.collections.length == 0 &&
       $searchFilters_store.facets.length == 0
     ) {
       await initFilters();
+      await initFacets($appliedFilters_store);
     }
   });
 
@@ -151,20 +195,35 @@
 
   // initProducts("", filters);
   $: {
-    initFacets();
-    initProducts($page.url.searchParams.get("q") ?? "", filters);
+    browser && initFacets($appliedFilters_store);
+  }
+
+  $: {
+    browser && initProducts($page);
+  }
+
+  $: {
+    browser && initQueryParams($appliedFilters_store);
   }
 </script>
 
-<div class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 mt-4">
+<!-- <div class="border-b border-gray-200 mb-4 sticky top-[64px] z-30">
+  <div class="bg-white max-w-7xl mx-auto py-4 px-4 7xl:px-0">
+    <AllCategory categories={ $homeConfig_store.featuredCategories} {loading} />
+  </div>
+</div> -->
+
+<div
+  class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 mt-4 flex flex-col min-h-[calc(100vh-64px)]"
+>
   <div class="mb-4">
-    {#if $page.url.searchParams.get("q")}
-      <h1 class="font-semibold mb-4 text-gray-800">
-        Search results for "{$page.url.searchParams.get("q")}"
+    {#if $appliedFilters_store.q}
+      <h1 class="font-semibold text-gray-800">
+        Search results for "{$appliedFilters_store.q}"
       </h1>
     {/if}
   </div>
-  <div class="grid md:grid-cols-4 gap-2 mb-16">
+  <div class="grid md:grid-cols-4 gap-4 mb-4 grow">
     <div class="col-span-1 hidden md:flex flex-col divide-y">
       <div class="py-2 first:pt-0">
         <div class="mb-2 font-semibold">Categories</div>
@@ -173,10 +232,10 @@
             <div class="flex gap-2">
               <input
                 id={`categories-${category._id}`}
-                bind:group={filters.categories}
+                bind:group={$appliedFilters_store.categories}
                 value={category._id}
                 type="checkbox"
-                class="accent-primary-500 h-4 w-4 cursor-pointer"
+                class="focus:border-primary-500 focus:ring-primary-500 checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
               />
               <label
                 for={`categories-${category._id}`}
@@ -215,10 +274,10 @@
             <div class="flex gap-2">
               <input
                 id={`categories-${collection._id}`}
-                bind:group={filters.collections}
+                bind:group={$appliedFilters_store.collections}
                 value={collection._id}
                 type="checkbox"
-                class="accent-primary-500 h-4 w-4 cursor-pointer"
+                class="focus:border-primary-500 focus:ring-primary-500 checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
               />
               <label
                 for={`categories-${collection._id}`}
@@ -270,7 +329,7 @@
           {/each}
         </div>
       </div>
-      {#each facets as facet}
+      {#each $searchFilters_store.facets as facet}
         <div class="py-2">
           <div class="mb-2 font-semibold">{facet.displayName}</div>
           <div class="flex flex-col gap-2">
@@ -278,10 +337,10 @@
               <div class="flex gap-2">
                 <input
                   id={`facet-${facet.name}-${option.value}`}
-                  bind:group={filters.facets[facet.name]}
+                  bind:group={$appliedFilters_store.facets[facet.name]}
                   value={option.value}
                   type="checkbox"
-                  class="accent-primary-500 h-4 w-4 cursor-pointer"
+                  class="focus:border-primary-500 focus:ring-primary-500 checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
                 />
                 <label
                   for={`facet-${facet.name}-${option.value}`}
@@ -337,23 +396,27 @@
       </div> -->
     </div>
     <div class="md:col-span-3">
-      <div class="flex justify-end mb-4">
-        <div>
-          <select
-            class="py-2 px-2 cursor-pointer outline-primary-500 block w-fit border border-gray-200 rounded-lg text-sm disabled:opacity-50 disabled:pointer-events-none"
-            on:change={(e) => {
-              let v = e.target.value.split("-");
-              let s = v[0];
-              let d = v[1];
-              filters = { ...filters, sort: s, order: d };
-            }}
-          >
-            <option value="title-asc">A-Z</option>
-            <option value="createdAt-desc">Newest</option>
-            <option selected value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-          </select>
-        </div>
+      <div class="hidden md:flex justify-end mb-4">
+        <select
+          class="cursor-pointer focus:border-primary-500 focus:ring-primary-500 block w-fit border border-gray-200 rounded-lg text-sm disabled:opacity-50 disabled:pointer-events-none"
+          value={`${$appliedFilters_store.sort}-${$appliedFilters_store.order}`}
+          on:change={(e) => {
+            let v = e.target.value.split("-");
+            let s = v[0];
+            let d = v[1];
+            $appliedFilters_store = {
+              ...$appliedFilters_store,
+              sort: s,
+              order: d,
+            };
+            
+          }}
+        >
+          <option value="title-asc">A-Z</option>
+          <option value="createdAt-desc">Newest</option>
+          <option selected value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+        </select>
       </div>
       {#if loading}
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
@@ -367,7 +430,7 @@
         </div>
       {:else}
         <div
-          class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 w-full h-full"
+          class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 w-full"
         >
           {#each products as product}
             <ProductCard {product} />
@@ -379,7 +442,45 @@
 
   {#if products.length > 0}
     <div class="w-full flex justify-center">
-      <Pagination />
+      <Pagination.Root
+        count={total}
+        perPage={$appliedFilters_store.limit}
+        bind:page={$appliedFilters_store.page}
+        let:pages
+        let:range
+      >
+        <div class="my-8 flex items-center">
+          <Pagination.PrevButton
+            class="mr-[25px] inline-flex size-10 items-center justify-center rounded-[9px] bg-primary-500 text-white hover:bg-dark-10 active:scale-98 disabled:cursor-not-allowed disabled:opacity-75"
+          >
+            <ChevronLeft />
+          </Pagination.PrevButton>
+          <div class="flex items-center gap-2.5">
+            {#each pages as page (page.key)}
+              {#if page.type === "ellipsis"}
+                <div class="text-[15px] font-medium text-foreground-alt">
+                  ...
+                </div>
+              {:else}
+                <Pagination.Page
+                  {page}
+                  class="inline-flex size-10 items-center justify-center rounded-[9px] bg-transparent text-[15px] font-medium hover:bg-dark-10 active:scale-98 disabled:cursor-not-allowed disabled:opacity-50 hover:disabled:bg-transparent border-2 data-[selected]:border-primary-500 data-[selected]:text-background"
+                >
+                  {page.value}
+                </Pagination.Page>
+              {/if}
+            {/each}
+          </div>
+          <Pagination.NextButton
+            class="ml-[29px] inline-flex size-10 items-center justify-center rounded-[9px] bg-primary-500 text-white hover:bg-dark-10 active:scale-98 disabled:cursor-not-allowed disabled:opacity-75"
+          >
+            <ChevronRight />
+          </Pagination.NextButton>
+        </div>
+        <!-- <p class="text-center text-[13px] text-muted-foreground">
+          Showing {range.start} - {range.end}
+        </p> -->
+      </Pagination.Root>
     </div>
   {/if}
 </div>

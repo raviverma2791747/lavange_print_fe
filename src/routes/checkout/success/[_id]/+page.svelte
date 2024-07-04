@@ -67,8 +67,8 @@
       <CheckFillIcon class="w-24 h-24 text-green-400" />
     </div>
 
-    <div class="text-3xl font-semibold">Thank you for ordering!</div>
-    <div class="text-lg">Your order has been placed successfully.</div>
+    <div class="text-3xl text-center font-semibold">Thank you for ordering!</div>
+    <div class="text-lg text-center">Your order has been placed successfully.</div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <a
         href={`/order/${$page.params._id}`}

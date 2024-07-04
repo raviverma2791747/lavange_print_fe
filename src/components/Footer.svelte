@@ -1,4 +1,5 @@
 <script>
+  //@ts-nocheck
   import EnvelopeIcon from "./svg/EnvelopeIcon.svelte";
   import PhoneIcon from "./svg/PhoneIcon.svelte";
   import LinkedinIcon from "./svg/LinkedinIcon.svelte";
@@ -13,6 +14,7 @@
     PUBLIC_SOCIAL_MOBILE,
     PUBLIC_SOCIAL_TWITTER,
   } from "$env/static/public";
+  import {user_info_store,login_signup_modal_open} from "../helper/store";
 </script>
 
 <footer class="border-t border-gray-200 bg-gray-100 hidden md:block">
@@ -33,8 +35,12 @@
         <ul
           class="marker:text-primary-600 list-disc ps-5 space-y-2 text-gray-600"
         >
-          <li><a>Help</a></li>
-          <li><a>MyAccount</a></li>
+          <li><a href="/help">Help</a></li>
+          <li on:click={()=> {
+            if(!$user_info_store){
+              $login_signup_modal_open = true
+            }
+          }}><a href="/account" class="cursor-pointer" class:pointer-events-none={!$user_info_store}>My Account</a></li>
           <li><a>Track Order</a></li>
         </ul>
       </div>

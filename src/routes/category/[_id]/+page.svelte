@@ -10,6 +10,8 @@
   import BreadcrumbShimmer from "../../../components/BreadcrumbShimmer.svelte";
   import Breadcrumb from "../../../components/Breadcrumb.svelte";
   import ProductCardShimmer from "../../../components/ProductCardShimmer.svelte";
+  import { MetaTags } from "svelte-meta-tags";
+  import { PUBLIC_BRAND_NAME } from "$env/static/public";
 
   let category;
   let loading = true;
@@ -50,6 +52,35 @@
       {/each}
     </div>
   {:else}
+    <MetaTags
+      title={`${category.name} Category ${PUBLIC_BRAND_NAME}`}
+      titleTemplate="%s"
+      description={''}
+      canonical="https://www.print.lavange.in"
+      openGraph={{
+        url: "https://www.print.lavange.in",
+        title: "Brand Print",
+        description: "Brand Print - Home of your next print.",
+        images: [
+          {
+            url: "https://www.print.lavange.in/og_img.png",
+            width: 1200,
+            height: 630,
+            alt: "Og Image Alt",
+          },
+        ],
+        siteName: "SiteName",
+      }}
+      twitter={{
+        handle: "@handle",
+        site: "@site",
+        cardType: "summary_large_image",
+        title: category.name,
+        description: '',
+        image: "https://www.print.lavange.in/og_img.png",
+        imageAlt: "Twitter image alt",
+      }}
+    />
     <Breadcrumb
       routes={[
         {

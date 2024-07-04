@@ -17,9 +17,10 @@
   import { getAvatarName } from "../helper/utils";
 </script>
 
+
 <div class="h-16 md:hidden"></div>
 <div
-  class="fixed bottom-0 w-full z-50 bg-white shadow border-t border-gray-200 text-gray-600 md:hidden"
+  class="h-16 fixed bottom-0 w-full z-[100] bg-white shadow border-t border-gray-200 text-gray-600 md:hidden"
 >
   <div class="grid grid-cols-5 gap-2 sm:mx-8">
     <a

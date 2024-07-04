@@ -15,6 +15,8 @@
     wishlist_store,
     loading_store,
     network_error,
+    authenticating_store,
+    appliedFilters_store,
   } from "../helper/store";
   import {
     getUserInfo,
@@ -26,14 +28,17 @@
   import NetworkError from "../components/NetworkError.svelte";
   import Cookies from "js-cookie";
   import { PUBLIC_BRAND_NAME } from "$env/static/public";
+  import { page } from "$app/stores";
 
   const initUserInfo = async () => {
+    authenticating_store.set(true);
     const response = await httpClient(getUserInfo, {});
 
     if (response.status === 200) {
       user_info_store.set(response.data.user);
     } else {
     }
+    authenticating_store.set(false);
   };
 
   const initWishlist = async () => {
@@ -56,6 +61,25 @@
     }
   };
 
+  const initFilters = async () => {
+    const collections =
+      $page.url.searchParams.get("collections")?.split(",") ?? [];
+    const categories =
+      $page.url.searchParams.get("categories")?.split(",") ?? [];
+    const sort = $page.url.searchParams.get("sort") ?? "createdAt";
+    const order = $page.url.searchParams.get("order") ?? "desc";
+    const q = $page.url.searchParams.get("q") ?? "";
+
+    $appliedFilters_store = {
+      ...$appliedFilters_store,
+      collections: collections,
+      categories: categories,
+      sort: sort,
+      order: order,
+      q: q,
+    };
+  };
+
   user_info_store.subscribe(async (user) => {
     if (user) {
       initWishlist();
@@ -64,6 +88,7 @@
   });
 
   onMount(async () => {
+    //await initFilters();
     await initUserInfo();
   });
 </script>
@@ -106,8 +131,9 @@
     <slot />
   {/if}
 </div>
-<Footer />
 <BottomNavbar />
+<Footer />
+
 <LoginSingup open={$login_signup_modal_open} />
 
 {#if $loading_store}

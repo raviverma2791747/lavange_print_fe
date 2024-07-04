@@ -26,6 +26,7 @@
 
   const handleDeleteCart = async (item_id) => {
     disabled = true;
+    dispatcher("deleteCart", item_id);
     const response = await httpClient(deleteUserCart, {
       method: "POST",
 
@@ -33,24 +34,13 @@
         itemId: item_id,
       },
     });
-
-    if (response.status === 200) {
-      initCart();
-    }
-
+    dispatcher("updateCart");
     disabled = false;
-  };
-
-  const initCart = async () => {
-    const response = await httpClient(getUserCart, {});
-
-    if (response.status === 200) {
-      cart_store.set([...response.data.cart]);
-    }
   };
 
   const handleAddToCart = async (qty) => {
     disabled = true;
+    dispatcher("addToCart", qty);
     const data = await httpClient(addUserCart, {
       method: "POST",
 
@@ -63,16 +53,16 @@
     });
 
     if (data.status === 200) {
-      initCart();
     } else {
       quantity = item.quantity;
     }
-
+    dispatcher("updateCart");
     disabled = false;
   };
 
   const handleRemoveFromCart = async (qty) => {
     disabled = true;
+    dispatcher("removeFromCart", qty);
     const data = await httpClient(removeUserCart, {
       method: "POST",
 
@@ -85,17 +75,17 @@
     });
 
     if (data.status === 200) {
-      initCart();
     } else {
       quantity = item.quantity;
     }
-
+    dispatcher("updateCart");
     disabled = false;
   };
 </script>
 
 <a
   class="w-full p-2 flex gap-2 cursor-pointer hover:bg-primary-50 rounded-lg"
+  class:pointer-events-none={disabled}
   href={`/product/${item.product.slug}`}
 >
   <div class="w-1/6">
@@ -190,7 +180,7 @@
             class="flex items-center -gap-y-px divide-x divide-gray-200 border-s border-gray-200"
           >
             <button
-              {disabled}
+              disabled={disabled || quantity === MAX_QUANTITY}
               on:click={(e) => {
                 e.stopImmediatePropagation();
                 e.preventDefault();
@@ -218,7 +208,7 @@
             </button>
 
             <button
-              {disabled}
+              disabled={disabled || quantity === MIN_QUANTITY}
               on:click={(e) => {
                 e.stopImmediatePropagation();
                 e.preventDefault();
@@ -277,6 +267,7 @@
       on:click={(e) => {
         e.stopImmediatePropagation();
         e.preventDefault();
+        console.log(item);
         handleDeleteCart(item._id);
       }}
     >

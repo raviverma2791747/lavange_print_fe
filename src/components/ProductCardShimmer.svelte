@@ -8,7 +8,7 @@
 
 <a
   href="/"
-  class="block rounded-lg bg-white hover:shadow-lg border border-gray-200 w-full"
+  class="block rounded-lg bg-white border border-gray-200 w-full"
 >
   <div class="aspect-square bg-gray-200 rounded-t-lg animate-pulse"></div>
   <div class="pb-2 pt-2">

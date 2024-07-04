@@ -1,6 +1,7 @@
 import { writable } from "svelte/store";
 
 export const login_signup_modal_open = writable(false);
+export const authenticating_store = writable(true);
 export const loading_store = writable(false);
 export const user_info_store = writable(null);
 export const token_store = writable(null);
@@ -12,6 +13,14 @@ export const searchFilters_store = writable({
   collections: [],
   facets: [],
 });
+export const appliedFilters_store = writable({
+  categories: [],
+  collections: [],
+  facets: {},
+  sort: "createdAt",
+  order: "desc",
+  q: "",
+});
 export const header_title_store = writable("");
 export const network_error = writable(false);
 export const notification_store = writable([]);
@@ -20,3 +29,4 @@ export const policy_store = writable({
   terms_and_conditions: null,
   shipping_and_return_policy: null,
 });
+export const help_store = writable(null);

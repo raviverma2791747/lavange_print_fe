@@ -2,6 +2,7 @@
   //@ts-nocheck
   import Breadcrumb from "../../components/Breadcrumb.svelte";
   import BreadcrumbShimmer from "../../components/BreadcrumbShimmer.svelte";
+  import LoginSpinner from "../../components/LoginSpinner.svelte";
   import ProductCard from "../../components/ProductCard.svelte";
   import TrashIcon from "../../components/svg/TrashIcon.svelte";
   import { product_cache } from "../../helper/cache_store";
@@ -9,8 +10,10 @@
   import { getUserWishlist, removeUserWishlist } from "../../helper/endpoints";
   import { httpClient } from "../../helper/httpClient";
   import {
+    authenticating_store,
     header_title_store,
     wishlist_store,
+    user_info_store,
   } from "../../helper/store";
   import { formatCurrency } from "../../helper/utils";
 
@@ -62,10 +65,10 @@
     <div class="grid gap-4 md:grid-cols-4 lg:grid-cols-6 py-4">
       {#each $wishlist_store as product}
         <a
-          class="w-full p-2 flex gap-2 cursor-pointer hover:bg-primary-250 md:hidden rounded-lg"
+          class="w-full p-2 grid grid-cols-8 gap-2 cursor-pointer hover:bg-primary-250 md:hidden rounded-lg"
           href={`/product/${product.slug}`}
         >
-          <div class="w-1/4">
+          <div class="col-span-2">
             {#if product.assets.length}
               <img
                 class="aspect-square object-cover rounded-lg"
@@ -76,7 +79,7 @@
               <div class="aspect-square bg-gray-300 rounded-lg"></div>
             {/if}
           </div>
-          <div class="grow">
+          <div class="col-span-5">
             <h1 class="font-semibold">{product.title}</h1>
             {#if product.status === STATUS.ACTIVE}
               <p>{formatCurrency(product.price)}</p>
@@ -100,8 +103,28 @@
 
         <div class="hidden md:block">
           <ProductCard {product} />
+
+          <button
+            class="hover:text-red-500 inline-flex gap-2"
+            on:click={(e) => {
+              handleRemoveFromWishlist(product._id);
+            }}
+          >
+            Remove <TrashIcon />
+          </button>
         </div>
       {/each}
+    </div>
+  </div>
+{:else if !$user_info_store && $authenticating_store}
+  <div
+    class="bg-white max-w-5xl mx-auto px-4 5xl:px-0 mt-4 min-h-[calc(100vh-64px)] flex"
+  >
+    <div class="flex items-center justify-center grow">
+      <div class="flex flex-col items-center">
+        <LoginSpinner />
+        <div>Please wait while we log you in...</div>
+      </div>
     </div>
   </div>
 {:else}

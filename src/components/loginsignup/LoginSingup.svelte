@@ -12,31 +12,13 @@
   import FacebookSocialIcon from "../svg/FacebookSocialIcon.svelte";
   import MobileIcon from "../svg/MobileIcon.svelte";
   import EmailLoginSignup from "./EmailLoginSignup.svelte";
-  import { PUBLIC_GOOGLE_CLIENT_ID, PUBLIC_API_URI } from "$env/static/public";
+  import { PUBLIC_API_URI } from "$env/static/public";
   import { browser } from "$app/environment";
   import * as jwt from "jsonwebtoken-esm";
   import { userLoginFacebook, userLoginGoogle } from "../../helper/endpoints";
   import { page } from "$app/stores";
-  //import {OAuth2Client} from 'google-auth-library';
-  //import { GOOGLE_CLIENT_SECRET } from "$env/static/pivate";
-
-  // const googleAuth = new OAuth2Client(
-  //   PUBLIC_GOOGLE_CLIENT_ID,
-  //   //GOOGLE_CLIENT_SECRET
-  // );
-
-  //var auth2;
-
-  // function start() {
-  //   console.log("starting")
-  //   gapi.load("auth2", function () {
-  //     auth2 = gapi.auth2.init({
-  //       client_id: PUBLIC_GOOGLE_CLIENT_ID,
-  //     });
-  //   });
-  // }
-
-  export let open = false;
+  import { Dialog, Separator } from "bits-ui";
+  import { fade } from "svelte/transition";
 
   const AUTH_MODE = {
     // PHONE: "PHONE",
@@ -47,120 +29,38 @@
   let selected_auth_mode = AUTH_MODE.EMAIL;
   let phone = "";
 
-  if (browser) {
-    const googleLoginCallback = async (response) => {
-      // handle JWT token inside response...
-      // https://developers.google.com/identity/gsi/web/guides/handle-credential-responses-js-functions#handle_credential_response
-      console.log(response);
-
-      loading_store.set(true);
-
-      const response_ = await httpClient(userLoginGoogle, {
-        method: "POST",
-        payload: {
-          token: response.credential,
-        },
-      });
-
-      if (response_.status === 200) {
-        // user_info.set({
-        //   userId: decodedToken.payload.userId,
-        //   username: decodedToken.payload.username,
-        //   firstName: decodedToken.payload.firstName,
-        //   lastName: decodedToken.payload.lastName,
-        // });
-        // localStorage.setItem(
-        //   "user_info",
-        //   JSON.stringify({
-        //     userId: decodedToken.payload.userId,
-        //     username: decodedToken.payload.username,
-        //     firstName: decodedToken.payload.firstName,
-        //     lastName: decodedToken.payload.lastName,
-        //   })
-        // );
-
-        login_signup_modal_open.set(false);
-        loading_store.set(false);
-      }
-    };
-
-    // https://developers.google.com/identity/gsi/web/reference/js-reference#IdConfiguration
-    window.google.accounts.id.initialize({
-      client_id: PUBLIC_GOOGLE_CLIENT_ID,
-      ux_mode: "popup",
-      callback: googleLoginCallback,
-    });
-  }
-
-  const createFakeGoogleWrapper = () => {
-    if (browser) {
-      const googleLoginWrapper = document.createElement("div");
-      // Or you can simple hide it in CSS rule for custom-google-button
-      googleLoginWrapper.style.display = "none";
-      googleLoginWrapper.classList.add("custom-google-button");
-
-      // Add the wrapper to body
-      document.body.appendChild(googleLoginWrapper);
-
-      // Use GSI javascript api to render the button inside our wrapper
-      // You can ignore the properties because this button will not appear
-      window.google.accounts.id.renderButton(googleLoginWrapper, {
-        type: "icon",
-        width: "200",
-      });
-
-      const googleLoginWrapperButton =
-        googleLoginWrapper.querySelector("div[role=button]");
-
-      return {
-        click: () => {
-          googleLoginWrapperButton.click();
-        },
-      };
-    }
-  };
-
-  // Now we have a wrapper to click
-  const googleButtonWrapper = createFakeGoogleWrapper();
-
-  const handleGoogleLogin = async () => {
-    //console.log(auth2)
-    //auth2.grantOfflineAccess().then(signInCallback);
-    googleButtonWrapper.click();
-  };
-
   const getURL = () => {
     return $page.url.href;
   };
 </script>
 
-{#if open}
-  <div
-    class="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center"
-  >
-    <div class="bg-white rounded-lg shadow-lg w-[500px]">
-      <div
-        class="relative p-4 font-semibold text-lg text-center border-b border-gray-200"
+<Dialog.Root
+  bind:open={$login_signup_modal_open}
+  preventScroll={true}
+  closeOnOutsideClick={false}
+>
+  <Dialog.Trigger></Dialog.Trigger>
+  <Dialog.Portal>
+    <Dialog.Overlay
+      transition={fade}
+      transitionConfig={{ duration: 150 }}
+      class="fixed inset-0 z-50 bg-black/80"
+    />
+    <Dialog.Content
+      class="bg-white fixed left-[50%] top-[50%] z-[150] w-full max-w-[94%] translate-x-[-50%] translate-y-[-50%] rounded-lg border bg-background p-5 shadow-popover outline-none sm:max-w-[490px] md:w-full"
+    >
+      <Dialog.Title
+        class="flex w-full items-center justify-center text-lg font-semibold tracking-tight"
+        >Please Login To Continue</Dialog.Title
       >
-        <button
-          class="absolute top-4 left-4 rounded-full hover:text-primary-600 hover:bg-primary-50"
-          on:click={() => {
-            login_signup_modal_open.set(false);
-          }}
-        >
-          <CloseIcon />
-        </button>
-
-        <div>Please Login To Continue</div>
-      </div>
-
-      <div class="p-4">
+      <Separator.Root class="-mx-5 mb-4 mt-2 block h-px bg-gray-200" />
+      <Dialog.Description class="">
         {#if Object.keys(AUTH_MODE).length}
           {#if AUTH_MODE.PHONE === selected_auth_mode && selected_auth_mode}
             <div class="mb-4">
               <input
                 type="number"
-                class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+                class="w-full py-3 px-4 block border border-gray-200 rounded-lg text-sm focus:border-primary-500 focus:ring-primary-500 disabled:opacity-50 disabled:pointer-events-none"
                 placeholder="Phone Number"
                 bind:value={phone}
               />
@@ -232,10 +132,13 @@
             Sorry No Authentication Mode Available
           </p>
         {/if}
-      </div>
-    </div>
-  </div>
-{/if}
+      </Dialog.Description>
 
-<style>
-</style>
+      <Dialog.Close
+        class="absolute right-5 top-5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-98"
+      >
+        <CloseIcon />
+      </Dialog.Close>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>

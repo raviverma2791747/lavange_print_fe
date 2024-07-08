@@ -8,7 +8,7 @@
     user_info_store,
     wishlist_store,
   } from "../../helper/store";
-  import { formatCurrency } from "../../helper/utils";
+  import { formatCurrency, processCart } from "../../helper/utils";
   import { httpClient } from "../../helper/httpClient";
   import {
     createUserOrder,
@@ -61,7 +61,8 @@
     const response = await httpClient(getUserCart);
 
     if (response.status === 200) {
-      cart_store.set([...response.data.cart]);
+      const cart = processCart(response.data.cart);
+      cart_store.set([...cart]);
     } else {
       cart_store.set([]);
     }
@@ -164,7 +165,7 @@
     });
 
     if (response.status === 200) {
-      order_data.cart = response.data.cart ?? [];
+      order_data.cart = processCart(response.data.cart) ?? [];
       order_data.cart_total = response.data.cartTotal;
       order_data.discount = response.data.discount;
       order_data.total = response.data.grandTotal;
@@ -187,27 +188,6 @@
     }
 
     await initCheckout($cart_store);
-    // coupon_loading = true;
-    // const response = await httpClient(applyCoupon, {
-    //   method: "POST",
-    //
-    //   payload: {
-    //     code: coupon_code,
-    //     cart: $cart_store,
-    //     userID: $user_info_store?._id,
-    //   },
-    // });
-
-    // if (response.status === 200) {
-    //   coupon_discount = response.data.discount;
-    //   coupon_valid = true;
-    //   coupon_msg = "Coupon applied successfully!";
-    // } else {
-    //   coupon_discount = 0;
-    //   coupon_valid = false;
-    //   coupon_msg = response.data.errors.join(",");
-    // }
-    // coupon_loading = false;
   };
 
   const handleRemoveCoupon = async () => {
@@ -216,59 +196,6 @@
     coupon_msg = "";
     await initCheckout();
   };
-
-  // $: {
-  //   order_data.cart_total = $cart_store.reduce((a, b) => {
-  //     let price = 0;
-  //     let variant;
-
-  //     if (b.variant && b.product.variants) {
-  //       variant = b.product.variants.find((v) => v._id === b.variant);
-  //     } else {
-  //       if (b.product.compareAtPrice) {
-  //         price = b.product.compareAtPrice;
-  //       } else {
-  //         price = b.product.price;
-  //       }
-  //     }
-
-  //     if (variant) {
-  //       if (variant.compareAtPrice) {
-  //         price = variant.compareAtPrice;
-  //       } else {
-  //         price = variant.price;
-  //       }
-  //     }
-
-  //     //console.log(price);
-
-  //     return a + b.quantity * price;
-  //   }, 0);
-
-  //   order_data.discount = coupon_discount
-  //     ? coupon_discount
-  //     : order_data.cart_total -
-  //       $cart_store.reduce((a, b) => {
-  //         let price = 0;
-  //         let variant;
-
-  //         if (b.variant && b.product.variants) {
-  //           variant = b.product.variants.find((v) => v._id === b.variant);
-  //         } else {
-  //           price = b.product.price;
-  //         }
-
-  //         if (variant) {
-  //           price = variant.price;
-  //         }
-
-  //         //console.log(price);
-
-  //         return a + b.quantity * price;
-  //       }, 0);
-
-  //   order_data.total = order_data.cart_total - order_data.discount;
-  // }
 
   $: {
     if (!$user_info_store && !$authenticating_store) {
@@ -285,6 +212,44 @@
   // $ : {
   //   coupon_code = $page.p
   // }
+
+  const validateCheckout = (
+    orderData,
+    loading,
+    selected_address,
+    selected_payment_method
+  ) => {
+    if (loading) {
+      return false;
+    }
+
+    if (!selected_address) {
+      return false;
+    }
+
+    if (!selected_payment_method) {
+      return false;
+    }
+
+    if (!orderData.cart.length) {
+      return false;
+    }
+
+    if (!order_data.cart.every((c) => !c.isOutOfStock)) {
+      return false;
+    }
+
+    return true;
+  };
+
+  $: {
+    enable_checkout = validateCheckout(
+      order_data,
+      loading,
+      selected_address,
+      selected_payment_method
+    );
+  }
 </script>
 
 {#if $cart_store.length > 0}
@@ -300,11 +265,12 @@
               {#each $user_info_store.addresses as address}
                 <label
                   for={`address-${address._id}`}
-                  class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow flex gap-2"
+                  class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:shadow flex gap-2 "
                   class:bg-primary-50={selected_address === address._id}
                 >
                   <div>
                     <input
+                    class="focus:border-primary-500 focus:ring-primary-500 focus:checked:bg-primary-500 checked:bg-primary-500 hover:checked:bg-primary-500"
                       disabled={loading || disabled}
                       id={`address-${address._id}`}
                       type="radio"
@@ -366,6 +332,7 @@
                       id={paymentGateway.name}
                       value={paymentGateway.code}
                       bind:group={selected_payment_method}
+                      class="focus:border-primary-500 focus:ring-primary-500  focus:checked:bg-primary-500 checked:bg-primary-500 hover:checked:bg-primary-500"
                     />
                   </div>
                   <div class="capitalize">{paymentGateway.name}</div>
@@ -449,7 +416,7 @@
                 <div class:w-16={loading}>
                   {#if loading}
                     <div class=" bg-gray-300 rounded-lg">&nbsp;</div>
-                  {:else if $cart_store.every((c) => c.product.status === STATUS.ACTIVE) && $cart_store.every( (c) => {
+                  {:else if order_data.cart.every((c) => c.product.status === STATUS.ACTIVE) && $cart_store.every( (c) => {
                         if (c.variant && !c.product.variants) {
                           return false;
                         }
@@ -467,7 +434,7 @@
                 <div class:w-16={loading}>
                   {#if loading}
                     <div class=" bg-gray-300 rounded-lg">&nbsp;</div>
-                  {:else if $cart_store.every((c) => c.product.status === STATUS.ACTIVE) && $cart_store.every( (c) => {
+                  {:else if order_data.cart.every((c) => c.product.status === STATUS.ACTIVE) && $cart_store.every( (c) => {
                         if (c.variant && !c.product.variants) {
                           return false;
                         }
@@ -528,21 +495,9 @@
               href="/checkout"
               class="w-full grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
               on:click={handlePlaceOrder}
-              disabled={(!loading &&
-                selected_address &&
-                selected_payment_method &&
-                $cart_store.every((c) => c.product.status === STATUS.ACTIVE) &&
-                $cart_store.every((c) => {
-                  if (c.variant && !c.product.variants) {
-                    return false;
-                  }
-                  return true;
-                })) ||
-              (coupon_code.trim() && coupon_valid)
-                ? false
-                : true}>Place Order</button
+              disabled={!enable_checkout}>Place Order</button
             >
-            {#if !$cart_store.every((c) => c.product.status === STATUS.ACTIVE)}
+            {#if !order_data.cart.every((c) => !c.isOutOfStock)}
               <p class="text-red-500 text-sm">
                 Remove all out of stock or unavailable items to checkout
               </p>

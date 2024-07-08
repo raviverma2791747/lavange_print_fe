@@ -95,15 +95,11 @@
   const init = (product_) => {
     active_slide = 0;
     if (product_.variants) {
-      let p = product_.variants.reduce((prev, curr) => {
-        return prev.price < curr.price ? prev : curr;
-      }, product_.variants[0]);
-
-      price = p.price;
-      compareAtPrice = p.compareAtPrice;
+      price = product_.minPrice;
+      compareAtPrice = product_.minCompareAtPrice;
     } else {
       price = product_.price;
-      compareAtPrice = product.compareAtPrice;
+      compareAtPrice = product_.compareAtPrice;
     }
   };
 
@@ -136,7 +132,7 @@
 
 <a
   href={`/product/${product.slug}`}
-  class="relative block rounded-lg bg-white  w-full"
+  class="relative block rounded-lg bg-white w-full"
 >
   {#if compareAtPrice}
     <div
@@ -154,7 +150,7 @@
   {#if !hideShare}
     <button
       on:click={handleShare}
-      class="absolute top-2 right-2 hover:text-primary-500  bg-primary-50 rounded-full p-2"
+      class="absolute top-2 right-2 hover:text-primary-500 bg-primary-50 rounded-full p-2"
     >
       <ShareIcon />
     </button>
@@ -171,7 +167,7 @@
   </div>
   <div class="pb-2 pt-2">
     <div class="flex px-2">
-      <div class="font-semibold text-sm grow truncate">
+      <div class="font-semibold text-sm grow line-clamp-2">
         {product.title}
       </div>
       {#if !hideWishlist}

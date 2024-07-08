@@ -29,8 +29,8 @@
 
   const slideOptions = {
     // type: "loop",
-    perPage: 5,
-    gap: "1rem",
+    perPage: 6,
+    gap: "0.5rem",
     pagination: false,
     breakpoints: {
       768: {
@@ -134,7 +134,7 @@ twitter={{
   <div>
     <div class="bg-gradient-to-b from-primary-300 to-primary-50 rounded-lg p-4">
       <div class="mb-4">
-        <h2 class="font-semibold text-xl md:text-3xl mb-4 text-gray-800">
+        <h2 class="font-semibold text-xl md:text-xl mb-4 text-gray-800">
           Explore
         </h2>
         <p>Explore our wide range of products</p>
@@ -189,7 +189,7 @@ twitter={{
   </div>
 
   <section>
-    <h2 class="font-semibold text-xl md:text-3xl text-center mb-4">
+    <h2 class="font-semibold text-xl md:text-xl text-center mb-4">
       Explore Collections
     </h2>
     <div class="w-full">
@@ -214,7 +214,7 @@ twitter={{
   </section>
 
   <section>
-    <h2 class="font-semibold text-xl md:text-3xl text-center mb-4">
+    <h2 class="font-semibold text-xl md:text-xl text-center mb-4">
       Best Sellers
     </h2>
     <div class="w-full">
@@ -239,7 +239,7 @@ twitter={{
   </section>
 
   <section>
-    <h2 class="font-semibold text-xl md:text-3xl text-center mb-4">
+    <h2 class="font-semibold text-xl md:text-xl text-center mb-4">
       New Arrivals
     </h2>
     <div class="w-full">
@@ -264,7 +264,7 @@ twitter={{
   </section>
   {#each homeConfig.featuredCollections as collection}
     <section>
-      <h2 class="font-semibold text-xl md:text-3xl text-center mb-4 capitalize">
+      <h2 class="font-semibold text-xl md:text-xl text-center mb-4 capitalize">
         {collection.name} Collection
       </h2>
       <div class="w-full">

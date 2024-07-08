@@ -9,7 +9,7 @@
     user_info_store,
     authenticating_store,
   } from "../../helper/store";
-  import { formatCurrency } from "../../helper/utils";
+  import { formatCurrency, processCart } from "../../helper/utils";
   import { goto } from "$app/navigation";
   import CartItem from "../../components/cart/CartItem.svelte";
   import Breadcrumb from "../../components/Breadcrumb.svelte";
@@ -26,7 +26,8 @@
     const response = await httpClient(getUserCart, {});
 
     if (response.status === 200) {
-      cart_store.set([...response.data.cart]);
+      const cart = processCart(response.data.cart);
+      cart_store.set([...cart]);
     }
     loading = false;
   };
@@ -129,23 +130,12 @@
             }}
             disabled={loading ||
               $cart_store.length === 0 ||
-              !$cart_store.every((c) => c.product.status === STATUS.ACTIVE) ||
-              !$cart_store.every((c) => {
-                if (c.variant && !c.product.variants) {
-                  return false;
-                }
-                return true;
-              })}
+              !$cart_store.every((c) => !c.isOutOfStock)}
             class="w-full hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
           >
             Checkout</button
           >
-          {#if !$cart_store.every((c) => c.product.status === STATUS.ACTIVE) || !$cart_store.every( (c) => {
-                if (c.variant && !c.product.variants) {
-                  return false;
-                }
-                return true;
-              } )}
+          {#if !$cart_store.every((c) => !c.isOutOfStock)}
             <p class="text-red-500">
               Remove all out of stock or unavailable items to checkout
             </p>

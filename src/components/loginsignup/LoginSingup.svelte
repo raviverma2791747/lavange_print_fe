@@ -39,7 +39,6 @@
   preventScroll={true}
   closeOnOutsideClick={false}
 >
-  <Dialog.Trigger></Dialog.Trigger>
   <Dialog.Portal>
     <Dialog.Overlay
       transition={fade}

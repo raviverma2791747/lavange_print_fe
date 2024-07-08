@@ -1,5 +1,6 @@
 //@ts-nocheck
 import { format } from "date-fns";
+import { STATUS } from "./constants";
 
 export const formatDate = (date, format_string) => {
   return format(date, format_string);
@@ -33,4 +34,26 @@ export const getAvatarName = (obj) => {
   }
 
   return avatar_name;
+};
+
+export const processCart = (cart) => {
+  return cart.map((item) => {
+    let isOutOfStock = true;
+    if (item.product.status === STATUS.ACTIVE) {
+      if (item.variant) {
+        isOutOfStock = item.product.variants.find((variant) => {
+          return variant._id === item.variant;
+        })
+          ? false
+          : true;
+      } else {
+        isOutOfStock = false;
+      }
+    }
+    console.log(item);
+    return {
+      ...item,
+      isOutOfStock: isOutOfStock,
+    };
+  });
 };

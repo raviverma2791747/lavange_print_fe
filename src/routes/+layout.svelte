@@ -29,6 +29,8 @@
   import Cookies from "js-cookie";
   import { PUBLIC_BRAND_NAME } from "$env/static/public";
   import { page } from "$app/stores";
+  import { STATUS } from "../helper/constants";
+  import { processCart } from "../helper/utils";
 
   const initUserInfo = async () => {
     authenticating_store.set(true);
@@ -55,7 +57,8 @@
     const response = await httpClient(getUserCart, {});
 
     if (response.status === 200) {
-      cart_store.set([...response.data.cart]);
+      const cart = processCart(response.data.cart);
+      cart_store.set([...cart]);
     } else {
       cart_store.set([]);
     }

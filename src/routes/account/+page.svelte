@@ -65,16 +65,16 @@
       />
     {/if}
     <!-- <h1 class="hidden md:block  font-semibold text-xl md:text-3xl text-center mb-4">Account</h1> -->
-    <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
       <a
         href="/account/personal-info"
         class="text-gray-800 flex items-center justify-center p-2 md:aspect-[4/3] hover:text-primary-500 hover:bg-primary-50 border border-gray-200 rounded-lg hover:shadow"
       >
-        <div class="w-full flex justify-between md:flex-col md:items-center">
+        <div class="w-full flex justify-between md:flex-col md:items-center py-1">
           <div class="hidden md:block">
             <UserIcon class="h-10 w-10" />
           </div>
-          <div class="font-semibold md:text-xl">Personal Info</div>
+          <div class="font-semibold">Personal Info</div>
           <div class="md:hidden">
             <ChevronRight />
           </div>
@@ -84,11 +84,11 @@
         href="/account/address"
         class="text-gray-800 flex items-center justify-center p-2 md:aspect-[4/3] hover:text-primary-500 hover:bg-primary-50 border border-gray-200 rounded-lg hover:shadow"
       >
-        <div class="w-full flex justify-between md:flex-col md:items-center">
+        <div class="w-full flex justify-between md:flex-col md:items-center py-1">
           <div class="hidden md:block">
             <AddressIcon class="h-10 w-10" />
           </div>
-          <div class="font-semibold md:text-xl">Address</div>
+          <div class="font-semibold">Address</div>
           <div class="md:hidden">
             <ChevronRight />
           </div>
@@ -98,11 +98,11 @@
         href="/account/login-and-security"
         class="text-gray-800 flex items-center justify-center p-2 md:aspect-[4/3] hover:text-primary-500 hover:bg-primary-50 border border-gray-200 rounded-lg hover:shadow"
       >
-        <div class="w-full flex justify-between md:flex-col md:items-center">
+        <div class="w-full flex justify-between md:flex-col md:items-center py-1">
           <div class="hidden md:block">
             <ShieldIcon class="h-10 w-10" />
           </div>
-          <div class="font-semibold md:text-xl">Login & Security</div>
+          <div class="font-semibold">Login & Security</div>
           <div class="md:hidden">
             <ChevronRight />
           </div>
@@ -112,11 +112,11 @@
         href="/order"
         class="text-gray-800 flex items-center justify-center p-2 md:aspect-[4/3] hover:text-primary-500 hover:bg-primary-50 border border-gray-200 rounded-lg hover:shadow"
       >
-        <div class="w-full flex justify-between md:flex-col md:items-center">
+        <div class="w-full flex justify-between md:flex-col md:items-center py-1">
           <div class="hidden md:block">
             <PackageIcon class="h-10 w-10" />
           </div>
-          <div class="font-semibold md:text-xl">Orders</div>
+          <div class="font-semibold">Orders</div>
           <div class="md:hidden">
             <ChevronRight />
           </div>
@@ -126,11 +126,11 @@
         href="/cart"
         class="text-gray-800 flex items-center justify-center p-2 md:aspect-[4/3] hover:text-primary-500 hover:bg-primary-50 border border-gray-200 rounded-lg hover:shadow"
       >
-        <div class="w-full flex justify-between md:flex-col md:items-center">
+        <div class="w-full flex justify-between md:flex-col md:items-center py-1">
           <div class="hidden md:block">
             <ShoppingBagIcon class="h-10 w-10" />
           </div>
-          <div class="font-semibold md:text-xl">Cart</div>
+          <div class="font-semibold">Cart</div>
           <div class="md:hidden">
             <ChevronRight />
           </div>
@@ -140,11 +140,11 @@
         href="/wishlist"
         class="text-gray-800 flex items-center justify-center p-2 md:aspect-[4/3] hover:text-primary-500 hover:bg-primary-50 border border-gray-200 rounded-lg hover:shadow"
       >
-        <div class="w-full flex justify-between md:flex-col md:items-center">
+        <div class="w-full flex justify-between md:flex-col md:items-center py-1">
           <div class="hidden md:block">
             <HeartIcon class="h-10 w-10" />
           </div>
-          <div class="font-semibold md:text-xl">Wishlist</div>
+          <div class="font-semibold">Wishlist</div>
           <div class="md:hidden">
             <ChevronRight />
           </div>
@@ -154,11 +154,11 @@
         href="/help"
         class="text-gray-800 flex items-center justify-center p-2 md:aspect-[4/3] hover:text-primary-500 hover:bg-primary-50 border border-gray-200 rounded-lg hover:shadow"
       >
-        <div class="w-full flex justify-between md:flex-col md:items-center">
+        <div class="w-full flex justify-between md:flex-col md:items-center py-1">
           <div class="hidden md:block">
             <ChatsIcon class="h-10 w-10" />
           </div>
-          <div class="font-semibold md:text-xl">Help & Support</div>
+          <div class="font-semibold">Help & Support</div>
           <div class="md:hidden">
             <ChevronRight />
           </div>
@@ -168,11 +168,11 @@
         on:click={logout}
         class="text-gray-800 flex items-center justify-center p-2 md:aspect-[4/3] hover:text-primary-500 hover:bg-primary-50 border border-gray-200 rounded-lg hover:shadow"
       >
-        <div class="w-full flex justify-between md:flex-col md:items-center">
+        <div class="w-full flex justify-between md:flex-col md:items-center py-1">
           <div class="hidden md:block">
             <PowerIcon class="h-10 w-10" />
           </div>
-          <div class="font-semibold md:text-xl">Logout</div>
+          <div class="font-semibold">Logout</div>
           <div class="md:hidden">
             <ChevronRight />
           </div>

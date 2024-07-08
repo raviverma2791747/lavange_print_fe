@@ -48,7 +48,7 @@
     order: $page.url.searchParams.get("order") ?? "desc",
     q: $page.url.searchParams.get("q") ?? "",
     page: 1,
-    limit: 10,
+    limit: 12,
   };
 
   const initFilters = async () => {
@@ -225,27 +225,28 @@
   </div>
   <div class="grid md:grid-cols-4 gap-4 mb-4 grow">
     <div class="col-span-1 hidden md:flex flex-col divide-y">
-      <div class="py-2 first:pt-0">
-        <div class="mb-2 font-semibold">Categories</div>
-        <div class="flex flex-col gap-2">
-          {#each $searchFilters_store.categories as category}
-            <div class="flex gap-2">
-              <input
-                id={`categories-${category._id}`}
-                bind:group={$appliedFilters_store.categories}
-                value={category._id}
-                type="checkbox"
-                class="focus:border-primary-500 focus:ring-primary-500 checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
-              />
-              <label
-                for={`categories-${category._id}`}
-                class=" text-sm cursor-pointer"
-              >
-                {category.name}
-              </label>
-            </div>
+      {#if $searchFilters_store.categories.length > 0}
+        <div class="py-2 first:pt-0">
+          <div class="mb-2 font-semibold">Categories</div>
+          <div class="flex flex-col gap-2">
+            {#each $searchFilters_store.categories as category}
+              <div class="flex gap-2">
+                <input
+                  id={`categories-${category._id}`}
+                  bind:group={$appliedFilters_store.categories}
+                  value={category._id}
+                  type="checkbox"
+                  class="focus:border-primary-500 focus:ring-primary-500 checked:bg-primary-500 focus:checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
+                />
+                <label
+                  for={`categories-${category._id}`}
+                  class=" text-sm cursor-pointer"
+                >
+                  {category.name}
+                </label>
+              </div>
 
-            <!-- <label
+              <!-- <label
               for={`categories-${category._id}`}
               class="border border-gray-200 p-2 rounded-lg text-sm cursor-pointer"
               class:bg-primary-50={filters.categories.includes(category._id)}
@@ -264,30 +265,33 @@
                 class="hidden"
               />
             </label> -->
-          {/each}
+            {/each}
+          </div>
         </div>
-      </div>
-      <div class="py-2">
-        <div class="mb-2 font-semibold">Collections</div>
-        <div class="flex flex-col gap-2">
-          {#each $searchFilters_store.collections as collection}
-            <div class="flex gap-2">
-              <input
-                id={`categories-${collection._id}`}
-                bind:group={$appliedFilters_store.collections}
-                value={collection._id}
-                type="checkbox"
-                class="focus:border-primary-500 focus:ring-primary-500 checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
-              />
-              <label
-                for={`categories-${collection._id}`}
-                class=" text-sm cursor-pointer"
-              >
-                {collection.name}
-              </label>
-            </div>
+      {/if}
+      {#if $appliedFilters_store.collections.length > 0}
+        <div class="py-2">
+          <div class="mb-2 font-semibold">Collections</div>
 
-            <!-- <label
+          <div class="flex flex-col gap-2">
+            {#each $searchFilters_store.collections as collection}
+              <div class="flex gap-2">
+                <input
+                  id={`categories-${collection._id}`}
+                  bind:group={$appliedFilters_store.collections}
+                  value={collection._id}
+                  type="checkbox"
+                  class="focus:border-primary-500 focus:ring-primary-500 checked:bg-primary-500 focus:checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
+                />
+                <label
+                  for={`categories-${collection._id}`}
+                  class=" text-sm cursor-pointer"
+                >
+                  {collection.name}
+                </label>
+              </div>
+
+              <!-- <label
               for={`categories-${collection._id}`}
               class="border border-gray-200 p-2 rounded-lg text-sm cursor-pointer"
               class:bg-primary-50={filters.collections.includes(collection._id)}
@@ -309,7 +313,7 @@
               />
             </label> -->
 
-            <!-- <div
+              <!-- <div
               class="flex items-center"
               class:text-primary-500={filters.collections.includes(
                 collection._id
@@ -326,9 +330,10 @@
                 {collection.name}
               </label>
             </div> -->
-          {/each}
+            {/each}
+          </div>
         </div>
-      </div>
+      {/if}
       {#each $searchFilters_store.facets as facet}
         <div class="py-2">
           <div class="mb-2 font-semibold">{facet.displayName}</div>
@@ -340,7 +345,7 @@
                   bind:group={$appliedFilters_store.facets[facet.name]}
                   value={option.value}
                   type="checkbox"
-                  class="focus:border-primary-500 focus:ring-primary-500 checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
+                  class="focus:border-primary-500 focus:ring-primary-500 checked:bg-primary-500 focus:checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
                 />
                 <label
                   for={`facet-${facet.name}-${option.value}`}
@@ -409,7 +414,6 @@
               sort: s,
               order: d,
             };
-            
           }}
         >
           <option value="title-asc">A-Z</option>

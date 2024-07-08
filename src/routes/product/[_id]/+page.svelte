@@ -4,7 +4,7 @@
   import { Splide, SplideSlide } from "@splidejs/svelte-splide";
   import { httpClient } from "../../../helper/httpClient";
   import { page } from "$app/stores";
-  import { formatCurrency } from "../../../helper/utils";
+  import { formatCurrency, processCart } from "../../../helper/utils";
   import HeartIcon from "../../../components/svg/HeartIcon.svelte";
   import HeartDuotoneIcon from "../../../components/svg/HeartDuotoneIcon.svelte";
   import ShoppingCartIcon from "../../../components/svg/ShoppingCartIcon.svelte";
@@ -41,7 +41,7 @@
   import ProductCardShimmer from "../../../components/ProductCardShimmer.svelte";
   import { Accordion } from "bits-ui";
   import CaretDownIcon from "../../../components/svg/CaretDownIcon.svelte";
-  import {  slide } from "svelte/transition";
+  import { slide } from "svelte/transition";
   import { MetaTags } from "svelte-meta-tags";
   import { PUBLIC_BRAND_NAME } from "$env/static/public";
   import { browser } from "$app/environment";
@@ -54,7 +54,7 @@
   let active_asset = 0;
   let active_variant = null;
   let variantsMap;
-  let variantFilter;
+  let variantFilter = {};
   let active_tab = 0;
   let category;
   let product_inactive = false;
@@ -63,11 +63,12 @@
   const MIN_QUANTITY = 1;
   let actions;
   let isActionsVisible = false;
+  let disable = false;
 
   const slideOptions = {
     // type: "loop",
     perPage: 6,
-    gap: "1rem",
+    gap: "0.5rem",
     breakpoints: {
       1280: {
         perPage: 8,
@@ -121,17 +122,17 @@
   };
 
   const initProduct = async (product_id) => {
+    console.log("initProduct", product_id);
     loading = true;
     let product_cached = $product_cache.get(product_id);
     if (product_cached) {
       product = product_cached;
+      console.log("product_cached", product_cached);
     } else {
-      const data = await httpClient(`${getProduct}/${product_id}`);
+      const response = await httpClient(`${getProduct}/${product_id}`);
 
-      if (data.status === 200) {
-        product = data["data"]["product"] ?? null;
-
-        console.log(product);
+      if (response.status === 200) {
+        product = response.data.product ?? null;
         $product_cache.set(product_id, product);
       }
     }
@@ -142,9 +143,9 @@
       return;
     }
 
-    if (product?.variants) {
+    if (product?.variants.length) {
       variantFilter = {};
-      product.variantOptions.forEach((option) => {
+      product.variantSchema.forEach((option) => {
         variantFilter[option.name] = option.options[0].value;
       });
       variantsMap = new Map();
@@ -156,6 +157,7 @@
     } else {
       active_variant = null;
       active_asset = 0;
+      console.log("no variants");
     }
 
     if (product) {
@@ -165,7 +167,12 @@
     if (product.collections.length) {
       fetchCollection();
     }
+    console.log("product", product);
     loading = false;
+    product_inactive = false;
+
+    console.log(product_inactive);
+    console.log(loading);
   };
 
   const fetchCollection = async () => {
@@ -178,7 +185,8 @@
     const response = await httpClient(getUserCart);
 
     if (response.status === 200) {
-      cart_store.set([...response.data.cart]);
+      const cart = processCart(response.data.cart);
+      cart_store.set([...cart]);
     } else {
       cart_store.set([]);
     }
@@ -220,6 +228,7 @@
 
     if (data.status === 200) {
       initCart();
+      quantity = 1;
     }
   };
 
@@ -240,7 +249,7 @@
     });
 
     if (data.status === 200) {
-      initCart();
+      await initCart();
       goto("/cart");
     }
   };
@@ -284,17 +293,24 @@
   };
 
   const initActiveVariant = (filter) => {
-    if (product) {
+    if (product && product.variants.length) {
       const av = product.variants.find((v) => {
-        return Object.keys(filter).every(
-          (key) => filter[key] === v.attributes[key]
-        );
+        return Object.keys(filter).every((key) => {
+          return v.attributes[key] && filter[key] === v.attributes[key].value;
+        });
       });
 
       if (av) {
         active_variant = av._id;
         active_asset = 0;
+        disable = false;
+      } else {
+        active_variant = null;
+        active_asset = 0;
+        disable = true;
       }
+    } else {
+      disable = false;
     }
   };
 
@@ -332,6 +348,8 @@
     category = null;
     collections = [];
     product_inactive = false;
+    disable = false;
+    loading = true;
     initProduct($page.params._id);
   }
 
@@ -365,15 +383,7 @@
   id="product-page"
   class="bg-white max-w-7xl mx-auto px-4 7xl:px-0 py-4 text-gray-800"
 >
-  {#if product_inactive}
-    <div class="flex flex-col items-center justify-center h-[calc(100vh-80px)]">
-      <img src={not_found_img} alt="not found" class="w-1/2 mb-5" />
-      <h1 class="font-semibold text-3xl">Oops! product not found</h1>
-      <p class="italic">
-        Maybe the product was unlisted or something went wrong!
-      </p>
-    </div>
-  {:else if !loading}
+  {#if product && !product_inactive}
     <MetaTags
       title={product.title}
       titleTemplate="%s"
@@ -442,7 +452,9 @@
               <HeartDuotoneIcon />
             </button>
           {/if}
-          <button class=" hover:text-primary-500 hover:bg-primary-200 rounded-full">
+          <button
+            class=" hover:text-primary-500 hover:bg-primary-200 rounded-full"
+          >
             <ShareIcon />
           </button>
         </div>
@@ -517,7 +529,7 @@
           {/if}
         </div>
         <div class="lg:col-span-2 mb-4 flex flex-col">
-          <h1 class="font-semibold text-xl lg:text-3xl mb-2">
+          <h1 class="font-semibold text-2xl lg:text-xl mb-2">
             {product.title}
           </h1>
           <!-- <div class="mb-2">
@@ -533,45 +545,69 @@
             </a>
           </Rating> 
            </div> -->
-
-          <div class="mb-2">
-            {#if product.variants ? variantsMap.get(active_variant)?.compareAtPrice : product.compareAtPrice}
-              <div class="text-sm font-semibold line-through">
-                {formatCurrency(
-                  (product.variants
-                    ? variantsMap.get(active_variant)?.compareAtPrice
-                    : product.compareAtPrice) * quantity
-                )}
-              </div>
-            {/if}
-            <div class="text-xl font-semibold">
-              {formatCurrency(
-                (product.variants
-                  ? variantsMap.get(active_variant)?.price
-                  : product.price) * quantity
-              )}
-            </div>
-            <div class="text-sm text-gray-600">inclusive of all taxes</div>
-            <div>
-              {#if product.variants ? variantsMap.get(active_variant)?.compareAtPrice : product.compareAtPrice}
-                <div class="text-sm text-green-500 font-semibold">
-                  You save {formatCurrency(
-                    calculateDiscount(
-                      product.variants
-                        ? variantsMap.get(active_variant)?.price
-                        : product.price,
-                      product.variants
-                        ? variantsMap.get(active_variant)?.compareAtPrice
-                        : product.compareAtPrice
-                    ) * quantity
+          {#if active_variant && product.variants.length}
+            <div class="mb-2">
+              {#if variantsMap.get(active_variant).compareAtPrice}
+                <div class="text-sm font-semibold line-through">
+                  {formatCurrency(
+                    variantsMap.get(active_variant).compareAtPrice * quantity
                   )}
                 </div>
               {/if}
+
+              <div class="text-lg font-semibold">
+                {formatCurrency(
+                  variantsMap.get(active_variant).price * quantity
+                )}
+              </div>
+              <div class="text-sm text-gray-600">inclusive of all taxes</div>
+              {#if variantsMap.get(active_variant).compareAtPrice}
+                <div>
+                  <div class="text-sm text-green-500 font-semibold">
+                    You save {formatCurrency(
+                      calculateDiscount(
+                        variantsMap.get(active_variant).price,
+                        variantsMap.get(active_variant).compareAtPrice *
+                          quantity
+                      )
+                    )}
+                  </div>
+                </div>
+              {/if}
             </div>
-          </div>
-          {#if product.variantOptions}
+          {:else if !active_variant && product.variants.length === 0}
+            <div class="mb-2">
+              {#if product.compareAtPrice}
+                <div class="text-sm font-semibold line-through">
+                  {formatCurrency(product.compareAtPrice * quantity)}
+                </div>
+              {/if}
+
+              <div class="text-lg font-semibold">
+                {formatCurrency(product.price * quantity)}
+              </div>
+              <div class="text-sm text-gray-600">inclusive of all taxes</div>
+              {#if product.compareAtPrice}
+                <div>
+                  <div class="text-sm text-green-500 font-semibold">
+                    You save {formatCurrency(
+                      calculateDiscount(
+                        product.price,
+                        product.compareAtPrice * quantity
+                      )
+                    )}
+                  </div>
+                </div>
+              {/if}
+            </div>
+          {:else}
+            <div class="mb-2">
+              <p class="text-red-500 text-sm">The product is not available</p>
+            </div>
+          {/if}
+          {#if product.variantSchema}
             <div class="flex flex-col gap-2 mb-4">
-              {#each product.variantOptions as variantOption}
+              {#each product.variantSchema as variantOption}
                 <div>
                   <div class="block text-sm font-semibold mb-2">
                     {variantOption.displayName}
@@ -741,6 +777,7 @@
           >
             <button
               type="button"
+              disabled={disable}
               class="grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
               on:click={handleBuy}
             >
@@ -748,6 +785,7 @@
             </button>
             <button
               type="button"
+              disabled={disable}
               class=" grow hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 disabled:opacity-50 disabled:pointer-events-none"
               on:click={handleAddToCart}
             >
@@ -782,35 +820,7 @@
         </div>
       </div>
 
-      <div class="mb-4 hidden lg:block">
-        <div class="flex mb-2 border-b-2 border-gray-200">
-          <button
-            class="font-semibold hover:bg-primary-50 px-4 py-2"
-            class:text-primary-500={active_tab === 0}
-            on:click={() => {
-              active_tab = 0;
-            }}>Description</button
-          >
-          <button
-            class="font-semibold hover:bg-primary-50 px-4 py-2"
-            class:text-primary-500={active_tab === 1}
-            on:click={() => {
-              active_tab = 1;
-            }}>Specification</button
-          >
-        </div>
-        {#if active_tab === 0}
-          <p class="text-sm">
-            {@html product.description}
-          </p>
-        {:else if active_tab === 1}
-          <p class="text-sm">
-            {@html product.specification}
-          </p>
-        {/if}
-      </div>
-
-      <div class="mb-4 lg:hidden">
+      <div class="mb-4">
         <Accordion.Root class="w-full">
           {#each [{ title: "Description", content: product.description }, { title: "Specifications", content: product.specification }] as item, i}
             <Accordion.Item
@@ -846,7 +856,7 @@
       {#if category && !loading && category.products.filter((p) => p._id !== product._id).length > 0}
         <div>
           <h1
-            class="font-semibold text-xl lg:text-3xl text-center mb-4 capitalize"
+            class="font-semibold text-xl lg:text-xl text-center mb-4 capitalize"
           >
             Related Products
           </h1>
@@ -892,7 +902,139 @@
         </div>
       {/if}
     </IntersectionObserver>
-  {:else}
+
+    {#if !isActionsVisible && !loading && !product_inactive}
+      <div
+        transition:slide={{ delay: 100 }}
+        class="bg-white shadow border-t border-gray-200 fixed bottom-0 w-full mb-16 z-[75] p-4 md:hidden"
+      >
+        <div class="grid grid-cols-7 gap-2 items-end">
+          <div class="col-span-3">
+            <label for="quantity" class="block text-xs font-semibold mb-1"
+              >Quantity</label
+            >
+
+            <div class="bg-white border border-gray-200 rounded-lg w-full">
+              <div class="w-full flex justify-between items-center gap-x-1">
+                <div class="grow py-2 px-3">
+                  <input
+                    class="w-full p-0 bg-transparent border-0 text-gray-800 focus:ring-0 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    type="number"
+                    min={MIN_QUANTITY}
+                    max={MAX_QUANTITY}
+                    bind:value={quantity}
+                    on:change={() => {
+                      if (quantity < MIN_QUANTITY) {
+                        quantity = MIN_QUANTITY;
+                      }
+                      if (quantity > MAX_QUANTITY) {
+                        quantity = MAX_QUANTITY;
+                      }
+                    }}
+                  />
+                </div>
+                <div
+                  class="flex items-center -gap-y-px divide-x divide-gray-200 border-s border-gray-200"
+                >
+                  <button
+                    on:click={() => {
+                      if (quantity < MAX_QUANTITY) {
+                        quantity++;
+                      }
+                    }}
+                    type="button"
+                    class="w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm font-medium last:rounded-e-lg bg-white text-gray-800 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
+                  >
+                    <svg
+                      class="flex-shrink-0 w-3.5 h-3.5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      ><path d="M5 12h14" /><path d="M12 5v14" /></svg
+                    >
+                  </button>
+
+                  <button
+                    on:click={() => {
+                      if (quantity > MIN_QUANTITY) {
+                        quantity--;
+                      }
+                    }}
+                    type="button"
+                    class="w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm font-medium last:rounded-e-lg bg-white text-gray-800 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
+                  >
+                    <svg
+                      class="flex-shrink-0 w-3.5 h-3.5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"><path d="M5 12h14" /></svg
+                    >
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- 
+        {#if quantity === MAX_QUANTITY}
+          <div class="text-sm text-gray-500 mt-2">
+            For bulk order, please contact us
+          </div>
+        {/if} -->
+          </div>
+
+          <button
+            type="button"
+            class="col-span-2 hover:scale-105 transition duration-100 ease-in-out py-2 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
+            on:click={handleBuy}
+            disabled={disable}
+          >
+            <span>Buy</span>
+          </button>
+          <button
+            type="button"
+            class="col-span-2 hover:scale-105 transition duration-100 ease-in-out py-2 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 disabled:opacity-50 disabled:pointer-events-none"
+            on:click={handleAddToCart}
+            disabled={disable}
+          >
+            <!-- <ShoppingCartIcon /> -->
+            <span>Add</span>
+
+            <!-- <HeartIcon />
+          <span>Wish List</span> -->
+          </button>
+
+          <!-- <div>
+      {#if !product.favorite}
+        <button
+          class=" hover:text-primary-500 hover:bg-primary-200 rounded-full"
+          on:click={handleAddToWishlist}
+        >
+          <HeartIcon />
+        </button>
+      {:else}
+        <button
+          class=" text-primary-500 hover:bg-primary-200 rounded-full"
+          on:click={handleRemoveFromWishlist}
+        >
+          <HeartDuotoneIcon />
+        </button>
+      {/if}
+    </div> -->
+        </div>
+      </div>
+    {/if}
+  {:else if loading}
     <div class="mb-4 flex">
       <BreadcrumbShimmer count={3} />
 
@@ -949,9 +1091,9 @@
             &nbsp;
           </div>
         </div>
-        <!-- {#if product.variantOptions}
+        <!-- {#if product.variantSchema}
             <div class="flex flex-col gap-2 mb-4">
-              {#each product.variantOptions as variantOption}
+              {#each product.variantSchema as variantOption}
                 <div>
                   <div class="block text-sm font-semibold mb-2">
                     {variantOption.displayName}
@@ -1169,138 +1311,16 @@
         </div>
       {/each}
     </div> -->
+  {:else}
+    <div class="flex flex-col items-center justify-center h-[calc(100vh-80px)]">
+      <img src={not_found_img} alt="not found" class="w-1/2 mb-5" />
+      <h1 class="font-semibold text-3xl">Oops! product not found</h1>
+      <p class="italic">
+        Maybe the product was unlisted or something went wrong!
+      </p>
+    </div>
   {/if}
 </div>
-
-{#if !isActionsVisible && !loading && !product_inactive}
-  <div
-    transition:slide={{ delay: 100 }}
-    class="bg-white shadow  border-t border-gray-200 fixed bottom-0 w-full mb-16 z-[75] p-4 md:hidden"
-  >
-    <div class="grid grid-cols-7 gap-2 items-end">
-      <div class="col-span-3">
-        <label for="quantity" class="block text-xs font-semibold mb-1"
-          >Quantity</label
-        >
-
-        <div class="bg-white border border-gray-200 rounded-lg w-full">
-          <div class="w-full flex justify-between items-center gap-x-1">
-            <div class="grow py-2 px-3">
-              <input
-                class="w-full p-0 bg-transparent border-0 text-gray-800 focus:ring-0 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                type="number"
-                min={MIN_QUANTITY}
-                max={MAX_QUANTITY}
-                bind:value={quantity}
-                on:change={() => {
-                  if (quantity < MIN_QUANTITY) {
-                    quantity = MIN_QUANTITY;
-                  }
-                  if (quantity > MAX_QUANTITY) {
-                    quantity = MAX_QUANTITY;
-                  }
-                }}
-              />
-            </div>
-            <div
-              class="flex items-center -gap-y-px divide-x divide-gray-200 border-s border-gray-200"
-            >
-              <button
-                on:click={() => {
-                  if (quantity < MAX_QUANTITY) {
-                    quantity++;
-                  }
-                }}
-                type="button"
-                class="w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm font-medium last:rounded-e-lg bg-white text-gray-800 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
-              >
-                <svg
-                  class="flex-shrink-0 w-3.5 h-3.5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  ><path d="M5 12h14" /><path d="M12 5v14" /></svg
-                >
-              </button>
-
-              <button
-                on:click={() => {
-                  if (quantity > MIN_QUANTITY) {
-                    quantity--;
-                  }
-                }}
-                type="button"
-                class="w-10 h-10 inline-flex justify-center items-center gap-x-2 text-sm font-medium last:rounded-e-lg bg-white text-gray-800 hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none"
-              >
-                <svg
-                  class="flex-shrink-0 w-3.5 h-3.5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"><path d="M5 12h14" /></svg
-                >
-              </button>
-            </div>
-          </div>
-        </div>
-<!-- 
-        {#if quantity === MAX_QUANTITY}
-          <div class="text-sm text-gray-500 mt-2">
-            For bulk order, please contact us
-          </div>
-        {/if} -->
-      </div>
-
-      <button
-        type="button"
-        class="col-span-2 hover:scale-105 transition duration-100 ease-in-out py-2 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
-        on:click={handleBuy}
-      >
-        <span>Buy</span>
-      </button>
-      <button
-        type="button"
-        class="col-span-2 hover:scale-105 transition duration-100 ease-in-out py-2 px-3 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-primary-600 text-primary-600 disabled:opacity-50 disabled:pointer-events-none"
-        on:click={handleAddToCart}
-      >
-        <!-- <ShoppingCartIcon /> -->
-        <span>Add</span>
-
-        <!-- <HeartIcon />
-          <span>Wish List</span> -->
-      </button>
-
-      <!-- <div>
-      {#if !product.favorite}
-        <button
-          class=" hover:text-primary-500 hover:bg-primary-200 rounded-full"
-          on:click={handleAddToWishlist}
-        >
-          <HeartIcon />
-        </button>
-      {:else}
-        <button
-          class=" text-primary-500 hover:bg-primary-200 rounded-full"
-          on:click={handleRemoveFromWishlist}
-        >
-          <HeartDuotoneIcon />
-        </button>
-      {/if}
-    </div> -->
-    </div>
-  </div>
-{/if}
 
 <style>
   :global(.splide__arrow) {

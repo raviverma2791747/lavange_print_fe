@@ -88,7 +88,7 @@
 
   const handleSave = async () => {
     loading = true;
-    if (!validate()) {
+    if (!validate(address)) {
       loading = false;
       return;
     }

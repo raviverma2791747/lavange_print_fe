@@ -411,23 +411,21 @@
               <div class="grow">
                 <h1 class="font-semibold">{item.product.title}</h1>
 
-                <div class="flex gap-2 flex-wrap">
-                  {#if item.variant && item.product.variants && item.product.variants.find((v) => v._id === item.variant)}
-                    {#each Object.entries(item.product.variants.find((v) => v._id === item.variant).attributes).map( (a) => {
-                        return item.product.variantOptions
-                          .find((v) => v.name === a[0])
-                          .options.find((o) => o.value === a[1]).displayName;
-                      } ) as attribute}
-                      <div
-                        class="border border-primary-500 text-primary-500 bg-primary-200 px-2 rounded-lg"
-                      >
-                        {attribute}
-                      </div>
-                    {/each}
-                  {:else if item.variant && !item.product.variants}
-                    <p class="text-red-500">Unavailable</p>
-                  {/if}
-                </div>
+                {#if item.variant}
+                  <div class="flex gap-2 flex-wrap">
+                    {#if item.variant && item.product.variants && item.product.variants.find((v) => v._id === item.variant)}
+                      {#each Object.entries(item.product.variants.find((v) => v._id === item.variant).attributes) as [key, attribute]}
+                        <div
+                          class="border border-primary-500 text-primary-500 bg-primary-200 px-2 rounded-lg"
+                        >
+                          {attribute.name}
+                        </div>
+                      {/each}
+                    {:else}
+                      <p class="text-red-500">Unavailable</p>
+                    {/if}
+                  </div>
+                {/if}
 
                 <p>
                   {formatCurrency(item.price)}

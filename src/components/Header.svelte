@@ -38,7 +38,7 @@
   let innnerWidth;
   let loading = true;
   let products = [];
-  let search_query = $page.url.searchParams.get("q") ?? "";;
+  let search_query = $page.url.searchParams.get("q") ?? "";
 
   $appliedFilters_store = {
     categories: $page.url.searchParams.get("categories")?.split(",") ?? [],
@@ -105,6 +105,7 @@
 
     search_query = $page.url.searchParams.get("q") ?? "";
     applied_filters_clone.q = $page.url.searchParams.get("q") ?? "";
+    initFilters();
   });
 
   // $: {
@@ -261,50 +262,54 @@
                 </select>
               </div>
               <div class="col-span-1 flex flex-col divide-y">
-                <div class="py-2 first:pt-0">
-                  <div class="mb-2 font-semibold">Categories</div>
-                  <div class="flex flex-col gap-2">
-                    {#each $searchFilters_store.categories as category}
-                      <div class="flex gap-2">
-                        <input
-                          id={`categories-${category._id}`}
-                          bind:group={applied_filters_clone.categories}
-                          value={category._id}
-                          type="checkbox"
-                          class="focus:border-primary-500 focus:ring-primary-500 checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
-                        />
-                        <label
-                          for={`categories-${category._id}`}
-                          class=" text-sm cursor-pointer"
-                        >
-                          {category.name}
-                        </label>
-                      </div>
-                    {/each}
+                {#if $searchFilters_store.categories.length > 0}
+                  <div class="py-2 first:pt-0">
+                    <div class="mb-2 font-semibold">Categories</div>
+                    <div class="flex flex-col gap-2">
+                      {#each $searchFilters_store.categories as category}
+                        <div class="flex gap-2">
+                          <input
+                            id={`categories-${category._id}`}
+                            bind:group={applied_filters_clone.categories}
+                            value={category._id}
+                            type="checkbox"
+                            class="focus:border-primary-500 focus:ring-primary-500 checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
+                          />
+                          <label
+                            for={`categories-${category._id}`}
+                            class=" text-sm cursor-pointer"
+                          >
+                            {category.name}
+                          </label>
+                        </div>
+                      {/each}
+                    </div>
                   </div>
-                </div>
-                <div class="py-2">
-                  <div class="mb-2 font-semibold">Collections</div>
-                  <div class="flex flex-col gap-2">
-                    {#each $searchFilters_store.collections as collection}
-                      <div class="flex gap-2">
-                        <input
-                          id={`categories-${collection._id}`}
-                          bind:group={applied_filters_clone.collections}
-                          value={collection._id}
-                          type="checkbox"
-                          class="focus:border-primary-500 focus:ring-primary-500 focus checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
-                        />
-                        <label
-                          for={`categories-${collection._id}`}
-                          class=" text-sm cursor-pointer"
-                        >
-                          {collection.name}
-                        </label>
-                      </div>
-                    {/each}
+                {/if}
+                {#if $searchFilters_store.collections.length > 0}
+                  <div class="py-2">
+                    <div class="mb-2 font-semibold">Collections</div>
+                    <div class="flex flex-col gap-2">
+                      {#each $searchFilters_store.collections as collection}
+                        <div class="flex gap-2">
+                          <input
+                            id={`categories-${collection._id}`}
+                            bind:group={applied_filters_clone.collections}
+                            value={collection._id}
+                            type="checkbox"
+                            class="focus:border-primary-500 focus:ring-primary-500 focus checked:bg-primary-500 hover:checked:bg-primary-500 h-4 w-4 cursor-pointer"
+                          />
+                          <label
+                            for={`categories-${collection._id}`}
+                            class=" text-sm cursor-pointer"
+                          >
+                            {collection.name}
+                          </label>
+                        </div>
+                      {/each}
+                    </div>
                   </div>
-                </div>
+                {/if}
                 {#each $searchFilters_store.facets as facet}
                   <div class="py-2">
                     <div class="mb-2 font-semibold">{facet.displayName}</div>
@@ -423,15 +428,11 @@
                     </h1>
                     <div class="flex gap-2 flex-wrap">
                       {#if cart_item.variant && cart_item.product.variants && cart_item.product.variants.find((v) => v._id === cart_item.variant)}
-                        {#each Object.entries(cart_item.product.variants.find((v) => v._id === cart_item.variant).attributes).map( (a) => {
-                            return cart_item.product.variantOptions
-                              .find((v) => v.name === a[0])
-                              .options.find((o) => o.value === a[1]).displayName;
-                          } ) as attribute}
+                        {#each Object.entries(cart_item.product.variants.find((v) => v._id === cart_item.variant).attributes) as [key, attribute]}
                           <div
                             class="border border-primary-500 text-primary-500 bg-primary-200 px-2 rounded-lg"
                           >
-                            {attribute}
+                            {attribute.name}
                           </div>
                         {/each}
                       {/if}

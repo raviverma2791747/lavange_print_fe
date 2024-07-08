@@ -148,8 +148,19 @@
           </p>
         </Pagination.Root> -->
       {:else}
-        <div class=" grow flex items-center justify-center">
+        <!-- <div class=" grow flex items-center justify-center">
           <p class="text-xl font-semibold">No orders found!</p>
+        </div> -->
+
+        <div
+          class="grow flex justify-center items-center flex-col gap-4 p-4 h-[calc(100vh-64px)]"
+        >
+          <div>Your order history is empty</div>
+          <a
+            href="/search"
+            class="w-full sm:w-fit hover:scale-105 transition duration-100 ease-in-out py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 disabled:pointer-events-none"
+            >Continue shopping</a
+          >
         </div>
       {/if}
     {/if}

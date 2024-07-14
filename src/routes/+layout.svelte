@@ -128,7 +128,7 @@
 
 <div class="min-h-screen">
   <Header />
-  {#if $network_error}
+  {#if $network_error && $page.url.pathname !== "/career" && $page.url.pathname !== "/about"}
     <NetworkError />
   {:else}
     <slot />
